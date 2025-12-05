@@ -246,7 +246,7 @@
     </div>
 
     <script>
-        const SHEET_ID = '1o6i2gdo-DkNkYnbRfSaggndMD5vj0UNK3Ra1lWXS5TU';
+        const SHEET_ID = '1rpiTKhNvHkA1suptamC4JSk_33YBLrW1qfLtiloVtL0';
         const RANGE = 'House Totals!A2:E5';
 
         const houseIcons = {
@@ -259,101 +259,4 @@
         const houseColors = {
             'Phoenix': 'phoenix',
             'Dragon': 'dragon',
-            'Hydra': 'hydra',
-            'Griffin': 'griffin'
-        };
-
-        async function fetchLeaderboardData() {
-            try {
-                const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=House%20Totals&range=A2:E5`;
-                
-                const response = await fetch(url);
-                const csvText = await response.text();
-                
-                const rows = csvText.split('\n').map(row => {
-                    return row.split(',').map(cell => cell.replace(/^"|"$/g, '').trim());
-                });
-
-                const houses = rows
-                    .filter(row => row.length >= 5 && row[0])
-                    .map(row => ({
-                        name: row[0],
-                        totalPoints: parseInt(row[1]) || 0,
-                        peopleCount: parseInt(row[2]) || 1,
-                        houseScore: parseFloat(row[3]) || 0,
-                        rank: parseInt(row[4]) || 0
-                    }));
-
-                houses.sort((a, b) => a.rank - b.rank);
-
-                return houses;
-
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                return [];
-            }
-        }
-
-        function renderLeaderboard(houses) {
-            const leaderboard = document.getElementById('leaderboard');
-            
-            if (houses.length === 0) {
-                leaderboard.innerHTML = '<p style="text-align: center;">No data available yet</p>';
-                return;
-            }
-
-            const maxScore = Math.max(...houses.map(h => h.houseScore));
-
-            leaderboard.innerHTML = houses.map(house => {
-                const barWidth = maxScore > 0 ? (house.houseScore / maxScore * 100) : 0;
-                const rankClass = house.rank === 1 ? 'gold' : house.rank === 2 ? 'silver' : house.rank === 3 ? 'bronze' : '';
-                const cardClass = house.rank === 1 ? 'rank-1' : '';
-
-                return `
-                    <div class="house-card ${houseColors[house.name]} ${cardClass}">
-                        <div class="house-header">
-                            <div class="house-info">
-                                <div class="house-icon">${houseIcons[house.name]}</div>
-                                <div class="house-name">${house.name}</div>
-                            </div>
-                            <div class="rank-badge ${rankClass}">${house.rank}</div>
-                        </div>
-
-                        <div class="stats-row">
-                            <div class="stat-box">
-                                <div class="stat-label">Total Points</div>
-                                <div class="stat-value">${house.totalPoints}</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-label">People</div>
-                                <div class="stat-value">${house.peopleCount}</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-label">House Score</div>
-                                <div class="stat-value">${house.houseScore.toFixed(2)}</div>
-                            </div>
-                        </div>
-
-                        <div class="score-bar-container">
-                            <div class="score-bar" style="width: ${barWidth}%">
-                                ${house.houseScore.toFixed(2)}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        async function updateLeaderboard() {
-            const houses = await fetchLeaderboardData();
-            renderLeaderboard(houses);
-
-            const now = new Date();
-            document.getElementById('lastUpdated').textContent = `Last updated: ${now.toLocaleTimeString()}`;
-        }
-
-        updateLeaderboard();
-        setInterval(updateLeaderboard, 30000);
-    </script>
-</body>
-</html>
+            'Hydra': 'hydra'
