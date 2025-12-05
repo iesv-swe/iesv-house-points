@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Points Console - IESV</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #102d69 0%, #00a0df 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: white;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease;
+        }
+
+        .logo {
+            width: 150px;
+            margin-bottom: 20px;
+            filter: brightness(0) invert(1);
+        }
+
+        h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .console-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.8s ease;
+        }
+
+        .section h2 {
+            color: #102d69;
+            font-size: 24px;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #00a0df;
+            padding-bottom: 10px;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .console-button {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: linear-gradient(135deg, #102d69, #00a0df);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .console-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .console-button .icon {
+            font-size: 32px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .console-button .text {
+            flex: 1;
+        }
+
+        .console-button .label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 3px;
+        }
+
+        .admin-button {
+            background: linear-gradient(135deg, #ff4444, #ff8844) !important;
+        }
+
+        .backend-button {
+            background: linear-gradient(135deg, #44aa44, #88dd44) !important;
+        }
+
+        .display-button {
+            background: linear-gradient(135deg, #4488ff, #44ddff) !important;
+        }
+
+        .info-box {
+            background: rgba(0, 160, 223, 0.1);
+            border-left: 4px solid #00a0df;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            color: #102d69;
+            font-size: 14px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 32px; }
+            .button-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="https://raw.githubusercontent.com/iesv-swe/IESV-Now-and-Next/main/logo.png" alt="IES Logo" class="logo">
+        <h1>House Points Console</h1>
+        <p class="subtitle">Staff Administration Portal</p>
+    </div>
+
+    <div class="console-container">
+        <!-- PUBLIC PAGES -->
+        <div class="section">
+            <h2>📱 Public Pages</h2>
+            <div class="button-grid">
+                <a href="https://iesv-swe.github.io/iesv-house-points/sorting-ceremony.html" class="console-button" target="_blank">
+                    <div class="icon">🎩</div>
+                    <div class="text">
+                        Sorting Ceremony
+                        <div class="label">Student & staff house sorting</div>
+                    </div>
+                </a>
+                
+                <a href="https://iesv-swe.github.io/iesv-house-points/teacher-form.html" class="console-button" target="_blank">
+                    <div class="icon">⭐</div>
+                    <div class="text">
+                        Award Points
+                        <div class="label">Teacher points form</div>
+                    </div>
+                </a>
+                
+                <a href="https://iesv-swe.github.io/iesv-house-points/leaderboard.html" class="console-button display-button" target="_blank">
+                    <div class="icon">🏆</div>
+                    <div class="text">
+                        Leaderboard
+                        <div class="label">Live rankings display</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- ADMIN PAGES -->
+        <div class="section">
+            <h2>🔐 Admin Pages</h2>
+            <div class="button-grid">
+                <a href="https://iesv-swe.github.io/iesv-house-points/admin-bulk-entry.html" class="console-button admin-button" target="_blank">
+                    <div class="icon">💯</div>
+                    <div class="text">
+                        Bulk Points Entry
+                        <div class="label">Award points to entire house</div>
+                    </div>
+                </a>
+            </div>
+            <div class="info-box">
+                ⚠️ Admin pages are not linked publicly - bookmark for easy access
+            </div>
+        </div>
+
+        <!-- BACKEND RESOURCES -->
+        <div class="section">
+            <h2>⚙️ Backend Resources</h2>
+            <div class="button-grid">
+                <a href="https://docs.google.com/spreadsheets/d/1rpiTKhNvHkA1suptamC4JSk_33YBLrW1qfLtiloVtL0/edit" class="console-button backend-button" target="_blank">
+                    <div class="icon">📊</div>
+                    <div class="text">
+                        Google Sheet
+                        <div class="label">Data & formulas</div>
+                    </div>
+                </a>
+                
+                <a href="https://script.google.com/home/projects/1TRZ5iVK0rHPj2HXpFaAMRK_EqKEU-nU4HA_1HnzsRh1G0TQQw_X3gSRy" class="console-button backend-button" target="_blank">
+                    <div class="icon">🔧</div>
+                    <div class="text">
+                        Apps Script
+                        <div class="label">API & email automation</div>
+                    </div>
+                </a>
+                
+                <a href="https://github.com/iesv-swe/iesv-house-points" class="console-button backend-button" target="_blank">
+                    <div class="icon">💻</div>
+                    <div class="text">
+                        GitHub Repository
+                        <div class="label">Source code & files</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- QUICK INFO -->
+        <div class="section">
+            <h2>ℹ️ Quick Info</h2>
+            <div style="color: #102d69; line-height: 1.8;">
+                <p><strong>Apps Script URL:</strong><br>
+                <code style="background: rgba(0,0,0,0.05); padding: 5px 10px; border-radius: 5px; font-size: 12px; display: inline-block; margin-top: 5px;">https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec</code></p>
+                
+                <p style="margin-top: 15px;"><strong>Sheet ID:</strong><br>
+                <code style="background: rgba(0,0,0,0.05); padding: 5px 10px; border-radius: 5px; font-size: 12px; display: inline-block; margin-top: 5px;">1rpiTKhNvHkA1suptamC4JSk_33YBLrW1qfLtiloVtL0</code></p>
+                
+                <p style="margin-top: 15px;"><strong>4 Houses:</strong> Phoenix 🔥 | Dragon 🐉 | Hydra 🌊 | Griffin 🦅</p>
+                
+                <p style="margin-top: 15px;"><strong>7 Categories:</strong> Kindness | Academic Effort | Teamwork | Respect | Leadership | Creativity | Responsibility</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
