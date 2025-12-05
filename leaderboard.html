@@ -110,7 +110,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 18px;
             font-weight: 700;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
@@ -333,6 +333,11 @@
                 
                 const barWidth = maxScore > 0 ? (house.houseScore / maxScore * 100) : 0;
                 
+                // Convert rank to ordinal (1st, 2nd, 3rd, 4th)
+                const rankOrdinal = house.rank === 1 ? '1st' :
+                                   house.rank === 2 ? '2nd' :
+                                   house.rank === 3 ? '3rd' : '4th';
+                
                 const houseCard = `
                     <div class="house-card ${houseColors[house.name]} ${cardClass}">
                         <div class="house-header">
@@ -340,7 +345,7 @@
                                 <div class="house-icon">${houseIcons[house.name]}</div>
                                 <div class="house-name">${house.name}</div>
                             </div>
-                            <div class="rank-badge ${rankClass}">${house.rank}</div>
+                            <div class="rank-badge ${rankClass}">${rankOrdinal}</div>
                         </div>
                         
                         <div class="stats-row">
