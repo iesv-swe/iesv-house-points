@@ -263,7 +263,6 @@
     </div>
 
     <div class="leaderboard" id="leaderboard">
-        <!-- House cards will be dynamically generated here -->
     </div>
 
     <div class="last-updated" id="lastUpdated">
@@ -293,7 +292,6 @@
                 const response = await fetch(url);
                 const csvText = await response.text();
                 
-                // Parse CSV manually (no eval)
                 const lines = csvText.split('\n');
                 const houses = [];
                 
@@ -301,7 +299,6 @@
                     const line = lines[i].trim();
                     if (!line) continue;
                     
-                    // Remove quotes and split by comma
                     const values = line.split(',').map(v => v.replace(/^"|"$/g, '').trim());
                     
                     if (values.length >= 5) {
@@ -315,7 +312,6 @@
                     }
                 }
                 
-                // Sort by rank
                 houses.sort((a, b) => a.rank - b.rank);
                 
                 displayLeaderboard(houses);
@@ -345,7 +341,6 @@
                 
                 const barWidth = maxScore > 0 ? (house.houseScore / maxScore * 100) : 0;
                 
-                // Convert rank to ordinal (1st, 2nd, 3rd, 4th)
                 const rankOrdinal = house.rank === 1 ? '1st' :
                                    house.rank === 2 ? '2nd' :
                                    house.rank === 3 ? '3rd' : '4th';
@@ -387,10 +382,8 @@
             });
         }
 
-        // Load on page load
         loadLeaderboard();
         
-        // Auto-refresh every 30 seconds
         setInterval(loadLeaderboard, 30000);
     </script>
 </body>
