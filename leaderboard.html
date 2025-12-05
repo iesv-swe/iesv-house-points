@@ -247,8 +247,7 @@
 
     <script>
         const SHEET_ID = '1rpiTKhNvHkA1suptamC4JSk_33YBLrW1qfLtiloVtL0';
-        const RANGE = 'House Totals!A2:E5';
-
+        
         const houseIcons = {
             'Phoenix': '🔥',
             'Dragon': '🐉',
@@ -259,4 +258,110 @@
         const houseColors = {
             'Phoenix': 'phoenix',
             'Dragon': 'dragon',
-            'Hydra': 'hydra'
+            'Hydra': 'hydra',
+            'Griffin': 'griffin'
+        };
+
+        async function loadLeaderboard() {
+            try {
+                const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=House%20Totals&range=A2:E5`;
+                const response = await fetch(url);
+                const csvText = await response.text();
+                
+                // Parse CSV manually (no eval)
+                const lines = csvText.split('\n');
+                const houses = [];
+                
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    
+                    // Remove quotes and split by comma
+                    const values = line.split(',').map(v => v.replace(/^"|"$/g, '').trim());
+                    
+                    if (values.length >= 5) {
+                        houses.push({
+                            name: values[0],
+                            totalPoints: parseInt(values[1]) || 0,
+                            peopleCount: parseInt(values[2]) || 0,
+                            houseScore: parseFloat(values[3]) || 0,
+                            rank: parseInt(values[4]) || 0
+                        });
+                    }
+                }
+                
+                // Sort by rank
+                houses.sort((a, b) => a.rank - b.rank);
+                
+                displayLeaderboard(houses);
+                
+                document.getElementById('lastUpdated').textContent = 
+                    `Last updated: ${new Date().toLocaleString()}`;
+                
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+                document.getElementById('lastUpdated').textContent = 
+                    'Error loading data. Please refresh the page.';
+            }
+        }
+
+        function displayLeaderboard(houses) {
+            const leaderboardDiv = document.getElementById('leaderboard');
+            leaderboardDiv.innerHTML = '';
+            
+            const maxScore = Math.max(...houses.map(h => h.houseScore), 1);
+            
+            houses.forEach(house => {
+                const rankClass = house.rank === 1 ? 'gold' : 
+                                 house.rank === 2 ? 'silver' : 
+                                 house.rank === 3 ? 'bronze' : '';
+                
+                const cardClass = house.rank === 1 ? 'rank-1' : '';
+                
+                const barWidth = maxScore > 0 ? (house.houseScore / maxScore * 100) : 0;
+                
+                const houseCard = `
+                    <div class="house-card ${houseColors[house.name]} ${cardClass}">
+                        <div class="house-header">
+                            <div class="house-info">
+                                <div class="house-icon">${houseIcons[house.name]}</div>
+                                <div class="house-name">${house.name}</div>
+                            </div>
+                            <div class="rank-badge ${rankClass}">${house.rank}</div>
+                        </div>
+                        
+                        <div class="stats-row">
+                            <div class="stat-box">
+                                <div class="stat-label">Total Points</div>
+                                <div class="stat-value">${house.totalPoints}</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">People</div>
+                                <div class="stat-value">${house.peopleCount}</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">House Score</div>
+                                <div class="stat-value">${house.houseScore.toFixed(2)}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="score-bar-container">
+                            <div class="score-bar" style="width: ${barWidth}%">
+                                ${house.houseScore.toFixed(2)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                leaderboardDiv.innerHTML += houseCard;
+            });
+        }
+
+        // Load on page load
+        loadLeaderboard();
+        
+        // Auto-refresh every 30 seconds
+        setInterval(loadLeaderboard, 30000);
+    </script>
+</body>
+</html>
