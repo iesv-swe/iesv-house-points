@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Bulk Points - IESV</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #102d69 0%, #00a0df 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #ff4444;
+        }
+
+        .logo {
+            width: 120px;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            color: #ff4444;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #9a9b9d;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .warning-box {
+            background: #fff7b2;
+            border-left: 4px solid #ffaa00;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 5px;
+        }
+
+        .warning-box p {
+            color: #102d69;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #102d69;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        select, input, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #dbdad8;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #00a0df;
+            box-shadow: 0 0 0 3px rgba(0, 160, 223, 0.1);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .house-select {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .house-option {
+            padding: 20px;
+            border: 3px solid #dbdad8;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .house-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .house-option.selected {
+            border-width: 4px;
+            transform: scale(1.05);
+        }
+
+        .house-option.phoenix { border-color: #ff4444; }
+        .house-option.phoenix.selected { background: linear-gradient(135deg, #ff4444, #ff8844); color: white; }
+
+        .house-option.dragon { border-color: #44aa44; }
+        .house-option.dragon.selected { background: linear-gradient(135deg, #44aa44, #88dd44); color: white; }
+
+        .house-option.hydra { border-color: #4488ff; }
+        .house-option.hydra.selected { background: linear-gradient(135deg, #4488ff, #44ddff); color: white; }
+
+        .house-option.griffin { border-color: #ffaa00; }
+        .house-option.griffin.selected { background: linear-gradient(135deg, #ffaa00, #ffdd44); color: white; }
+
+        .house-icon {
+            font-size: 36px;
+            margin-bottom: 8px;
+        }
+
+        .house-name {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #ff4444, #ff8844);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(255, 68, 68, 0.3);
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 68, 68, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .success-message, .error-message {
+            display: none;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            font-weight: 600;
+        }
+
+        .success-message {
+            background: #44aa44;
+            color: white;
+        }
+
+        .error-message {
+            background: #ff4444;
+            color: white;
+        }
+
+        .success-message.show, .error-message.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .quick-btn {
+            padding: 10px;
+            background: #dbdad8;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #102d69;
+            transition: all 0.2s ease;
+        }
+
+        .quick-btn:hover {
+            background: #00a0df;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://raw.githubusercontent.com/iesv-swe/IESV-Now-and-Next/main/logo.png" alt="IESV Logo" class="logo">
+            <h1>🔐 Admin Bulk Points</h1>
+            <p class="subtitle">Restricted Access</p>
+        </div>
+
+        <div class="warning-box">
+            <p>⚠️ <strong>Administrator Only:</strong> This tool awards multiple points at once. Use responsibly and always provide a justification.</p>
+        </div>
+
+        <form id="bulkForm">
+            <div class="form-group">
+                <label>Your Name</label>
+                <input type="text" id="adminName" placeholder="Admin name" required>
+            </div>
+
+            <div class="form-group">
+                <label>Select House</label>
+                <div class="house-select">
+                    <div class="house-option phoenix" data-house="Phoenix">
+                        <div class="house-icon">🔥</div>
+                        <div class="house-name">Phoenix</div>
+                    </div>
+                    <div class="house-option dragon" data-house="Dragon">
+                        <div class="house-icon">🐉</div>
+                        <div class="house-name">Dragon</div>
+                    </div>
+                    <div class="house-option hydra" data-house="Hydra">
+                        <div class="house-icon">🌊</div>
+                        <div class="house-name">Hydra</div>
+                    </div>
+                    <div class="house-option griffin" data-house="Griffin">
+                        <div class="house-icon">🦅</div>
+                        <div class="house-name">Griffin</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Number of Points</label>
+                <input type="number" id="pointsAmount" min="1" max="100" placeholder="Enter points (1-100)" required>
+                <div class="quick-actions">
+                    <button type="button" class="quick-btn" onclick="setPoints(5)">+5</button>
+                    <button type="button" class="quick-btn" onclick="setPoints(10)">+10</button>
+                    <button type="button" class="quick-btn" onclick="setPoints(25)">+25</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Category</label>
+                <select id="category" required>
+                    <option value="">Select category...</option>
+                    <option value="Kindness/Helping Others">Kindness/Helping Others</option>
+                    <option value="Academic Effort/Excellence">Academic Effort/Excellence</option>
+                    <option value="Teamwork/Collaboration">Teamwork/Collaboration</option>
+                    <option value="Respect">Respect</option>
+                    <option value="Leadership">Leadership</option>
+                    <option value="Creativity/Problem Solving">Creativity/Problem Solving</option>
+                    <option value="Responsibility">Responsibility</option>
+                    <option value="Special Event">Special Event</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Justification (Required)</label>
+                <textarea id="justification" placeholder="Why are you awarding these points? (e.g., 'Won house sports day', 'Year 7 community service project')" required></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                Award Bulk Points
+            </button>
+
+            <div class="success-message" id="successMessage">
+                ✓ Points awarded successfully!
+            </div>
+
+            <div class="error-message" id="errorMessage">
+                ✗ Error submitting. Please try again.
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxZbWaQzhw46MoZdQ7DMqXPjSxuuiI3WVMZINWdr-3Q41jDg9T1h_AY3alNT9uflCt4Ag/exec';
+
+        let selectedHouse = null;
+
+        document.querySelectorAll('.house-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.house-option').forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                selectedHouse = option.dataset.house;
+            });
+        });
+
+        function setPoints(amount) {
+            const input = document.getElementById('pointsAmount');
+            input.value = amount;
+        }
+
+        document.getElementById('bulkForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const adminName = document.getElementById('adminName').value.trim();
+            const pointsAmount = parseInt(document.getElementById('pointsAmount').value);
+            const category = document.getElementById('category').value;
+            const justification = document.getElementById('justification').value.trim();
+
+            if (!adminName || !selectedHouse || !pointsAmount || !category || !justification) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            if (pointsAmount < 1 || pointsAmount > 100) {
+                alert('Points must be between 1 and 100');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            try {
+                const timestamp = new Date().toISOString();
+
+                await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'points',
+                        timestamp: timestamp,
+                        teacher: `[ADMIN] ${adminName} - ${justification}`,
+                        student: 'Bulk Award',
+                        house: selectedHouse,
+                        category: category,
+                        points: pointsAmount
+                    })
+                });
+
+                document.getElementById('successMessage').classList.add('show');
+                setTimeout(() => {
+                    document.getElementById('successMessage').classList.remove('show');
+                }, 3000);
+
+                document.getElementById('pointsAmount').value = '';
+                document.getElementById('justification').value = '';
+                document.querySelectorAll('.house-option').forEach(opt => opt.classList.remove('selected'));
+                selectedHouse = null;
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('errorMessage').classList.add('show');
+                setTimeout(() => {
+                    document.getElementById('errorMessage').classList.remove('show');
+                }, 3000);
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Award Bulk Points';
+        });
+    </script>
+</body>
+</html>

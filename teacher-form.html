@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Points - Teacher Input</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #102d69 0%, #00a0df 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            width: 150px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #102d69;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #9a9b9d;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #102d69;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #dbdad8;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #00a0df;
+            box-shadow: 0 0 0 3px rgba(0, 160, 223, 0.1);
+        }
+
+        .house-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .house-btn {
+            padding: 20px;
+            border: 3px solid #dbdad8;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .house-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .house-btn.selected {
+            border-width: 4px;
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .house-btn.phoenix {
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+
+        .house-btn.phoenix.selected {
+            background: linear-gradient(135deg, #ff4444, #ff8844);
+            color: white;
+            border-color: #ff4444;
+        }
+
+        .house-btn.dragon {
+            border-color: #44aa44;
+            color: #44aa44;
+        }
+
+        .house-btn.dragon.selected {
+            background: linear-gradient(135deg, #44aa44, #88dd44);
+            color: white;
+            border-color: #44aa44;
+        }
+
+        .house-btn.hydra {
+            border-color: #4488ff;
+            color: #4488ff;
+        }
+
+        .house-btn.hydra.selected {
+            background: linear-gradient(135deg, #4488ff, #44ddff);
+            color: white;
+            border-color: #4488ff;
+        }
+
+        .house-btn.griffin {
+            border-color: #ffaa00;
+            color: #ffaa00;
+        }
+
+        .house-btn.griffin.selected {
+            background: linear-gradient(135deg, #ffaa00, #ffdd44);
+            color: white;
+            border-color: #ffaa00;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .category-btn {
+            padding: 15px;
+            border: 2px solid #dbdad8;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #102d69;
+        }
+
+        .category-btn:hover {
+            border-color: #00a0df;
+            background: #f5f5f5;
+        }
+
+        .category-btn.selected {
+            background: #00a0df;
+            color: white;
+            border-color: #00a0df;
+            font-weight: 600;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #102d69, #00a0df);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(16, 45, 105, 0.3);
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 45, 105, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .success-message {
+            display: none;
+            background: #44aa44;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            font-weight: 600;
+            animation: slideIn 0.3s ease;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error-message {
+            display: none;
+            background: #ff4444;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            font-weight: 600;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .house-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://raw.githubusercontent.com/iesv-swe/IESV-Now-and-Next/main/logo.png" alt="IES Logo" class="logo">
+            <h1>House Points</h1>
+            <p class="subtitle">Award points for positive behavior</p>
+        </div>
+
+        <form id="pointsForm">
+            <div class="form-group">
+                <label>Your Name or Email</label>
+                <input type="text" id="teacherName" placeholder="Your name or staff email" required>
+            </div>
+
+            <div class="form-group">
+                <label>Student Name (Optional)</label>
+                <input type="text" id="studentName" placeholder="Leave blank for house-wide award">
+            </div>
+
+            <div class="form-group">
+                <label>Select House</label>
+                <div class="house-buttons">
+                    <div class="house-btn phoenix" data-house="Phoenix">
+                        🔥 Phoenix
+                    </div>
+                    <div class="house-btn dragon" data-house="Dragon">
+                        🐉 Dragon
+                    </div>
+                    <div class="house-btn hydra" data-house="Hydra">
+                        🌊 Hydra
+                    </div>
+                    <div class="house-btn griffin" data-house="Griffin">
+                        🦅 Griffin
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Select Category</label>
+                <div class="category-grid">
+                    <div class="category-btn" data-category="Kindness/Helping Others">❤️ Kindness/Helping Others</div>
+                    <div class="category-btn" data-category="Academic Effort/Excellence">📚 Academic Effort/Excellence</div>
+                    <div class="category-btn" data-category="Teamwork/Collaboration">🤝 Teamwork/Collaboration</div>
+                    <div class="category-btn" data-category="Respect">🙏 Respect</div>
+                    <div class="category-btn" data-category="Leadership">⭐ Leadership</div>
+                    <div class="category-btn" data-category="Creativity/Problem Solving">💡 Creativity/Problem Solving</div>
+                    <div class="category-btn" data-category="Responsibility">✅ Responsibility</div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">Award 1 Point</button>
+
+            <div class="success-message" id="successMessage">
+                ✓ Point awarded successfully!
+            </div>
+
+            <div class="error-message" id="errorMessage">
+                ✗ Error submitting. Please try again.
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxZbWaQzhw46MoZdQ7DMqXPjSxuuiI3WVMZINWdr-3Q41jDg9T1h_AY3alNT9uflCt4Ag/exec';
+
+        let selectedHouse = null;
+        let selectedCategory = null;
+
+        document.querySelectorAll('.house-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.house-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedHouse = btn.dataset.house;
+            });
+        });
+
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedCategory = btn.dataset.category;
+            });
+        });
+
+        function verifyStaffEmail() {
+            const teacherName = document.getElementById('teacherName').value.trim();
+            
+            if (teacherName.includes('@')) {
+                if (teacherName.includes('.student.vasteras@engelska.se')) {
+                    alert('Access denied: Only staff can access this portal.');
+                    document.getElementById('teacherName').value = '';
+                    return false;
+                }
+                
+                if (!teacherName.includes('.vasteras@engelska.se')) {
+                    alert('Please use your IESV staff email address.');
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        document.getElementById('pointsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const teacherName = document.getElementById('teacherName').value.trim();
+            
+            if (!verifyStaffEmail()) {
+                return;
+            }
+
+            const studentName = document.getElementById('studentName').value.trim();
+
+            if (!teacherName) {
+                alert('Please enter your name or email');
+                return;
+            }
+
+            if (!selectedHouse) {
+                alert('Please select a house');
+                return;
+            }
+
+            if (!selectedCategory) {
+                alert('Please select a category');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            try {
+                const timestamp = new Date().toISOString();
+                const points = 1;
+
+                await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'points',
+                        timestamp: timestamp,
+                        teacher: teacherName,
+                        student: studentName || 'N/A',
+                        house: selectedHouse,
+                        category: selectedCategory,
+                        points: points
+                    })
+                });
+
+                document.getElementById('successMessage').classList.add('show');
+                setTimeout(() => {
+                    document.getElementById('successMessage').classList.remove('show');
+                }, 3000);
+
+                document.getElementById('studentName').value = '';
+                document.querySelectorAll('.house-btn').forEach(b => b.classList.remove('selected'));
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+                selectedHouse = null;
+                selectedCategory = null;
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('errorMessage').classList.add('show');
+                setTimeout(() => {
+                    document.getElementById('errorMessage').classList.remove('show');
+                }, 3000);
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Award 1 Point';
+        });
+    </script>
+</body>
+</html>
