@@ -363,8 +363,6 @@ This keeps it fair - a house with 200 students doesn't automatically beat one wi
 ## 🔐 PASSWORDS & ACCESS
 
 **Admin Passwords:**
-- Admin Bulk Entry: **135vasteras**
-- System Settings: **135vasteras**
 
 **Account Access:**
 - Google Sheet Owner: barryjshaw@gmail.com
