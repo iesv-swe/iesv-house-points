@@ -6,7 +6,6 @@
 <title>House Points Leaderboard - IESV</title>
 <link rel="icon" type="image/x-icon" href="leaderboard-favicon.ico">
 <style>
-    /* (📌 Same styles as your original — unchanged) */
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; background:linear-gradient(135deg,#102d69 0%,#00a0df 100%); height:100vh; display:flex; flex-direction:column; padding:20px; color:white; overflow:hidden; }
     .header { display:flex; align-items:center; gap:20px; margin-bottom:20px; animation:fadeIn 1s ease; max-width:1400px; margin-left:auto; margin-right:auto; }
@@ -58,7 +57,7 @@
 <div class="last-updated" id="lastUpdated">Loading data...</div>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbz-QzV-nR3sto8ddm3zUl7v_r2sj-HZSGPqCJf67Jtj/dev?action=houseTotals";
+const API = "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec?action=houseTotals";
 
 const houseIcons = { Phoenix:'🔥', Dragon:'🐉', Hydra:'🌊', Griffin:'🦅' };
 const houseColors = { Phoenix:'phoenix', Dragon:'dragon', Hydra:'hydra', Griffin:'griffin' };
@@ -67,15 +66,13 @@ async function loadLeaderboard() {
     try {
         const res = await fetch(API);
         const json = await res.json();
-
-        if (json.status !== "success") throw "Bad API response";
+        if (json.status !== "success") throw new Error("Bad response");
 
         const houses = json.data.houses.sort((a,b)=>a.rank-b.rank);
         displayLeaderboard(houses);
 
-        document.getElementById('lastUpdated').textContent = 
+        document.getElementById('lastUpdated').textContent =
             `Last updated: ${new Date().toLocaleString()}`;
-
     } catch (err) {
         document.getElementById('lastUpdated').textContent = "Error loading leaderboard.";
     }
