@@ -37,63 +37,63 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             width: 100%;
             animation: fadeIn 1s ease;
         }
 
         header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 20px;
             color: white;
         }
 
         .house-logo {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 20px;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 10px;
             animation: bounce 2s infinite;
         }
 
         h1 {
-            font-size: 48px;
+            font-size: 36px;
             font-weight: 700;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             text-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
 
         .motto {
-            font-size: 20px;
+            font-size: 16px;
             font-style: italic;
             opacity: 0.9;
         }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
         .stat-card {
             background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
             text-align: center;
             animation: slideIn 0.8s ease;
         }
 
         .stat-label {
-            font-size: 14px;
+            font-size: 12px;
             color: #666;
             text-transform: uppercase;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-weight: 600;
         }
 
         .stat-value {
-            font-size: 36px;
+            font-size: 28px;
             font-weight: 700;
             margin-bottom: 5px;
         }
@@ -118,25 +118,30 @@
         .rank-3 { background: linear-gradient(135deg, #cd7f32, #e89f65); color: #fff; }
         .rank-4 { background: linear-gradient(135deg, #666, #999); color: #fff; }
 
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
         .category-breakdown {
             background: white;
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
 
         .category-breakdown h2 {
-            margin-bottom: 20px;
-            font-size: 28px;
+            margin-bottom: 15px;
+            font-size: 22px;
         }
 
         .category-row {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
-            padding: 10px;
-            border-radius: 8px;
+            margin-bottom: 10px;
+            padding: 6px;
+            border-radius: 6px;
             transition: transform 0.2s;
         }
 
@@ -148,13 +153,14 @@
         .category-name {
             flex: 1;
             font-weight: 600;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         .category-points {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: 700;
-            margin-right: 15px;
+            margin-right: 10px;
+            min-width: 30px;
         }
 
         .phoenix .category-points { color: #ff4444; }
@@ -163,17 +169,17 @@
         .griffin .category-points { color: #ffaa00; }
 
         .category-bar {
-            flex: 2;
-            height: 20px;
+            flex: 1.5;
+            height: 16px;
             background: #e0e0e0;
-            border-radius: 10px;
+            border-radius: 8px;
             overflow: hidden;
         }
 
         .category-fill {
             height: 100%;
             transition: width 1s ease;
-            border-radius: 10px;
+            border-radius: 8px;
         }
 
         .phoenix .category-fill { background: linear-gradient(90deg, #ff4444, #ff8888); }
@@ -183,22 +189,22 @@
 
         .recent-activity {
             background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
 
         .recent-activity h2 {
-            margin-bottom: 20px;
-            font-size: 28px;
+            margin-bottom: 15px;
+            font-size: 22px;
         }
 
         .activity-item {
-            padding: 15px;
-            border-left: 4px solid;
-            margin-bottom: 10px;
+            padding: 10px;
+            border-left: 3px solid;
+            margin-bottom: 8px;
             background: #f9f9f9;
-            border-radius: 5px;
+            border-radius: 4px;
             animation: slideIn 0.5s ease;
         }
 
@@ -208,21 +214,22 @@
         .griffin .activity-item { border-left-color: #ffaa00; }
 
         .activity-points {
-            font-size: 24px;
+            font-size: 18px;
             font-weight: 700;
             display: inline-block;
-            margin-right: 10px;
+            margin-right: 8px;
         }
 
         .activity-category {
             font-weight: 600;
+            font-size: 14px;
             color: #333;
         }
 
         .activity-time {
-            font-size: 12px;
+            font-size: 11px;
             color: #999;
-            margin-top: 5px;
+            margin-top: 3px;
         }
 
         .loading {
@@ -282,9 +289,12 @@
         }
 
         @media (max-width: 768px) {
-            h1 { font-size: 36px; }
+            h1 { font-size: 28px; }
             .stats-grid {
                 grid-template-columns: 1fr 1fr;
+            }
+            .content-grid {
+                grid-template-columns: 1fr;
             }
             .category-row {
                 flex-direction: column;
@@ -319,25 +329,18 @@
                     <div class="stat-label">Total Points</div>
                     <div class="stat-value" id="totalPoints">-</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-label">House Members</div>
-                    <div class="stat-value" id="peopleCount">-</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">House Score</div>
-                    <div class="stat-value" id="houseScore">-</div>
-                    <div style="font-size: 12px; color: #999; margin-top: 5px;">Points per person</div>
-                </div>
             </div>
 
-            <div class="category-breakdown">
-                <h2>Points by Category</h2>
-                <div id="categoryBreakdown"></div>
-            </div>
+            <div class="content-grid">
+                <div class="category-breakdown">
+                    <h2>Points by Category</h2>
+                    <div id="categoryBreakdown"></div>
+                </div>
 
-            <div class="recent-activity">
-                <h2>Recent Point Awards (Last 10)</h2>
-                <div id="recentActivity"></div>
+                <div class="recent-activity">
+                    <h2>Recent Point Awards (Last 10)</h2>
+                    <div id="recentActivity"></div>
+                </div>
             </div>
         </div>
     </div>
