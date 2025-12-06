@@ -29,7 +29,8 @@
         background:rgba(255,255,255,0.95); border-radius:15px; padding:25px;
         box-shadow:0 10px 40px rgba(0,0,0,0.3);
         display:flex; flex-direction:column; justify-content:space-between;
-        transition:.4s ease; animation:slideIn .8s ease;
+        transition:.4s ease; animation:slideIn .8s ease; position:relative;
+        overflow:hidden;
     }
     .house-card.rank-1 { border:4px solid gold; }
     .house-card:hover { transform:translateY(-3px);
@@ -49,10 +50,34 @@
     .rank-badge.gold { background:linear-gradient(135deg,#ffd700,#ffed4e);
         color:#102d69; animation:pulse 2s infinite; }
 
-    /* 🎉 SLOW DRAMATIC ANIMATION */
+    /* 🌟 TWINKLES BEHIND POINTS */
+    .points-wrapper {
+        position:relative; text-align:center; margin-top:20px;
+    }
+    .twinkle {
+        position:absolute; width:10px; height:10px; background:white;
+        border-radius:50%; opacity:0.8; filter:blur(1px);
+        animation:twinkle 2s infinite ease-in-out;
+    }
+    @keyframes twinkle {
+        0%,100%{opacity:0; transform:scale(0.4);}
+        50%{opacity:1; transform:scale(1.3);}
+    }
+
+    /* ✨ SPARKLES ON POP */
+    .sparkle {
+        position:absolute; width:8px; height:8px; border-radius:50%;
+        pointer-events:none; background:yellow; filter:blur(1px);
+        animation:spark 0.8s ease-out forwards;
+    }
+    @keyframes spark {
+        from { transform:scale(1) translate(0,0); opacity:1; }
+        to { transform:scale(0.2) translate(40px,-40px); opacity:0; }
+    }
+
+    /* 🎉 Dramatic Pop Animation */
     .points {
-        margin-top:20px; text-align:center; font-size:90px;
-        font-weight:900; color:#102d69;
+        font-size:90px; font-weight:900; color:#102d69;
         text-shadow:0 3px 10px rgba(0,0,0,0.2);
         display:inline-block;
     }
@@ -137,18 +162,45 @@ function displayLeaderboard(houses) {
                 </div>
                 <div class="rank-badge ${rankClass}">${ord}</div>
             </div>
-            <div class="points" id="pts-${h.house}">${h.totalPoints}</div>
+            <div class="points-wrapper">
+                <div class="points" id="pts-${h.house}">${h.totalPoints}</div>
+            </div>
         </div>`;
     });
 
-    setTimeout(() => {
-        document.querySelectorAll(".points").forEach(p => {
-            p.classList.remove("pop");
-            void p.offsetWidth;
-            p.classList.add("pop");
-            setTimeout(() => p.classList.remove("pop"), 1500);
-        });
-    }, 50);
+    animatePoints();
+    twinkleStars();
+}
+
+function twinkleStars() {
+    document.querySelectorAll(".points-wrapper").forEach(wrapper => {
+        wrapper.querySelectorAll(".twinkle").forEach(e=>e.remove());
+        for (let i = 0; i < 6; i++) {
+            const t = document.createElement("div");
+            t.className = "twinkle";
+            t.style.left = `${20 + Math.random()*60}%`;
+            t.style.top = `${10 + Math.random()*60}%`;
+            t.style.animationDelay = `${Math.random()*2}s`;
+            wrapper.appendChild(t);
+        }
+    });
+}
+
+function animatePoints() {
+    document.querySelectorAll(".points").forEach(p => {
+        p.classList.remove("pop");
+        void p.offsetWidth;
+        p.classList.add("pop");
+
+        for (let i=0;i<4;i++){
+            const s=document.createElement("div");
+            s.className="sparkle";
+            s.style.left=`${50+Math.random()*30-15}%`;
+            s.style.top=`${40+Math.random()*30-15}%`;
+            p.parentElement.appendChild(s);
+            setTimeout(()=>s.remove(),800);
+        }
+    });
 }
 
 loadLeaderboard();
