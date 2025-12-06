@@ -379,8 +379,6 @@
             }
         };
 
-        const categories = ['Kindness', 'Academic Effort', 'Teamwork', 'Respect', 'Leadership', 'Creativity', 'Responsibility'];
-
         // Get house from URL parameter
         const urlParams = new URLSearchParams(window.location.search);
         const houseName = urlParams.get('house');
@@ -444,17 +442,24 @@
                 // Filter for this house
                 const housePoints = logRows.filter(row => row[3] && row[3].toLowerCase() === house.name.toLowerCase());
 
-                // Calculate category breakdown
+                // Calculate category breakdown - use actual categories from data
                 const categoryTotals = {};
-                categories.forEach(cat => categoryTotals[cat] = 0);
                 
                 housePoints.forEach(row => {
                     const category = row[4];
                     const points = parseInt(row[5]) || 0;
-                    if (categoryTotals.hasOwnProperty(category)) {
+                    if (category) {
+                        if (!categoryTotals[category]) {
+                            categoryTotals[category] = 0;
+                        }
                         categoryTotals[category] += points;
                     }
                 });
+
+                // Get all categories sorted by points (descending)
+                const sortedCategories = Object.entries(categoryTotals)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([cat, pts]) => ({ name: cat, points: pts }));
 
                 // Find max for percentage calculation
                 const maxPoints = Math.max(...Object.values(categoryTotals), 1);
@@ -462,13 +467,12 @@
                 // Display category breakdown
                 const breakdownDiv = document.getElementById('categoryBreakdown');
                 breakdownDiv.className = houseName.toLowerCase();
-                categories.forEach(cat => {
-                    const points = categoryTotals[cat];
-                    const percentage = (points / maxPoints) * 100;
+                sortedCategories.forEach(cat => {
+                    const percentage = (cat.points / maxPoints) * 100;
                     breakdownDiv.innerHTML += `
                         <div class="category-row">
-                            <div class="category-name">${cat}</div>
-                            <div class="category-points">${points}</div>
+                            <div class="category-name">${cat.name}</div>
+                            <div class="category-points">${cat.points}</div>
                             <div class="category-bar">
                                 <div class="category-fill" style="width: ${percentage}%"></div>
                             </div>
