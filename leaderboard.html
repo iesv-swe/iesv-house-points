@@ -134,7 +134,7 @@
     .house-card.winner {
         border:4px solid #ffd700;
         box-shadow:0 0 25px rgba(255,215,0,0.7);
-        overflow:visible;
+        overflow:hidden;
     }
 
     /* Confetti for winner */
@@ -399,6 +399,7 @@ function renderLeaderboard(houses) {
                 const confetti = document.createElement('div');
                 confetti.className = 'confetti';
                 confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = '-100px'; // Start well above the card
                 confetti.style.animationDelay = Math.random() * 3 + 's';
                 confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
                 card.appendChild(confetti);
