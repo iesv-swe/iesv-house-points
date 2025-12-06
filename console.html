@@ -18,6 +18,16 @@
             min-height: 100vh;
             padding: 40px 20px;
             color: white;
+            animation: page-fade-in 0.5s ease;
+        }
+
+        @keyframes page-fade-in {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
 
         .header {
@@ -129,6 +139,10 @@
             background: linear-gradient(135deg, #4488ff, #44ddff) !important;
         }
 
+        .house-button {
+            background: linear-gradient(135deg, #9b59b6, #e74c3c) !important;
+        }
+
         .info-box {
             background: rgba(0, 160, 223, 0.1);
             border-left: 4px solid #00a0df;
@@ -231,6 +245,47 @@
             </div>
         </div>
 
+        <!-- HOUSE PAGES -->
+        <div class="section">
+            <h2>🏠 Individual House Pages</h2>
+            <div class="button-grid">
+                <a href="https://iesv-swe.github.io/iesv-house-points/house-page.html?house=phoenix" class="console-button house-button" target="_blank">
+                    <div class="icon">🔥</div>
+                    <div class="text">
+                        Phoenix House
+                        <div class="label">Stats, categories & recent activity</div>
+                    </div>
+                </a>
+                
+                <a href="https://iesv-swe.github.io/iesv-house-points/house-page.html?house=dragon" class="console-button house-button" target="_blank">
+                    <div class="icon">🐉</div>
+                    <div class="text">
+                        Dragon House
+                        <div class="label">Stats, categories & recent activity</div>
+                    </div>
+                </a>
+                
+                <a href="https://iesv-swe.github.io/iesv-house-points/house-page.html?house=hydra" class="console-button house-button" target="_blank">
+                    <div class="icon">🌊</div>
+                    <div class="text">
+                        Hydra House
+                        <div class="label">Stats, categories & recent activity</div>
+                    </div>
+                </a>
+                
+                <a href="https://iesv-swe.github.io/iesv-house-points/house-page.html?house=griffin" class="console-button house-button" target="_blank">
+                    <div class="icon">🦅</div>
+                    <div class="text">
+                        Griffin House
+                        <div class="label">Stats, categories & recent activity</div>
+                    </div>
+                </a>
+            </div>
+            <div class="info-box">
+                ✨ NEW: Individual house pages with animated displays, category breakdowns, and recent awards
+            </div>
+        </div>
+
         <!-- ADMIN PAGES -->
         <div class="section">
             <h2>🔐 Admin Pages</h2>
@@ -317,6 +372,8 @@
                 <p style="margin-top: 15px;"><strong>4 Houses:</strong> Phoenix 🔥 | Dragon 🐉 | Hydra 🌊 | Griffin 🦅</p>
                 
                 <p style="margin-top: 15px;"><strong>7 Categories:</strong> Kindness | Academic Effort | Teamwork | Respect | Leadership | Creativity | Responsibility</p>
+                
+                <p style="margin-top: 15px;"><strong>V2 Features:</strong> Animated displays ✨ | Individual house pages 🏠 | Confetti effects 🎉 | Floating particles ✨</p>
             </div>
         </div>
     </div>
