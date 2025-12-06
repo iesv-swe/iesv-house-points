@@ -20,6 +20,16 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
+            animation: page-fade-in 0.5s ease;
+        }
+
+        @keyframes page-fade-in {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
 
         .container {
@@ -236,6 +246,11 @@
             background: #00a0df;
             color: white;
         }
+
+        .password-highlight {
+            border-color: #ff4444 !important;
+            background: #fff5f5;
+        }
     </style>
 </head>
 <body>
@@ -251,6 +266,11 @@
         </div>
 
         <form id="bulkForm">
+            <div class="form-group">
+                <label>Admin Password</label>
+                <input type="password" id="adminPassword" placeholder="Enter admin password" required class="password-highlight">
+            </div>
+
             <div class="form-group">
                 <label>Your Name</label>
                 <input type="text" id="adminName" placeholder="Admin name" required>
@@ -324,6 +344,7 @@
 
     <script>
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec';
+        const ADMIN_PASSWORD = '135vasteras';
 
         let selectedHouse = null;
 
@@ -343,10 +364,19 @@
         document.getElementById('bulkForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            const password = document.getElementById('adminPassword').value;
             const adminName = document.getElementById('adminName').value.trim();
             const pointsAmount = parseInt(document.getElementById('pointsAmount').value);
             const category = document.getElementById('category').value;
             const justification = document.getElementById('justification').value.trim();
+
+            // Check password first
+            if (password !== ADMIN_PASSWORD) {
+                alert('❌ Incorrect password. Access denied.');
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminPassword').focus();
+                return;
+            }
 
             if (!adminName || !selectedHouse || !pointsAmount || !category || !justification) {
                 alert('Please fill in all fields');
@@ -385,6 +415,7 @@
                     document.getElementById('successMessage').classList.remove('show');
                 }, 3000);
 
+                document.getElementById('adminPassword').value = '';
                 document.getElementById('pointsAmount').value = '';
                 document.getElementById('justification').value = '';
                 document.querySelectorAll('.house-option').forEach(opt => opt.classList.remove('selected'));
