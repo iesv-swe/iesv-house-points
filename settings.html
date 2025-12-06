@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Settings - IESV House Points</title>
+    <link rel="icon" type="image/x-icon" href="admin-favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #102d69 0%, #00a0df 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            animation: page-fade-in 0.5s ease;
+        }
+
+        @keyframes page-fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #00a0df;
+        }
+
+        .logo {
+            width: 100px;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            color: #102d69;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #9a9b9d;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .auth-section {
+            background: #f5f5f5;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+        }
+
+        .auth-section label {
+            display: block;
+            color: #102d69;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .auth-section input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #dbdad8;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .auth-section button {
+            width: 100%;
+            padding: 12px;
+            background: #102d69;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .auth-section button:hover {
+            background: #00a0df;
+        }
+
+        .settings-content {
+            display: none;
+        }
+
+        .settings-content.show {
+            display: block;
+        }
+
+        .setting-card {
+            background: #f5f5f5;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .setting-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .setting-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #102d69;
+        }
+
+        .setting-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 32px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 32px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #44aa44;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(28px);
+        }
+
+        .countdown-display {
+            background: linear-gradient(135deg, #102d69, #00a0df);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .countdown-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .countdown-value {
+            font-size: 36px;
+            font-weight: 700;
+        }
+
+        .countdown-subtext {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .warning-box {
+            background: #fff7b2;
+            border-left: 4px solid #ffaa00;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+        }
+
+        .warning-box p {
+            color: #102d69;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-indicator.enabled {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-indicator.disabled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-weight: 600;
+            text-align: center;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.success {
+            background: #44aa44;
+            color: white;
+        }
+
+        .message.error {
+            background: #ff4444;
+            color: white;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://raw.githubusercontent.com/iesv-swe/IESV-Now-and-Next/main/logo.png" alt="IESV Logo" class="logo">
+            <h1>⚙️ System Settings</h1>
+            <p class="subtitle">Administrator Configuration</p>
+        </div>
+
+        <!-- Authentication Section -->
+        <div class="auth-section" id="authSection">
+            <label>Admin Password</label>
+            <input type="password" id="passwordInput" placeholder="Enter password to access settings">
+            <button onclick="authenticate()">Unlock Settings</button>
+        </div>
+
+        <!-- Settings Content (hidden until authenticated) -->
+        <div class="settings-content" id="settingsContent">
+            <div class="setting-card">
+                <div class="setting-header">
+                    <div>
+                        <span class="setting-title">Monthly Season Reset</span>
+                        <span class="status-indicator disabled" id="statusIndicator">DISABLED</span>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="resetToggle" onchange="toggleReset()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="setting-description">
+                    When enabled, all house points reset to zero on the 1st of each month. Previous season results are saved to history.
+                </div>
+
+                <div id="countdownSection" style="display: none;">
+                    <div class="countdown-display">
+                        <div class="countdown-label">Season ends in</div>
+                        <div class="countdown-value" id="daysRemaining">--</div>
+                        <div class="countdown-subtext">days until reset</div>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <p><strong>⚠️ Important:</strong> This is a permanent system change. Points will automatically reset at 23:59 on the last day of each month. All data is preserved in Season History.</p>
+                </div>
+            </div>
+
+            <div class="message" id="message"></div>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_PASSWORD = '135vasteras';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec';
+
+        function authenticate() {
+            const password = document.getElementById('passwordInput').value;
+            
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('authSection').style.display = 'none';
+                document.getElementById('settingsContent').classList.add('show');
+                loadSettings();
+            } else {
+                alert('❌ Incorrect password');
+                document.getElementById('passwordInput').value = '';
+            }
+        }
+
+        async function loadSettings() {
+            try {
+                // Fetch current reset status from Sheet
+                const response = await fetch(`${APPS_SCRIPT_URL}?action=getResetStatus`);
+                const data = await response.json();
+                
+                const isEnabled = data.resetEnabled === true;
+                document.getElementById('resetToggle').checked = isEnabled;
+                updateUI(isEnabled);
+                
+                if (isEnabled) {
+                    updateCountdown();
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        function updateUI(enabled) {
+            const statusIndicator = document.getElementById('statusIndicator');
+            const countdownSection = document.getElementById('countdownSection');
+            
+            if (enabled) {
+                statusIndicator.textContent = 'ENABLED';
+                statusIndicator.className = 'status-indicator enabled';
+                countdownSection.style.display = 'block';
+            } else {
+                statusIndicator.textContent = 'DISABLED';
+                statusIndicator.className = 'status-indicator disabled';
+                countdownSection.style.display = 'none';
+            }
+        }
+
+        function updateCountdown() {
+            const now = new Date();
+            const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            const daysRemaining = Math.ceil((lastDayOfMonth - now) / (1000 * 60 * 60 * 24));
+            
+            document.getElementById('daysRemaining').textContent = daysRemaining;
+        }
+
+        async function toggleReset() {
+            const isEnabled = document.getElementById('resetToggle').checked;
+            
+            const confirmMsg = isEnabled 
+                ? 'Enable monthly season resets? Points will reset on the 1st of each month.'
+                : 'Disable monthly season resets? The system will keep accumulating points.';
+            
+            if (!confirm(confirmMsg)) {
+                document.getElementById('resetToggle').checked = !isEnabled;
+                return;
+            }
+
+            try {
+                await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'setResetStatus',
+                        enabled: isEnabled
+                    })
+                });
+
+                showMessage('Settings saved successfully', 'success');
+                updateUI(isEnabled);
+                
+                if (isEnabled) {
+                    updateCountdown();
+                    setInterval(updateCountdown, 3600000); // Update every hour
+                }
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                showMessage('Error saving settings', 'error');
+                document.getElementById('resetToggle').checked = !isEnabled;
+            }
+        }
+
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = `message ${type} show`;
+            setTimeout(() => {
+                msg.classList.remove('show');
+            }, 3000);
+        }
+
+        // Allow Enter key to authenticate
+        document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                authenticate();
+            }
+        });
+    </script>
+</body>
+</html>
