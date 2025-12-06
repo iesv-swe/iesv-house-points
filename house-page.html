@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Page - IESV House Points</title>
+    <link rel="icon" type="image/x-icon" href="house-favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            transition: background 0.5s ease;
+        }
+
+        /* House-specific backgrounds */
+        body.phoenix {
+            background: linear-gradient(135deg, #ff4444 0%, #aa0000 100%);
+        }
+        body.dragon {
+            background: linear-gradient(135deg, #44aa44 0%, #006600 100%);
+        }
+        body.hydra {
+            background: linear-gradient(135deg, #4488ff 0%, #0044aa 100%);
+        }
+        body.griffin {
+            background: linear-gradient(135deg, #ffaa00 0%, #cc6600 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            animation: fadeIn 1s ease;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .house-logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            animation: bounce 2s infinite;
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .motto {
+            font-size: 20px;
+            font-style: italic;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            animation: slideIn 0.8s ease;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-card.phoenix .stat-value { color: #ff4444; }
+        .stat-card.dragon .stat-value { color: #44aa44; }
+        .stat-card.hydra .stat-value { color: #4488ff; }
+        .stat-card.griffin .stat-value { color: #ffaa00; }
+
+        .rank-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            margin-top: 5px;
+        }
+
+        .rank-1 { background: linear-gradient(135deg, #ffd700, #ffed4e); color: #000; }
+        .rank-2 { background: linear-gradient(135deg, #c0c0c0, #e8e8e8); color: #000; }
+        .rank-3 { background: linear-gradient(135deg, #cd7f32, #e89f65); color: #fff; }
+        .rank-4 { background: linear-gradient(135deg, #666, #999); color: #fff; }
+
+        .category-breakdown {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .category-breakdown h2 {
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .category-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+
+        .category-row:hover {
+            transform: translateX(5px);
+            background: #f5f5f5;
+        }
+
+        .category-name {
+            flex: 1;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .category-points {
+            font-size: 20px;
+            font-weight: 700;
+            margin-right: 15px;
+        }
+
+        .phoenix .category-points { color: #ff4444; }
+        .dragon .category-points { color: #44aa44; }
+        .hydra .category-points { color: #4488ff; }
+        .griffin .category-points { color: #ffaa00; }
+
+        .category-bar {
+            flex: 2;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .category-fill {
+            height: 100%;
+            transition: width 1s ease;
+            border-radius: 10px;
+        }
+
+        .phoenix .category-fill { background: linear-gradient(90deg, #ff4444, #ff8888); }
+        .dragon .category-fill { background: linear-gradient(90deg, #44aa44, #88dd88); }
+        .hydra .category-fill { background: linear-gradient(90deg, #4488ff, #88bbff); }
+        .griffin .category-fill { background: linear-gradient(90deg, #ffaa00, #ffcc66); }
+
+        .recent-activity {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .recent-activity h2 {
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .activity-item {
+            padding: 15px;
+            border-left: 4px solid;
+            margin-bottom: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            animation: slideIn 0.5s ease;
+        }
+
+        .phoenix .activity-item { border-left-color: #ff4444; }
+        .dragon .activity-item { border-left-color: #44aa44; }
+        .hydra .activity-item { border-left-color: #4488ff; }
+        .griffin .activity-item { border-left-color: #ffaa00; }
+
+        .activity-points {
+            font-size: 24px;
+            font-weight: 700;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .activity-category {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .activity-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            padding: 60px;
+        }
+
+        .error {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            color: #d32f2f;
+            font-size: 18px;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 36px; }
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .category-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .category-bar {
+                width: 100%;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="leaderboard.html" class="back-button">← Back to Leaderboard</a>
+    
+    <div class="container">
+        <div id="loading" class="loading">Loading house data...</div>
+        <div id="content" style="display: none;">
+            <header>
+                <img id="houseLogo" class="house-logo" src="" alt="">
+                <h1 id="houseName"></h1>
+                <p id="houseMotto" class="motto"></p>
+            </header>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Current Rank</div>
+                    <div class="stat-value" id="rank">-</div>
+                    <div class="rank-badge" id="rankBadge">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Points</div>
+                    <div class="stat-value" id="totalPoints">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">House Members</div>
+                    <div class="stat-value" id="peopleCount">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">House Score</div>
+                    <div class="stat-value" id="houseScore">-</div>
+                    <div style="font-size: 12px; color: #999; margin-top: 5px;">Points per person</div>
+                </div>
+            </div>
+
+            <div class="category-breakdown">
+                <h2>Points by Category</h2>
+                <div id="categoryBreakdown"></div>
+            </div>
+
+            <div class="recent-activity">
+                <h2>Recent Point Awards (Last 10)</h2>
+                <div id="recentActivity"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SHEET_ID = '1rpiTKhNvHkA1suptamC4JSk_33YBLrW1qfLtiloVtL0';
+        
+        const houseData = {
+            phoenix: {
+                name: 'Phoenix',
+                emoji: '🔥',
+                color: '#ff4444',
+                motto: '"Rise from the ashes"',
+                logo: 'phoenix.png'
+            },
+            dragon: {
+                name: 'Dragon',
+                emoji: '🐉',
+                color: '#44aa44',
+                motto: '"Power through knowledge"',
+                logo: 'dragon.png'
+            },
+            hydra: {
+                name: 'Hydra',
+                emoji: '🌊',
+                color: '#4488ff',
+                motto: '"Many heads, one heart"',
+                logo: 'hydra.png'
+            },
+            griffin: {
+                name: 'Griffin',
+                emoji: '🦅',
+                color: '#ffaa00',
+                motto: '"Soar above expectations"',
+                logo: 'griffin.png'
+            }
+        };
+
+        const categories = ['Kindness', 'Academic Effort', 'Teamwork', 'Respect', 'Leadership', 'Creativity', 'Responsibility'];
+
+        // Get house from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const houseName = urlParams.get('house');
+
+        if (!houseName || !houseData[houseName.toLowerCase()]) {
+            document.getElementById('loading').innerHTML = '<div class="error">Invalid house specified. Please select a house from the leaderboard.</div>';
+        } else {
+            const house = houseData[houseName.toLowerCase()];
+            loadHouseData(house, houseName);
+        }
+
+        async function loadHouseData(house, houseName) {
+            try {
+                // Apply house styling
+                document.body.classList.add(houseName.toLowerCase());
+                document.querySelectorAll('.stat-card').forEach(card => {
+                    card.classList.add(houseName.toLowerCase());
+                });
+
+                // Set house header info
+                document.getElementById('houseName').textContent = `${house.emoji} ${house.name}`;
+                document.getElementById('houseMotto').textContent = house.motto;
+                document.getElementById('houseLogo').src = house.logo;
+                document.getElementById('houseLogo').alt = house.name;
+                document.title = `${house.name} - IESV House Points`;
+
+                // Fetch house totals
+                const totalsUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=House%20Totals&range=A2:E5`;
+                const totalsResponse = await fetch(totalsUrl);
+                const totalsText = await totalsResponse.text();
+                const totalsRows = totalsText.trim().split('\n').map(row => {
+                    return row.split(',').map(cell => cell.replace(/^"|"$/g, ''));
+                });
+
+                // Find this house's data
+                const houseRow = totalsRows.find(row => row[0].toLowerCase() === house.name.toLowerCase());
+                if (houseRow) {
+                    const [name, totalPoints, peopleCount, houseScore, rank] = houseRow;
+                    document.getElementById('totalPoints').textContent = parseInt(totalPoints).toLocaleString();
+                    document.getElementById('peopleCount').textContent = peopleCount;
+                    document.getElementById('houseScore').textContent = parseFloat(houseScore).toFixed(2);
+                    document.getElementById('rank').textContent = rank;
+                    
+                    const rankBadge = document.getElementById('rankBadge');
+                    const rankNum = parseInt(rank);
+                    const ordinal = ['1st', '2nd', '3rd', '4th'][rankNum - 1];
+                    rankBadge.textContent = ordinal;
+                    rankBadge.className = `rank-badge rank-${rankNum}`;
+                }
+
+                // Fetch points log for category breakdown and recent activity
+                const logUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Points%20Log`;
+                const logResponse = await fetch(logUrl);
+                const logText = await logResponse.text();
+                const logRows = logText.trim().split('\n').slice(1).map(row => {
+                    return row.split(',').map(cell => cell.replace(/^"|"$/g, ''));
+                });
+
+                // Filter for this house
+                const housePoints = logRows.filter(row => row[3] && row[3].toLowerCase() === house.name.toLowerCase());
+
+                // Calculate category breakdown
+                const categoryTotals = {};
+                categories.forEach(cat => categoryTotals[cat] = 0);
+                
+                housePoints.forEach(row => {
+                    const category = row[4];
+                    const points = parseInt(row[5]) || 0;
+                    if (categoryTotals.hasOwnProperty(category)) {
+                        categoryTotals[category] += points;
+                    }
+                });
+
+                // Find max for percentage calculation
+                const maxPoints = Math.max(...Object.values(categoryTotals), 1);
+
+                // Display category breakdown
+                const breakdownDiv = document.getElementById('categoryBreakdown');
+                breakdownDiv.className = houseName.toLowerCase();
+                categories.forEach(cat => {
+                    const points = categoryTotals[cat];
+                    const percentage = (points / maxPoints) * 100;
+                    breakdownDiv.innerHTML += `
+                        <div class="category-row">
+                            <div class="category-name">${cat}</div>
+                            <div class="category-points">${points}</div>
+                            <div class="category-bar">
+                                <div class="category-fill" style="width: ${percentage}%"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                // Display recent activity (last 10)
+                const recentDiv = document.getElementById('recentActivity');
+                recentDiv.className = houseName.toLowerCase();
+                const recent = housePoints.slice(-10).reverse();
+                
+                if (recent.length === 0) {
+                    recentDiv.innerHTML = '<p style="color: #999; text-align: center;">No points awarded yet. Be the first!</p>';
+                } else {
+                    recent.forEach(row => {
+                        const timestamp = row[0];
+                        const category = row[4];
+                        const points = parseInt(row[5]);
+                        
+                        const date = new Date(timestamp);
+                        const timeAgo = getTimeAgo(date);
+                        
+                        recentDiv.innerHTML += `
+                            <div class="activity-item">
+                                <span class="activity-points">+${points}</span>
+                                <span class="activity-category">${category}</span>
+                                <div class="activity-time">${timeAgo}</div>
+                            </div>
+                        `;
+                    });
+                }
+
+                // Show content
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading house data:', error);
+                document.getElementById('loading').innerHTML = '<div class="error">Error loading house data. Please try again.</div>';
+            }
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+            if (seconds < 604800) return `${Math.floor(seconds / 86400)} days ago`;
+            
+            return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+    </script>
+</body>
+</html>
