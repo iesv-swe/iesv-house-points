@@ -71,6 +71,7 @@
         transition:transform .3s ease, box-shadow .3s ease;
         min-height:220px;
         overflow:hidden;
+        cursor:pointer;
     }
 
     .house-card:hover {
@@ -276,22 +277,24 @@ function renderLeaderboard(houses) {
         const winnerCardClass = house.rank === 1 ? "winner" : "";
         const winnerPointsClass = house.rank === 1 ? "winner-points" : "";
 
-        const html = `
-            <div class="house-card ${houseColors[house.house] || ""} ${winnerCardClass}">
-                <div class="house-header">
-                    <div class="house-info">
-                        <div class="house-icon">${houseIcons[house.house] || ""}</div>
-                        <div class="house-name">${house.house}</div>
-                    </div>
-                    <div class="rank-badge ${rankClass}">${rankOrdinal}</div>
+        const card = document.createElement('div');
+        card.className = `house-card ${houseColors[house.house] || ""} ${winnerCardClass}`;
+        card.onclick = () => window.location.href = `house-page.html?house=${house.house.toLowerCase()}`;
+        
+        card.innerHTML = `
+            <div class="house-header">
+                <div class="house-info">
+                    <div class="house-icon">${houseIcons[house.house] || ""}</div>
+                    <div class="house-name">${house.house}</div>
                 </div>
-                <div class="points-area">
-                    <div class="points-label">Total Points</div>
-                    <div class="points ${winnerPointsClass}">${house.totalPoints}</div>
-                </div>
+                <div class="rank-badge ${rankClass}">${rankOrdinal}</div>
+            </div>
+            <div class="points-area">
+                <div class="points-label">Total Points</div>
+                <div class="points ${winnerPointsClass}">${house.totalPoints}</div>
             </div>`;
         
-        board.innerHTML += html;
+        board.appendChild(card);
     });
 }
 
