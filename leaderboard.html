@@ -9,87 +9,114 @@
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
         font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
-        background:linear-gradient(135deg,#102d69 0%,#00a0df 100%);
+        background:radial-gradient(circle at top, #1c3f8a 0%, #0a1a3d 40%, #021022 100%);
         height:100vh; display:flex; flex-direction:column;
         padding:20px; color:white; overflow:hidden;
     }
-    .header { display:flex; align-items:center; gap:20px; margin-bottom:20px;
-        animation:fadeIn 1s ease; max-width:1400px; margin-inline:auto; }
+    .header {
+        display:flex; align-items:center; gap:20px; margin-bottom:20px;
+        animation:fadeIn 1s ease; max-width:1400px; margin-inline:auto;
+    }
     .logo { width:72px; filter:brightness(0) invert(1); }
     h1 { font-size:36px; font-weight:700; margin-bottom:5px;
-        text-shadow:2px 2px 10px rgba(0,0,0,0.3); }
+        text-shadow:2px 2px 10px rgba(0,0,0,0.6); }
     .subtitle { font-size:16px; opacity:0.9; }
 
     .leaderboard {
         flex:1; display:grid; grid-template-columns:repeat(2,1fr);
-        grid-gap:15px; max-width:1400px; width:100%; margin-inline:auto;
+        grid-gap:20px; max-width:1400px; width:100%; margin-inline:auto;
     }
 
     .house-card {
-        background:rgba(255,255,255,0.95); border-radius:15px; padding:25px;
-        box-shadow:0 10px 40px rgba(0,0,0,0.3);
+        position:relative;
+        background:linear-gradient(135deg, rgba(255,255,255,0.98), rgba(240,240,255,0.95));
+        border-radius:18px; padding:26px;
+        box-shadow:0 14px 45px rgba(0,0,0,0.45);
         display:flex; flex-direction:column; justify-content:space-between;
-        transition:.4s ease; animation:slideIn .8s ease; position:relative;
+        transition:.4s ease; animation:slideIn .8s ease;
         overflow:hidden;
     }
-    .house-card.rank-1 { border:4px solid gold; }
-    .house-card:hover { transform:translateY(-3px);
-        box-shadow:0 15px 50px rgba(0,0,0,0.4); }
+    .house-card::before {
+        content:"";
+        position:absolute; inset:-40%;
+        background:radial-gradient(circle, rgba(255,255,255,0.25) 0%, transparent 60%);
+        opacity:0; pointer-events:none;
+        animation:cardGlow 5s infinite ease-in-out;
+    }
+    .house-card.rank-1::before { opacity:1; }
+    .house-card.rank-1 { border:4px solid #ffd700; }
+    .house-card:hover { transform:translateY(-3px) scale(1.01);
+        box-shadow:0 18px 55px rgba(0,0,0,0.6); }
 
-    .house-header { display:flex; align-items:center; justify-content:space-between; }
+    .house-header { display:flex; align-items:center; justify-content:space-between; z-index:2; position:relative; }
     .house-info { display:flex; align-items:center; gap:15px; }
-    .house-icon { font-size:60px; animation:bounceIcon 2s infinite; }
-    .house-name { font-size:42px; font-weight:700; }
+    .house-icon { font-size:60px; animation:bounceIcon 2.2s infinite; }
+    .house-name { font-size:42px; font-weight:800; letter-spacing:1px; }
 
     .rank-badge {
-        background:#102d69; color:white; width:55px; height:55px;
+        background:#102d69; color:white; width:58px; height:58px;
         border-radius:50%; display:flex; align-items:center;
-        justify-content:center; font-size:20px; font-weight:700;
-        box-shadow:0 5px 15px rgba(0,0,0,0.3);
+        justify-content:center; font-size:20px; font-weight:800;
+        box-shadow:0 5px 18px rgba(0,0,0,0.35);
     }
-    .rank-badge.gold { background:linear-gradient(135deg,#ffd700,#ffed4e);
-        color:#102d69; animation:pulse 2s infinite; }
+    .rank-badge.gold {
+        background:conic-gradient(from 30deg,#fff6b0,#ffd700,#ffed4e,#fff6b0);
+        color:#102d69; animation:pulse 2.4s infinite;
+    }
 
-    /* 🌟 TWINKLES BEHIND POINTS */
+    /* POINTS + EFFECTS */
     .points-wrapper {
-        position:relative; text-align:center; margin-top:20px;
+        position:relative; text-align:center; margin-top:24px;
+        padding:22px 0 16px;
     }
-    .twinkle {
-        position:absolute; width:10px; height:10px; background:white;
-        border-radius:50%; opacity:0.8; filter:blur(1px);
-        animation:twinkle 2s infinite ease-in-out;
+    .points-background-ring {
+        position:absolute; inset:0;
+        background:radial-gradient(circle, rgba(255,215,0,0.25) 0%, transparent 70%);
+        opacity:0.3;
     }
-    @keyframes twinkle {
-        0%,100%{opacity:0; transform:scale(0.4);}
-        50%{opacity:1; transform:scale(1.3);}
-    }
-
-    /* ✨ SPARKLES ON POP */
-    .sparkle {
-        position:absolute; width:8px; height:8px; border-radius:50%;
-        pointer-events:none; background:yellow; filter:blur(1px);
-        animation:spark 0.8s ease-out forwards;
-    }
-    @keyframes spark {
-        from { transform:scale(1) translate(0,0); opacity:1; }
-        to { transform:scale(0.2) translate(40px,-40px); opacity:0; }
-    }
-
-    /* 🎉 Dramatic Pop Animation */
     .points {
-        font-size:90px; font-weight:900; color:#102d69;
-        text-shadow:0 3px 10px rgba(0,0,0,0.2);
-        display:inline-block;
+        position:relative;
+        font-size:94px; font-weight:900; color:#102d69;
+        text-shadow:0 4px 20px rgba(0,0,0,0.35);
+        display:inline-block; z-index:2;
     }
     .points.pop {
         animation:slowPop 1.2s ease-out;
     }
-    @keyframes slowPop {
-        0%   { transform:scale(1); }
-        20%  { transform:scale(1.4); }
-        50%  { transform:scale(1.55) rotate(2deg); }
-        80%  { transform:scale(1.3); }
-        100% { transform:scale(1); }
+
+    /* CONSTANT TWINKLES */
+    .twinkle {
+        position:absolute; width:9px; height:9px; background:#fff8d1;
+        border-radius:50%; opacity:0.0; filter:blur(1px);
+        animation:twinkle 2.8s infinite ease-in-out;
+    }
+    .twinkle::after {
+        content:"";
+        position:absolute; inset:-60%;
+        border-radius:50%;
+        border:2px solid rgba(255,255,255,0.55);
+        opacity:0.0;
+        animation:twinkleRing 2.8s infinite ease-in-out;
+    }
+
+    /* FIREWORK BURSTS (around number) */
+    .burst-sparkle {
+        position:absolute; width:12px; height:12px;
+        border-radius:50%;
+        background:radial-gradient(circle, #fff8d1 0%, #ffd700 40%, rgba(255,215,0,0) 70%);
+        box-shadow:0 0 12px rgba(255,215,0,0.9);
+        pointer-events:none;
+        animation:burst 0.9s ease-out forwards;
+    }
+
+    /* FOUNTAIN SPARKS (downward) */
+    .fountain-sparkle {
+        position:absolute; width:8px; height:14px;
+        border-radius:999px;
+        background:linear-gradient(to bottom,#fff8d1,#ffd700,#ff9f1c);
+        box-shadow:0 0 12px rgba(255,215,0,0.9);
+        pointer-events:none;
+        animation:fountain 1.1s ease-out forwards;
     }
 
     .phoenix .house-name { color:#ff4444; }
@@ -97,16 +124,50 @@
     .hydra .house-name { color:#4488ff; }
     .griffin .house-name { color:#ffaa00; }
 
-    .last-updated { text-align:center; font-size:13px; opacity:0.85; margin-top:10px; }
+    .last-updated {
+        text-align:center; font-size:13px; opacity:0.85; margin-top:10px;
+        text-shadow:0 2px 6px rgba(0,0,0,0.4);
+    }
 
+    /* KEYFRAMES */
     @keyframes slideIn { from{opacity:0; transform:translateX(-50px);} to{opacity:1; transform:translateX(0);} }
     @keyframes bounceIcon { 0%,100%{transform:translateY(0);}50%{transform:translateY(-9px);} }
     @keyframes pulse { 0%,100%{transform:scale(1);}50%{transform:scale(1.1);} }
+    @keyframes cardGlow {
+        0%,100%{opacity:0.35; transform:scale(1);}
+        50%{opacity:0.7; transform:scale(1.15);}
+    }
+
+    @keyframes slowPop {
+        0%   { transform:scale(1); }
+        20%  { transform:scale(1.4); }
+        50%  { transform:scale(1.6) rotate(2deg); }
+        80%  { transform:scale(1.3); }
+        100% { transform:scale(1); }
+    }
+    @keyframes twinkle {
+        0%,100%{opacity:0; transform:scale(0.3);}
+        40%{opacity:1; transform:scale(1.1);}
+    }
+    @keyframes twinkleRing {
+        0%{opacity:0; transform:scale(0.3);}
+        40%{opacity:0.8; transform:scale(1.1);}
+        100%{opacity:0; transform:scale(1.5);}
+    }
+    @keyframes burst {
+        0%{transform:translate(0,0) scale(0.6); opacity:1;}
+        70%{opacity:1;}
+        100%{transform:translate(var(--dx), var(--dy)) scale(0.1); opacity:0;}
+    }
+    @keyframes fountain {
+        0%{transform:translate(0,0) scale(0.8); opacity:1;}
+        100%{transform:translate(var(--fx), 55px) scale(0.2); opacity:0;}
+    }
 
     @media(max-width:1024px){
         .leaderboard { grid-template-columns:1fr; }
         body { height:auto; overflow:auto; }
-        .points { font-size:65px; }
+        .points { font-size:68px; }
     }
 </style>
 </head>
@@ -163,42 +224,62 @@ function displayLeaderboard(houses) {
                 <div class="rank-badge ${rankClass}">${ord}</div>
             </div>
             <div class="points-wrapper">
+                <div class="points-background-ring"></div>
                 <div class="points" id="pts-${h.house}">${h.totalPoints}</div>
             </div>
         </div>`;
     });
 
-    animatePoints();
-    twinkleStars();
+    setupTwinkles();
+    animatePointsAndFireworks();
 }
 
-function twinkleStars() {
+function setupTwinkles() {
     document.querySelectorAll(".points-wrapper").forEach(wrapper => {
-        wrapper.querySelectorAll(".twinkle").forEach(e=>e.remove());
-        for (let i = 0; i < 6; i++) {
+        wrapper.querySelectorAll(".twinkle").forEach(t=>t.remove());
+        for (let i = 0; i < 7; i++) {
             const t = document.createElement("div");
             t.className = "twinkle";
-            t.style.left = `${20 + Math.random()*60}%`;
+            t.style.left = `${25 + Math.random()*50}%`;
             t.style.top = `${10 + Math.random()*60}%`;
-            t.style.animationDelay = `${Math.random()*2}s`;
+            t.style.animationDelay = `${Math.random()*2.5}s`;
             wrapper.appendChild(t);
         }
     });
 }
 
-function animatePoints() {
+function animatePointsAndFireworks() {
     document.querySelectorAll(".points").forEach(p => {
         p.classList.remove("pop");
         void p.offsetWidth;
         p.classList.add("pop");
 
-        for (let i=0;i<4;i++){
-            const s=document.createElement("div");
-            s.className="sparkle";
-            s.style.left=`${50+Math.random()*30-15}%`;
-            s.style.top=`${40+Math.random()*30-15}%`;
-            p.parentElement.appendChild(s);
-            setTimeout(()=>s.remove(),800);
+        const wrapper = p.parentElement;
+        // Burst sparks around number
+        for (let i=0;i<10;i++){
+            const b = document.createElement("div");
+            b.className = "burst-sparkle";
+            const angle = Math.random()*2*Math.PI;
+            const dist = 55 + Math.random()*25;
+            b.style.setProperty("--dx", `${Math.cos(angle)*dist}px`);
+            b.style.setProperty("--dy", `${Math.sin(angle)*dist}px`);
+            b.style.left = "50%";
+            b.style.top = "45%";
+            b.style.transform = "translate(-50%,-50%)";
+            wrapper.appendChild(b);
+            setTimeout(()=>b.remove(), 900);
+        }
+        // Fountain sparks beneath number
+        for (let i=0;i<10;i++){
+            const f = document.createElement("div");
+            f.className = "fountain-sparkle";
+            const spread = (Math.random()*60 - 30);
+            f.style.setProperty("--fx", `${spread}px`);
+            f.style.left = "50%";
+            f.style.top = "60%";
+            f.style.transform = "translate(-50%,0)";
+            wrapper.appendChild(f);
+            setTimeout(()=>f.remove(), 1100);
         }
     });
 }
