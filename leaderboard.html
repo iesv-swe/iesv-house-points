@@ -78,7 +78,7 @@
         box-shadow:0 16px 55px rgba(0,0,0,0.45);
     }
 
-    /* Winner highlight (card only, no animation on text) */
+    /* Highlight winning card */
     .house-card.winner {
         border:4px solid #ffd700;
         box-shadow:0 0 25px rgba(255,215,0,0.7);
@@ -153,41 +153,43 @@
         margin-bottom:6px;
     }
 
-    /* ✨ Sparkler-style golden number */
+    /* Basic clean numbers */
     .points {
-        position:relative;
         font-size:72px;
         font-weight:900;
-        letter-spacing:1px;
-        color:transparent;
-        background-image:
-            radial-gradient(circle at 10% 20%, #fffbe8 0, rgba(255,255,255,0) 40%),
-            radial-gradient(circle at 80% 30%, #fff3b0 0, rgba(255,255,255,0) 45%),
-            radial-gradient(circle at 50% 80%, #ffd700 0, rgba(255,255,255,0) 50%),
-            linear-gradient(120deg, #fff8d1, #ffd700, #ffb347);
-        background-clip:text;
-        -webkit-background-clip:text;
+        color:#102d69;
+        text-shadow:0 2px 6px rgba(0,0,0,0.25);
+    }
+
+    /* ⚡ NEON WINNER GLOW (C) */
+    .points.winner-points {
+        color:#102d69;
         text-shadow:
-            0 0 8px rgba(255, 223, 150, 0.9),
-            0 0 16px rgba(255, 215, 0, 0.9),
-            0 0 28px rgba(255, 165, 0, 0.8),
-            0 0 40px rgba(255, 140, 0, 0.7);
+            0 0 8px rgba(0,255,255,0.8),
+            0 0 14px rgba(0,255,255,0.9),
+            0 0 26px rgba(0,255,255,1),
+            0 0 50px rgba(0,200,255,1);
+        animation:neonPulse 2.5s ease-in-out infinite;
     }
 
-    .points::after {
-        content:"";
-        position:absolute;
-        inset:-6px;
-        border-radius:999px;
-        background:
-            radial-gradient(circle at 20% 10%, rgba(255,255,255,0.9) 0, transparent 40%),
-            radial-gradient(circle at 80% 90%, rgba(255,255,255,0.7) 0, transparent 50%);
-        mix-blend-mode:screen;
-        opacity:0.9;
-        pointer-events:none;
+    @keyframes neonPulse {
+        0%,100% {
+            text-shadow:
+                0 0 6px rgba(0,255,255,0.7),
+                0 0 14px rgba(0,255,255,0.9),
+                0 0 24px rgba(0,255,255,1),
+                0 0 38px rgba(0,200,255,1);
+        }
+        50% {
+            text-shadow:
+                0 0 9px rgba(0,255,255,1),
+                0 0 20px rgba(0,255,255,1),
+                0 0 40px rgba(0,255,255,1),
+                0 0 60px rgba(0,200,255,1);
+        }
     }
 
-    /* House colours for titles only */
+    /* House title colours */
     .phoenix .house-name { color:#ff4444; }
     .dragon  .house-name { color:#44aa44; }
     .hydra   .house-name { color:#4488ff; }
@@ -219,9 +221,7 @@
 
 <div class="leaderboard" id="leaderboard"></div>
 
-<div class="last-updated" id="lastUpdated">
-    Loading data...
-</div>
+<div class="last-updated" id="lastUpdated">Loading data...</div>
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec?action=houseTotals";
@@ -274,8 +274,9 @@ function renderLeaderboard(houses) {
             house.rank === 3 ? "bronze" : "";
 
         const winnerCardClass = house.rank === 1 ? "winner" : "";
+        const winnerPointsClass = house.rank === 1 ? "winner-points" : "";
 
-        const cardHtml = `
+        const html = `
             <div class="house-card ${houseColors[house.house] || ""} ${winnerCardClass}">
                 <div class="house-header">
                     <div class="house-info">
@@ -286,11 +287,11 @@ function renderLeaderboard(houses) {
                 </div>
                 <div class="points-area">
                     <div class="points-label">Total Points</div>
-                    <div class="points">${house.totalPoints}</div>
+                    <div class="points ${winnerPointsClass}">${house.totalPoints}</div>
                 </div>
-            </div>
-        `;
-        board.innerHTML += cardHtml;
+            </div>`;
+        
+        board.innerHTML += html;
     });
 }
 
