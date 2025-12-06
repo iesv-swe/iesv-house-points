@@ -17,6 +17,53 @@
         padding:20px;
         color:white;
         overflow:auto;
+        position:relative;
+        animation:page-fade-in 0.5s ease;
+    }
+
+    @keyframes page-fade-in {
+        from {
+            opacity:0;
+        }
+        to {
+            opacity:1;
+        }
+    }
+
+    /* Particle effects background */
+    .particles {
+        position:fixed;
+        top:0;
+        left:0;
+        width:100%;
+        height:100%;
+        pointer-events:none;
+        z-index:0;
+        overflow:hidden;
+    }
+
+    .particle {
+        position:absolute;
+        background:rgba(255,255,255,0.5);
+        border-radius:50%;
+        animation:float 15s infinite ease-in-out;
+    }
+
+    @keyframes float {
+        0%, 100% {
+            transform:translateY(0) translateX(0);
+            opacity:0;
+        }
+        10% {
+            opacity:1;
+        }
+        90% {
+            opacity:1;
+        }
+        100% {
+            transform:translateY(-100vh) translateX(50px);
+            opacity:0;
+        }
     }
 
     .header {
@@ -26,6 +73,8 @@
         margin-bottom:20px;
         max-width:1400px;
         margin-inline:auto;
+        position:relative;
+        z-index:1;
     }
 
     .logo {
@@ -57,6 +106,8 @@
         max-width:1400px;
         margin:0 auto;
         width:100%;
+        position:relative;
+        z-index:1;
     }
 
     .house-card {
@@ -83,7 +134,34 @@
     .house-card.winner {
         border:4px solid #ffd700;
         box-shadow:0 0 25px rgba(255,215,0,0.7);
+        overflow:visible;
     }
+
+    /* Confetti for winner */
+    .confetti {
+        position:absolute;
+        width:10px;
+        height:10px;
+        background:#ffd700;
+        position:absolute;
+        animation:confetti-fall 3s linear infinite;
+    }
+
+    @keyframes confetti-fall {
+        0% {
+            transform:translateY(-100%) rotate(0deg);
+            opacity:1;
+        }
+        100% {
+            transform:translateY(400px) rotate(720deg);
+            opacity:0;
+        }
+    }
+
+    .confetti:nth-child(2n) { background:#ff69b4; animation-delay:0.3s; }
+    .confetti:nth-child(3n) { background:#00ff00; animation-delay:0.6s; }
+    .confetti:nth-child(4n) { background:#00bfff; animation-delay:0.9s; }
+    .confetti:nth-child(5n) { background:#ff4500; animation-delay:1.2s; }
 
     .house-header {
         display:flex;
@@ -102,6 +180,22 @@
 
     .house-icon {
         font-size:50px;
+        animation:creature-float 3s ease-in-out infinite;
+    }
+
+    @keyframes creature-float {
+        0%, 100% {
+            transform:translateY(0px) rotate(0deg);
+        }
+        25% {
+            transform:translateY(-8px) rotate(-5deg);
+        }
+        50% {
+            transform:translateY(0px) rotate(0deg);
+        }
+        75% {
+            transform:translateY(-8px) rotate(5deg);
+        }
     }
 
     .house-name {
@@ -212,6 +306,8 @@
 </head>
 <body>
 
+<div class="particles" id="particles"></div>
+
 <div class="header">
     <img src="https://raw.githubusercontent.com/iesv-swe/IESV-Now-and-Next/main/logo.png" alt="IESV Logo" class="logo">
     <div class="header-text">
@@ -294,10 +390,38 @@ function renderLeaderboard(houses) {
                 <div class="points ${winnerPointsClass}">${house.totalPoints}</div>
             </div>`;
         
+        // Add confetti to winner card
+        if (house.rank === 1) {
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                card.appendChild(confetti);
+            }
+        }
+        
         board.appendChild(card);
     });
 }
 
+// Create floating particles
+function createParticles() {
+    const particlesContainer = document.getElementById('particles');
+    for (let i = 0; i < 30; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.width = (Math.random() * 4 + 2) + 'px';
+        particle.style.height = particle.style.width;
+        particle.style.animationDelay = Math.random() * 15 + 's';
+        particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        particlesContainer.appendChild(particle);
+    }
+}
+
+createParticles();
 loadLeaderboard();
 setInterval(loadLeaderboard, 30000);
 </script>
