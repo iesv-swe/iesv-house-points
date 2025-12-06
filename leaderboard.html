@@ -134,20 +134,19 @@ function displayLeaderboard(houses) {
             <div class="points" id="pts-${h.house}">${h.totalPoints}</div>
         </div>`;
     });
+
+    // 🔥 FORCE bounce animation after updating DOM (even if number didn't change)
+    setTimeout(() => {
+        document.querySelectorAll(".points").forEach(p => {
+            p.classList.remove("pop");
+            void p.offsetWidth; // force DOM repaint
+            p.classList.add("pop");
+        });
+    }, 50);
 }
 
-function bouncePoints() {
-    document.querySelectorAll(".points").forEach(p => {
-        p.classList.remove("pop");
-        void p.offsetWidth; // reset animation
-        p.classList.add("pop");
-    });
-}
-
-loadLeaderboard().then(bouncePoints);
-setInterval(() => {
-    loadLeaderboard().then(bouncePoints);
-}, 30000);
+loadLeaderboard();
+setInterval(loadLeaderboard, 30000);
 </script>
 
 </body>
