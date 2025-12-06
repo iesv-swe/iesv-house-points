@@ -394,6 +394,10 @@
 
         async function loadHouseData(house, houseName) {
             try {
+                // Show content first
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+
                 // Apply house styling
                 document.body.classList.add(houseName.toLowerCase());
                 document.querySelectorAll('.stat-card').forEach(card => {
@@ -420,8 +424,6 @@
                 if (houseRow) {
                     const [name, totalPoints, peopleCount, houseScore, rank] = houseRow;
                     document.getElementById('totalPoints').textContent = parseInt(totalPoints).toLocaleString();
-                    document.getElementById('peopleCount').textContent = peopleCount;
-                    document.getElementById('houseScore').textContent = parseFloat(houseScore).toFixed(2);
                     document.getElementById('rank').textContent = rank;
                     
                     const rankBadge = document.getElementById('rankBadge');
@@ -499,10 +501,6 @@
                         `;
                     });
                 }
-
-                // Show content
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('content').style.display = 'block';
 
             } catch (error) {
                 console.error('Error loading house data:', error);
