@@ -389,8 +389,8 @@ function renderLeaderboard(houses) {
                 <div class="rank-badge ${rankClass}">${rankOrdinal}</div>
             </div>
             <div class="points-area">
-                <div class="points-label">Total Points</div>
-                <div class="points ${winnerPointsClass}">${house.totalPoints}</div>
+                <div class="points-label">House Score</div>
+                <div class="points ${winnerPointsClass}">${parseFloat(house.houseScore).toFixed(2)}</div>
             </div>`;
         
         // Add confetti to winner card
