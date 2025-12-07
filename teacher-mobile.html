@@ -17,58 +17,114 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: url('castle-wall.png') no-repeat center center fixed;
             background-size: cover;
-            background-attachment: fixed;
+            background-color: #000;
             height: 100vh;
-            overflow: hidden; /* stops scrolling white gaps */
-            padding: 0;
+            overflow: hidden;
             display: flex;
             justify-content: center;
-            align-items: center;
         }
 
         .container {
             width: 100%;
-            height: 100vh; /* fill whole screen */
+            max-width: 450px;
+            height: 100vh;
             display: flex;
             flex-direction: column;
+            padding: 10px;
+            background: rgba(0,0,0,0.25);
         }
 
-        /* --- HOUSE GRID TAKES FULL SCREEN AREA --- */
+        /* TEXT INPUT (10% height) */
+        .input-box {
+            width: 100%;
+            height: 10vh;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            font-size: 16px;
+            margin-bottom: 6px;
+        }
+
+        /* HOUSE GRID (40% height) */
         .house-grid {
-            flex: 1;
+            height: 40vh;
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             grid-template-rows: repeat(2, 1fr);
-            width: 100%;
-            height: 100%;
+            gap: 6px;
         }
 
         .house-card {
             background: rgba(20,20,20,0.55);
-            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 100%;
-            height: 100%;
         }
 
         .house-card img {
-            width: 90%;
-            height: 90%;
+            width: 85%;
+            height: 85%;
             object-fit: contain;
         }
+
+        /* CATEGORIES (32% height) */
+        .categories {
+            height: 32vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            margin-top: 6px;
+        }
+
+        .cat-btn {
+            flex: 1;
+            margin: 2px 0;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+        }
+
+        /* BUTTON + NOTE (10% height) */
+        .award-btn {
+            width: 100%;
+            height: 6vh;
+            background: #32a8ff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: bold;
+            margin-top: 6px;
+        }
+
+        .note {
+            height: 4vh;
+            text-align: center;
+            font-size: 11px;
+            color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
     </style>
 </head>
 
 <body>
-
 <div class="container">
+
+    <input class="input-box" type="text" id="nameInput" placeholder="Enter name or email">
 
     <div class="house-grid">
 
         <div class="house-card">
-            <img src="pheonix2-removebg.png" alt="Phoenix">
+            <img src="phoenix2-removebg.png" alt="Phoenix">
         </div>
 
         <div class="house-card">
@@ -85,7 +141,20 @@
 
     </div>
 
-</div>
+    <div class="categories">
+        <button class="cat-btn">❤️ Kindness</button>
+        <button class="cat-btn">📘 Academic Effort</button>
+        <button class="cat-btn">🤝 Teamwork</button>
+        <button class="cat-btn">⚜️ Respect</button>
+        <button class="cat-btn">⭐ Leadership</button>
+        <button class="cat-btn">🧠 Creativity</button>
+        <button class="cat-btn">🛡️ Responsibility</button>
+    </div>
 
+    <button class="award-btn">Award 1 Point</button>
+
+    <div class="note">multiple points can be awarded upon special request</div>
+
+</div>
 </body>
 </html>
