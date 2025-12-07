@@ -207,8 +207,8 @@
 
         .sorting-icons-wrapper {
             position: relative;
-            width: 260px;
-            height: 260px;
+            width: 240px;
+            height: 240px;
             margin: 30px auto;
         }
 
@@ -216,7 +216,7 @@
         .sorting-icons-wrapper::before {
             content: "";
             position: absolute;
-            inset: 20px;
+            inset: 25px;
             border-radius: 50%;
             box-shadow:
                 0 0 25px rgba(255, 215, 0, 0.35),
@@ -237,80 +237,62 @@
 
         .sorting-icons img {
             position: absolute;
+            top: 50%;
+            left: 50%;
             width: 110px;
             opacity: 0.95;
             filter: drop-shadow(0 0 15px rgba(255,255,255,0.4));
         }
 
-        /* 2x2 positions (corners of a square), plus shuffle/orbit animation */
-        .icon-phoenix {
-            animation: shufflePhoenix 4s infinite ease-in-out;
-        }
-        .icon-dragon {
-            animation: shuffleDragon 4s infinite ease-in-out;
-        }
-        .icon-hydra {
-            animation: shuffleHydra 4s infinite ease-in-out;
-        }
-        .icon-griffin {
-            animation: shuffleGriffin 4s infinite ease-in-out;
-        }
-
-        /* Each keyframe moves the shields through all four corners,
-           like a magical shell-game shuffle */
+        /* These animations move the shields between 4 corners
+           around the true centre, so the whole ritual is centred. */
 
         @keyframes shufflePhoenix {
-            0%   { transform: translate(0, 0) scale(1); }
-            20%  { transform: translate(150px, 0) scale(1.05) rotate(5deg); }
-            40%  { transform: translate(150px, 150px) scale(1.1) rotate(-3deg); }
-            60%  { transform: translate(0, 150px) scale(1.05) rotate(2deg); }
-            80%  { transform: translate(75px, 75px) scale(0.9) rotate(0deg); }
-            100% { transform: translate(0, 0) scale(1); }
+            0%   { transform: translate(-50%, -50%) translate(-70px, -70px) scale(1); }
+            20%  { transform: translate(-50%, -50%) translate( 70px, -70px) scale(1.05) rotate(5deg); }
+            40%  { transform: translate(-50%, -50%) translate( 70px,  70px) scale(1.1)  rotate(-3deg); }
+            60%  { transform: translate(-50%, -50%) translate(-70px,  70px) scale(1.05) rotate(2deg); }
+            80%  { transform: translate(-50%, -50%) translate(  0px,   0px) scale(0.9)  rotate(0deg); }
+            100% { transform: translate(-50%, -50%) translate(-70px, -70px) scale(1); }
         }
 
         @keyframes shuffleDragon {
-            0%   { transform: translate(150px, 0) scale(1); }
-            20%  { transform: translate(150px, 150px) scale(1.05) rotate(-4deg); }
-            40%  { transform: translate(0, 150px) scale(1.1) rotate(4deg); }
-            60%  { transform: translate(0, 0) scale(1.05) rotate(-2deg); }
-            80%  { transform: translate(75px, 75px) scale(0.9) rotate(1deg); }
-            100% { transform: translate(150px, 0) scale(1); }
+            0%   { transform: translate(-50%, -50%) translate( 70px, -70px) scale(1); }
+            20%  { transform: translate(-50%, -50%) translate( 70px,  70px) scale(1.05) rotate(-4deg); }
+            40%  { transform: translate(-50%, -50%) translate(-70px,  70px) scale(1.1)  rotate(4deg); }
+            60%  { transform: translate(-50%, -50%) translate(-70px, -70px) scale(1.05) rotate(-2deg); }
+            80%  { transform: translate(-50%, -50%) translate(  0px,   0px) scale(0.9)  rotate(1deg); }
+            100% { transform: translate(-50%, -50%) translate( 70px, -70px) scale(1); }
         }
 
         @keyframes shuffleHydra {
-            0%   { transform: translate(0, 150px) scale(1); }
-            20%  { transform: translate(0, 0) scale(1.05) rotate(3deg); }
-            40%  { transform: translate(150px, 0) scale(1.1) rotate(-3deg); }
-            60%  { transform: translate(150px, 150px) scale(1.05) rotate(2deg); }
-            80%  { transform: translate(75px, 75px) scale(0.9) rotate(-2deg); }
-            100% { transform: translate(0, 150px) scale(1); }
+            0%   { transform: translate(-50%, -50%) translate(-70px,  70px) scale(1); }
+            20%  { transform: translate(-50%, -50%) translate(-70px, -70px) scale(1.05) rotate(3deg); }
+            40%  { transform: translate(-50%, -50%) translate( 70px, -70px) scale(1.1)  rotate(-3deg); }
+            60%  { transform: translate(-50%, -50%) translate( 70px,  70px) scale(1.05) rotate(2deg); }
+            80%  { transform: translate(-50%, -50%) translate(  0px,   0px) scale(0.9)  rotate(-2deg); }
+            100% { transform: translate(-50%, -50%) translate(-70px,  70px) scale(1); }
         }
 
         @keyframes shuffleGriffin {
-            0%   { transform: translate(150px, 150px) scale(1); }
-            20%  { transform: translate(0, 150px) scale(1.05) rotate(-2deg); }
-            40%  { transform: translate(0, 0) scale(1.1) rotate(3deg); }
-            60%  { transform: translate(150px, 0) scale(1.05) rotate(-1deg); }
-            80%  { transform: translate(75px, 75px) scale(0.9) rotate(2deg); }
-            100% { transform: translate(150px, 150px) scale(1); }
+            0%   { transform: translate(-50%, -50%) translate( 70px,  70px) scale(1); }
+            20%  { transform: translate(-50%, -50%) translate(-70px,  70px) scale(1.05) rotate(-2deg); }
+            40%  { transform: translate(-50%, -50%) translate(-70px, -70px) scale(1.1)  rotate(3deg); }
+            60%  { transform: translate(-50%, -50%) translate( 70px, -70px) scale(1.05) rotate(-1deg); }
+            80%  { transform: translate(-50%, -50%) translate(  0px,   0px) scale(0.9)  rotate(2deg); }
+            100% { transform: translate(-50%, -50%) translate( 70px,  70px) scale(1); }
         }
 
-        .sorting-text {
-            font-size: 1.2rem;
-            color: #e0eaff;
-            font-weight: 600;
-            margin-top: 10px;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
+        .icon-phoenix { animation: shufflePhoenix 4s infinite ease-in-out; }
+        .icon-dragon  { animation: shuffleDragon 4s infinite ease-in-out; }
+        .icon-hydra   { animation: shuffleHydra 4s infinite ease-in-out; }
+        .icon-griffin { animation: shuffleGriffin 4s infinite ease-in-out; }
 
         /* Wand / spark trail */
         .wand-spark {
             position: absolute;
+            top: 50%;
+            left: 50%;
             width: 14px;
             height: 14px;
             border-radius: 50%;
@@ -324,11 +306,24 @@
         }
 
         @keyframes wandOrbit {
-            0%   { transform: translate(130px, 0); opacity: 1; }
-            25%  { transform: translate(260px, 130px); opacity: 0.9; }
-            50%  { transform: translate(130px, 260px); opacity: 0.8; }
-            75%  { transform: translate(0, 130px); opacity: 0.9; }
-            100% { transform: translate(130px, 0); opacity: 1; }
+            0%   { transform: translate(-50%, -50%) translate( 90px,   0px); opacity: 1; }
+            25%  { transform: translate(-50%, -50%) translate(  0px,  90px); opacity: 0.9; }
+            50%  { transform: translate(-50%, -50%) translate(-90px,   0px); opacity: 0.8; }
+            75%  { transform: translate(-50%, -50%) translate(  0px, -90px); opacity: 0.9; }
+            100% { transform: translate(-50%, -50%) translate( 90px,   0px); opacity: 1; }
+        }
+
+        .sorting-text {
+            font-size: 1.2rem;
+            color: #e0eaff;
+            font-weight: 600;
+            margin-top: 10px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         /* REVEAL SCREEN */
@@ -352,14 +347,22 @@
         }
 
         .house-creature {
-            font-size: 100px;
             margin-bottom: 10px;
             animation: bounce 1s ease;
         }
 
+        .house-creature img {
+            width: 140px;
+            display: block;
+            margin: 0 auto;
+            filter:
+                drop-shadow(0 0 12px rgba(0,0,0,0.7))
+                drop-shadow(0 0 18px rgba(255,255,255,0.35));
+        }
+
         @keyframes bounce {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
+            50% { transform: scale(1.1); }
         }
 
         .house-name {
@@ -488,7 +491,7 @@
         <div class="subtitle">Discover your house at Internationella Engelska Skolan Västerås</div>
     </header>
 
-    <!-- Shields -->
+    <!-- Side shields -->
     <div class="side-column left-column">
         <img src="./dragon2-removebg.png" alt="Dragon">
         <img src="./griffin2-removebg.png" alt="Griffin">
@@ -543,7 +546,9 @@
         <!-- REVEAL SCREEN -->
         <div class="screen" id="revealScreen">
             <div class="house-reveal">
-                <div class="house-creature" id="houseCreature">🔥</div>
+                <div class="house-creature">
+                    <img id="houseShield" src="./phoenix2-removebg.png" alt="House Shield">
+                </div>
                 <h2 class="house-name phoenix" id="houseName">PHOENIX</h2>
                 <p class="house-values" id="houseValues">Resilience • Courage • Rising Again</p>
                 <p class="house-motto" id="houseMotto">"Rise from the ashes"</p>
@@ -572,31 +577,35 @@
         /* APPS SCRIPT ENDPOINT (same as before) */
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec';
 
-        /* House data */
+        /* House data – now also includes shield paths for reveal */
         const houses = {
             Phoenix: {
                 creature: '🔥',
                 values: 'Resilience • Courage • Rising Again',
                 motto: '"Rise from the ashes"',
-                class: 'phoenix'
+                class: 'phoenix',
+                shield: './phoenix2-removebg.png'
             },
             Dragon: {
                 creature: '🐉',
                 values: 'Strength • Wisdom • Perseverance',
                 motto: '"Power through knowledge"',
-                class: 'dragon'
+                class: 'dragon',
+                shield: './dragon2-removebg.png'
             },
             Hydra: {
                 creature: '🌊',
                 values: 'Adaptability • Unity • Determination',
                 motto: '"Many heads, one heart"',
-                class: 'hydra'
+                class: 'hydra',
+                shield: './hydra2-removebg.png'
             },
             Griffin: {
                 creature: '🦅',
                 values: 'Leadership • Excellence • Honor',
                 motto: '"Soar above expectations"',
-                class: 'griffin'
+                class: 'griffin',
+                shield: './griffin2-removebg.png'
             }
         };
 
@@ -675,7 +684,12 @@
 
             document.getElementById('sortingScreen').classList.remove('active');
 
-            document.getElementById('houseCreature').textContent = house.creature;
+            // Shield image
+            const shieldImg = document.getElementById('houseShield');
+            shieldImg.src = house.shield;
+            shieldImg.alt = `House ${houseName} Shield`;
+
+            // Text styling
             const houseNameEl = document.getElementById('houseName');
             houseNameEl.textContent = houseName.toUpperCase();
             houseNameEl.className = `house-name ${house.class}`;
