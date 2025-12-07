@@ -2,241 +2,224 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>House Swap Tool - IESV</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>House Swap - IESV</title>
+<link rel="icon" type="image/x-icon" href="console-favicon.ico">
 <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         background: linear-gradient(135deg, #102d69 0%, #00a0df 100%);
         min-height: 100vh;
-        margin: 0;
         display: flex;
         justify-content: center;
-        align-items: center;
-        padding: 20px;
+        padding: 30px 20px;
+        color: white;
     }
 
     .container {
-        background: white;
-        padding: 40px 35px;
-        border-radius: 24px;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.35);
-        width: 420px;
-        max-width: 100%;
-        text-align: center;
+        background: rgba(255, 255, 255, 0.97);
+        border-radius: 16px;
+        width: 100%;
+        max-width: 600px;
+        padding: 30px;
+        color: #102d69;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.25);
     }
 
     h1 {
-        margin-bottom: 8px;
-        color: #102d69;
-        font-size: 28px;
+        font-size: 34px;
+        margin-bottom: 5px;
+        text-align: center;
     }
-
     .subtitle {
-        margin-bottom: 24px;
-        color: #666;
-        font-size: 14px;
+        text-align: center;
+        margin-bottom: 25px;
+        font-size: 16px;
+        opacity: 0.8;
     }
 
     label {
-        display: block;
-        text-align: left;
-        font-size: 13px;
         font-weight: 600;
-        color: #444;
-        margin-bottom: 4px;
+        margin-top: 15px;
+        display: block;
+        font-size: 15px;
     }
 
     input, select {
         width: 100%;
-        padding: 11px 12px;
-        margin-bottom: 18px;
-        border-radius: 12px;
-        border: 2px solid #d0d3dd;
-        font-size: 14px;
-        box-sizing: border-box;
+        padding: 14px;
+        margin-top: 6px;
+        border-radius: 10px;
+        border: 2px solid #ccc;
+        font-size: 16px;
     }
 
-    input:focus, select:focus {
-        outline: none;
-        border-color: #00a0df;
-        box-shadow: 0 0 0 3px rgba(0,160,223,0.15);
+    input:disabled {
+        background: #eaeaea;
+        color: #555;
     }
 
     button {
         width: 100%;
-        padding: 14px;
+        padding: 16px;
+        margin-top: 25px;
+        background: linear-gradient(135deg, #ff4444, #ff8844);
         border: none;
-        background: linear-gradient(135deg, #102d69, #00a0df);
         color: white;
-        font-size: 16px;
-        font-weight: 600;
+        font-size: 18px;
+        font-weight: 700;
         border-radius: 12px;
         cursor: pointer;
-        box-shadow: 0 10px 25px rgba(16,45,105,0.45);
+        transition: 0.3s ease;
     }
-
-    button:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 12px 30px rgba(16,45,105,0.55);
-    }
-
-    #result {
-        margin-top: 14px;
-        font-weight: 600;
-        font-size: 13px;
-    }
-
-    .hidden {
-        display: none;
-    }
+    button:hover { transform: translateY(-3px); }
 
     .error {
-        color: #c62828;
+        margin-top: 12px;
+        padding: 12px;
+        background: #ffdddd;
+        color: #990000;
+        border-left: 4px solid red;
+        border-radius: 6px;
     }
 
     .success {
-        color: #2e7d32;
+        margin-top: 12px;
+        padding: 12px;
+        background: #ddffdd;
+        color: #006600;
+        border-left: 4px solid green;
+        border-radius: 6px;
     }
 
-    .hint {
-        font-size: 11px;
-        color: #777;
-        margin-top: -10px;
-        margin-bottom: 14px;
-        text-align: left;
-    }
+    .hidden { display: none; }
 </style>
 </head>
-<body>
 
+<body>
 <div class="container">
     <h1>House Swap</h1>
-    <p class="subtitle">Staff-only tool for manual house changes</p>
+    <p class="subtitle">Staff Only • Manual Student Reassignment</p>
 
-    <!-- PASSWORD SCREEN -->
-    <div id="passwordScreen">
-        <label for="passwordInput">Admin Password</label>
-        <input type="password" id="passwordInput" placeholder="Enter admin password">
-        <button onclick="checkPassword()">Unlock</button>
-        <p id="passwordError" class="error hidden">Incorrect password</p>
+    <!-- STAFF BLOCK -->
+    <div id="error-student" class="error hidden">
+        Access denied — students cannot change house assignments.
     </div>
 
-    <!-- SWAP SCREEN -->
-    <div id="swapScreen" class="hidden">
-        <label for="staffEmailInput">Your staff email</label>
-        <input type="email" id="staffEmailInput" placeholder="firstname.lastname.vasteras@engelska.se">
-        <p class="hint">Only staff accounts (no <code>.student.</code>) can use this tool.</p>
+    <!-- PASSWORD BLOCK -->
+    <div id="password-block">
+        <label>Enter Admin Password</label>
+        <input type="password" id="adminPass" placeholder="Password required">
+        <button onclick="verifyPassword()">Unlock</button>
+        <div id="error-pass" class="error hidden">Incorrect password.</div>
+    </div>
 
-        <label for="studentEmailInput">Student to move</label>
-        <input type="text" id="studentEmailInput" list="studentList" placeholder="Start typing name or email...">
-        <datalist id="studentList"></datalist>
-        <p class="hint">Autocomplete is populated from the Student Roster.</p>
+    <!-- MAIN FORM -->
+    <div id="swap-form" class="hidden">
 
-        <label for="houseSelect">New house</label>
-        <select id="houseSelect">
-            <option value="">Select house...</option>
-            <option value="Phoenix">Phoenix</option>
-            <option value="Dragon">Dragon</option>
-            <option value="Hydra">Hydra</option>
-            <option value="Griffin">Griffin</option>
+        <label>Email Address</label>
+        <input type="email" id="emailInput" placeholder="firstname.lastname.student.vasteras@engelska.se" oninput="lookupStudent()">
+
+        <label>Student Name</label>
+        <input type="text" id="studentName" disabled>
+
+        <label>Current House</label>
+        <input type="text" id="currentHouse" disabled>
+
+        <label>New House</label>
+        <select id="newHouse">
+            <option value="">Select House…</option>
+            <option value="Phoenix">Phoenix 🔥</option>
+            <option value="Dragon">Dragon 🐉</option>
+            <option value="Hydra">Hydra 🌊</option>
+            <option value="Griffin">Griffin 🦅</option>
         </select>
 
-        <button onclick="swapHouse()">Swap House</button>
+        <button onclick="submitSwap()">Submit House Swap</button>
 
-        <p id="result"></p>
+        <div id="result" class="hidden"></div>
     </div>
 </div>
 
 <script>
-const PASSWORD = "135vasteras";
-const API = "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
 
-function checkPassword() {
-    const input = document.getElementById("passwordInput").value.trim();
-    if (input === PASSWORD) {
-        document.getElementById("passwordScreen").classList.add("hidden");
-        document.getElementById("swapScreen").classList.remove("hidden");
-        document.getElementById("passwordError").classList.add("hidden");
-        loadStudents();
+function verifyPassword() {
+    const pass = document.getElementById("adminPass").value;
+    if (pass === "135vasteras") {
+        document.getElementById("password-block").classList.add("hidden");
+        document.getElementById("swap-form").classList.remove("hidden");
     } else {
-        document.getElementById("passwordError").classList.remove("hidden");
+        document.getElementById("error-pass").classList.remove("hidden");
     }
 }
 
-async function loadStudents() {
-    try {
-        const res = await fetch(API + "?action=listStudents");
-        const json = await res.json();
-        if (json.status !== "success" || !json.data || !json.data.students) {
-            console.error("Failed to load students", json);
-            return;
-        }
-        const list = document.getElementById("studentList");
-        list.innerHTML = "";
-        json.data.students.forEach(s => {
-            const label = (s.firstName || "") + " " + (s.lastName || "") + " — " + s.email;
-            const opt = document.createElement("option");
-            opt.value = s.email;
-            opt.label = label;
-            list.appendChild(opt);
+function lookupStudent() {
+    const email = document.getElementById("emailInput").value.trim();
+
+    if (!email.includes("@engelska.se")) return;
+
+    // Student block
+    if (email.includes(".student.")) {
+        document.getElementById("error-student").classList.remove("hidden");
+        document.getElementById("swap-form").classList.add("hidden");
+        return;
+    } else {
+        document.getElementById("error-student").classList.add("hidden");
+        document.getElementById("swap-form").classList.remove("hidden");
+    }
+
+    fetch(API_URL + "?action=houseTotals")  
+        .then(r => r.json())
+        .then(() => {
+            const namePart = email.split("@")[0];
+            const parts = namePart.split(".");
+            const firstName = parts[0]?.charAt(0).toUpperCase() + parts[0]?.slice(1);
+            const lastName = parts[1]?.charAt(0).toUpperCase() + parts[1]?.slice(1);
+
+            document.getElementById("studentName").value = firstName + " " + lastName;
+
+            fetch(API_URL + "?action=getCurrentHouse&email=" + encodeURIComponent(email))
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById("currentHouse").value = data.house || "Not found";
+                });
         });
-    } catch (err) {
-        console.error("Error loading students", err);
-    }
 }
 
-async function swapHouse() {
-    const staffEmail = document.getElementById("staffEmailInput").value.trim().toLowerCase();
-    const studentEmail = document.getElementById("studentEmailInput").value.trim().toLowerCase();
-    const newHouse = document.getElementById("houseSelect").value;
-    const resultEl = document.getElementById("result");
+function submitSwap() {
+    const email = document.getElementById("emailInput").value.trim();
+    const newHouse = document.getElementById("newHouse").value;
 
-    resultEl.textContent = "";
-    resultEl.className = "";
-
-    if (!staffEmail || !studentEmail || !newHouse) {
-        resultEl.textContent = "Please fill in staff email, student, and new house.";
-        resultEl.className = "error";
+    if (!email || !newHouse) {
+        showMessage("Please fill all fields.", true);
         return;
     }
 
-    if (staffEmail.indexOf(".student.") !== -1) {
-        resultEl.textContent = "Access denied: only staff accounts can use this tool.";
-        resultEl.className = "error";
-        return;
-    }
-
-    try {
-        const payload = {
+    fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
             action: "swapHouse",
-            staffEmail: staffEmail,
-            studentEmail: studentEmail,
+            email: email,
             newHouse: newHouse
-        };
-
-        const res = await fetch(API, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        });
-
-        const json = await res.json();
-
-        if (json.status === "success" && json.data && json.data.success) {
-            resultEl.textContent = json.data.message || "House updated successfully.";
-            resultEl.className = "success";
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === "success") {
+            showMessage("House successfully updated!", false);
         } else {
-            const msg = (json.data && json.data.message) || json.message || "Unknown error.";
-            resultEl.textContent = msg;
-            resultEl.className = "error";
+            showMessage(data.message, true);
         }
+    });
+}
 
-    } catch (err) {
-        console.error("Swap error", err);
-        resultEl.textContent = "Error contacting server. Please try again.";
-        resultEl.className = "error";
-    }
+function showMessage(msg, isError) {
+    const box = document.getElementById("result");
+    box.className = isError ? "error" : "success";
+    box.textContent = msg;
+    box.classList.remove("hidden");
 }
 </script>
 
