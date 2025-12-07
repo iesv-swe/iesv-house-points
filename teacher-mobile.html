@@ -153,8 +153,7 @@
         }
 
         .status-success { color: #7CFC7C; }
-        .status-error { color: #ffb3b3; }
-
+        .status-error   { color: #ffb3b3; }
     </style>
 </head>
 
@@ -173,15 +172,12 @@
             <button class="house-btn" data-house="Phoenix">
                 <img src="phoenix2-removebg.png" alt="Phoenix">
             </button>
-
             <button class="house-btn" data-house="Dragon">
                 <img src="dragon2-removebg.png" alt="Dragon">
             </button>
-
             <button class="house-btn" data-house="Hydra">
                 <img src="hydra2-removebg.png" alt="Hydra">
             </button>
-
             <button class="house-btn" data-house="Griffin">
                 <img src="griffin2-removebg.png" alt="Griffin">
             </button>
@@ -217,6 +213,7 @@ const APPS_SCRIPT_URL =
 let currentHouse = "";
 let currentReason = "";
 
+/* House selection */
 document.querySelectorAll(".house-btn").forEach(btn => {
     btn.addEventListener("click", () => {
         document.querySelectorAll(".house-btn").forEach(b => b.classList.remove("selected"));
@@ -225,6 +222,7 @@ document.querySelectorAll(".house-btn").forEach(btn => {
     });
 });
 
+/* Category selection */
 document.querySelectorAll(".reason-btn").forEach(btn => {
     btn.addEventListener("click", () => {
         document.querySelectorAll(".reason-btn").forEach(b => b.classList.remove("selected"));
@@ -235,24 +233,28 @@ document.querySelectorAll(".reason-btn").forEach(btn => {
 
 function setStatus(message, isError = false) {
     const el = document.getElementById("status");
-    el.textContent = message;
+    el.textContent = message || "";
     el.classList.remove("status-success", "status-error");
+    if (!message) return;
     el.classList.add(isError ? "status-error" : "status-success");
 }
 
+/* Submit */
 document.getElementById("submitBtn").addEventListener("click", () => {
     const teacher = document.getElementById("teacherInput").value.trim();
 
-    if (!teacher) return setStatus("Please enter your name or email.", true);
+    if (!teacher)      return setStatus("Please enter your name or email.", true);
     if (!currentHouse) return setStatus("Please select a house.", true);
     if (!currentReason) return setStatus("Please select a category.", true);
 
     const payload = {
-        source: "teacher-mobile",
+        action: "points",                     // 👈 what your doPost expects
         teacher: teacher,
+        student: "",                          // mobile flow has no student
         house: currentHouse,
         category: currentReason,
-        points: 1
+        points: 1,
+        timestamp: new Date().toISOString()
     };
 
     setStatus("Submitting…");
@@ -263,15 +265,16 @@ document.getElementById("submitBtn").addEventListener("click", () => {
     })
     .then(r => r.json().catch(() => ({})))
     .then(data => {
-        if (data && data.status === "error") {
+        if (!data || data.status !== "success") {
+            console.log("Backend response:", data);
             return setStatus("Error submitting. Try again.", true);
         }
 
         setStatus("✓ Point awarded!", false);
 
+        // Reset house + category (keep teacher for multiple awards)
         document.querySelectorAll(".house-btn").forEach(b => b.classList.remove("selected"));
         document.querySelectorAll(".reason-btn").forEach(b => b.classList.remove("selected"));
-
         currentHouse = "";
         currentReason = "";
     })
