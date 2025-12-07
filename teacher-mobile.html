@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- ★★ THIS LINE FIXES EVERYTHING ★★ -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
     <title>House Points - Mobile</title>
     <link rel="icon" type="image/x-icon" href="teacher-favicon.ico">
 
@@ -13,74 +16,62 @@
             box-sizing: border-box;
         }
 
-        html, body {
-            height: 100%;
-            /* overflow: hidden;  <-- ❌ REMOVE THIS */
-        }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: url('castle-wall.png') no-repeat center center;
             background-size: cover;
+            padding: 10px;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
-            overflow-y: auto; /* ✔️ Allow scroll if needed */
         }
 
         .container {
             width: 100%;
             max-width: 480px;
-            min-height: 100%;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            background: rgba(0,0,0,0.25);
+            background: rgba(0,0,0,0.35);
+            padding: 12px;
+            border-radius: 12px;
         }
 
-        .input-area {
-            margin-bottom: 10px;
-        }
-
-        .input-area label {
-            font-size: 15px;
+        label {
             color: white;
-            margin-bottom: 4px;
-            display: block;
+            font-size: 15px;
         }
 
-        .input-area input {
+        input {
             width: 100%;
             padding: 12px;
-            font-size: 16px;
+            margin: 6px 0 14px;
             border-radius: 10px;
             border: none;
+            font-size: 16px;
         }
 
-        .input-area input::placeholder {
+        input::placeholder {
             color: #333;
         }
 
         .house-grid {
-            width: 100%;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 12px;
+            gap: 12px;
+            margin-bottom: 16px;
         }
 
         .house-card {
             background: rgba(20,20,20,0.55);
             border-radius: 12px;
-            padding: 8px;
+            padding: 10px;
             display: flex;
             justify-content: center;
             align-items: center;
+            height: 150px;
         }
 
         .house-card img {
             width: 100%;
-            height: 120px;
+            height: 100%;
             object-fit: contain;
         }
 
@@ -88,51 +79,48 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
 
         .cat-btn {
+            padding: 12px;
             background: #f1f1f1;
             border-radius: 10px;
             border: none;
-            padding: 12px;
-            text-align: left;
             font-size: 14px;
+            text-align: left;
         }
 
         .award-btn {
             width: 100%;
+            padding: 14px;
+            font-size: 18px;
             background: #32a8ff;
             color: white;
-            padding: 14px;
             border: none;
             border-radius: 10px;
-            font-size: 18px;
             margin-bottom: 6px;
         }
 
         .note {
             text-align: center;
-            font-size: 11px;
             color: #ddd;
+            font-size: 11px;
         }
     </style>
 </head>
 
 <body>
-
 <div class="container">
 
-    <div class="input-area">
-        <label>Your Name or Email</label>
-        <input type="text" placeholder="Enter your name or school email">
-    </div>
+    <label>Your Name or Email</label>
+    <input type="text" placeholder="Enter your name or school email">
 
     <div class="house-grid">
-        <div class="house-card"><img src="phoenix2-removebg.png" alt="Phoenix"></div>
-        <div class="house-card"><img src="dragon2-removebg.png" alt="Dragon"></div>
-        <div class="house-card"><img src="hydra2-removebg.png" alt="Hydra"></div>
-        <div class="house-card"><img src="griffin2-removebg.png" alt="Griffin"></div>
+        <div class="house-card"><img src="phoenix2-removebg.png"></div>
+        <div class="house-card"><img src="dragon2-removebg.png"></div>
+        <div class="house-card"><img src="hydra2-removebg.png"></div>
+        <div class="house-card"><img src="griffin2-removebg.png"></div>
     </div>
 
     <div class="categories">
@@ -150,6 +138,5 @@
     <div class="note">multiple points can be awarded upon special request</div>
 
 </div>
-
 </body>
 </html>
