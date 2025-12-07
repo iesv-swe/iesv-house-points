@@ -26,7 +26,6 @@
             max-width: 520px;
         }
 
-        /* --- Card styling --- */
         .card {
             background: #3c3c3c;
             padding: 20px;
@@ -49,7 +48,6 @@
             color: #000;
         }
 
-        /* --- Houses --- */
         .house-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -72,11 +70,8 @@
             width: 100%;
             max-width: 150px;
             height: auto;
-            display: block;
             pointer-events: none;
         }
-
-        .house-btn:hover { filter: brightness(1.08); }
 
         .house-btn.selected {
             border-color: white;
@@ -84,7 +79,6 @@
             transform: scale(1.03);
         }
 
-        /* --- Categories --- */
         .reason-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -99,16 +93,10 @@
             color: white;
             font-size: 15px;
             cursor: pointer;
-            text-align: left;
             transition: 0.12s ease;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-        }
-
-        .reason-btn:hover {
-            background: #777;
-            transform: translateY(-1px);
         }
 
         .reason-btn.selected {
@@ -118,7 +106,6 @@
             font-weight: 600;
         }
 
-        /* --- Submit Button --- */
         #submitBtn {
             width: 100%;
             padding: 16px;
@@ -135,69 +122,57 @@
 
         #submitBtn:hover { background: #41d9ff; }
 
-        /* --- Footer + status --- */
-        .footer-note {
-            text-align: center;
-            margin-top: 8px;
-            font-size: 13px;
-            opacity: 0.85;
-            text-shadow: 0 0 4px black;
-        }
-
         .status-message {
             text-align: center;
             margin-top: 8px;
             font-size: 14px;
             min-height: 20px;
-            text-shadow: 0 0 4px black;
         }
 
         .status-success { color: #7CFC7C; }
-        .status-error   { color: #ffb3b3; }
+        .status-error { color: #ffb3b3; }
+
+        .footer-note {
+            text-align: center;
+            opacity: 0.85;
+            font-size: 13px;
+            margin-top: 6px;
+        }
     </style>
 </head>
 
 <body>
 <div class="container">
 
-    <!-- NAME / EMAIL -->
     <div class="card">
         <h2>Your Name or Email</h2>
         <input id="teacherInput" type="text" placeholder="Enter your name or school email">
     </div>
 
-    <!-- HOUSES (no header) -->
     <div class="card">
         <div class="house-grid">
-            <button class="house-btn" data-house="Phoenix">
-                <img src="phoenix2-removebg.png" alt="Phoenix">
-            </button>
-            <button class="house-btn" data-house="Dragon">
-                <img src="dragon2-removebg.png" alt="Dragon">
-            </button>
-            <button class="house-btn" data-house="Hydra">
-                <img src="hydra2-removebg.png" alt="Hydra">
-            </button>
-            <button class="house-btn" data-house="Griffin">
-                <img src="griffin2-removebg.png" alt="Griffin">
-            </button>
+            <button class="house-btn" data-house="Phoenix"><img src="phoenix2-removebg.png"></button>
+            <button class="house-btn" data-house="Dragon"><img src="dragon2-removebg.png"></button>
+            <button class="house-btn" data-house="Hydra"><img src="hydra2-removebg.png"></button>
+            <button class="house-btn" data-house="Griffin"><img src="griffin2-removebg.png"></button>
         </div>
     </div>
 
-    <!-- CATEGORIES (no header) -->
     <div class="card">
         <div class="reason-grid">
-            <button class="reason-btn" data-reason="❤️ Kindness/Helping Others">❤️ Kindness/Helping Others</button>
-            <button class="reason-btn" data-reason="📘 Academic Effort/Excellence">📘 Academic Effort/Excellence</button>
-            <button class="reason-btn" data-reason="💛 Teamwork/Collaboration">💛 Teamwork/Collaboration</button>
-            <button class="reason-btn" data-reason="🙏 Respect">🙏 Respect</button>
-            <button class="reason-btn" data-reason="⭐ Leadership">⭐ Leadership</button>
-            <button class="reason-btn" data-reason="🎨 Creativity/Problem Solving">🎨 Creativity/Problem Solving</button>
-            <button class="reason-btn" data-reason="☑️ Responsibility">☑️ Responsibility</button>
+
+            <!-- FIXED: emojis visible in text, BUT NOT SUBMITTED -->
+            <button class="reason-btn" data-clean="Kindness/Helping Others">❤️ Kindness/Helping Others</button>
+            <button class="reason-btn" data-clean="Academic Effort/Excellence">📘 Academic Effort/Excellence</button>
+            <button class="reason-btn" data-clean="Teamwork/Collaboration">💛 Teamwork/Collaboration</button>
+            <button class="reason-btn" data-clean="Respect">🙏 Respect</button>
+            <button class="reason-btn" data-clean="Leadership">⭐ Leadership</button>
+            <button class="reason-btn" data-clean="Creativity/Problem Solving">🎨 Creativity/Problem Solving</button>
+            <button class="reason-btn" data-clean="Responsibility">☑️ Responsibility</button>
+
         </div>
     </div>
 
-    <!-- SUBMIT BUTTON -->
     <button id="submitBtn">Award 1 Point</button>
 
     <p class="footer-note">multiple points can be awarded upon special request</p>
@@ -206,14 +181,15 @@
 
 </div>
 
+
 <script>
 const APPS_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
 
 let currentHouse = "";
-let currentReason = "";
+let currentCategory = "";
 
-/* House selection */
+/* HOUSE SELECTION */
 document.querySelectorAll(".house-btn").forEach(btn => {
     btn.addEventListener("click", () => {
         document.querySelectorAll(".house-btn").forEach(b => b.classList.remove("selected"));
@@ -222,37 +198,35 @@ document.querySelectorAll(".house-btn").forEach(btn => {
     });
 });
 
-/* Category selection */
+/* CATEGORY SELECTION — FIXED: use data-clean, not emoji text */
 document.querySelectorAll(".reason-btn").forEach(btn => {
     btn.addEventListener("click", () => {
         document.querySelectorAll(".reason-btn").forEach(b => b.classList.remove("selected"));
         btn.classList.add("selected");
-        currentReason = btn.dataset.reason;
+        currentCategory = btn.dataset.clean;   // 👈 CLEAN VALUE ONLY
     });
 });
 
-function setStatus(message, isError = false) {
+function setStatus(msg, error = false) {
     const el = document.getElementById("status");
-    el.textContent = message || "";
-    el.classList.remove("status-success", "status-error");
-    if (!message) return;
-    el.classList.add(isError ? "status-error" : "status-success");
+    el.textContent = msg;
+    el.className = "status-message " + (error ? "status-error" : "status-success");
 }
 
-/* Submit */
+/* SUBMIT */
 document.getElementById("submitBtn").addEventListener("click", () => {
     const teacher = document.getElementById("teacherInput").value.trim();
 
-    if (!teacher)      return setStatus("Please enter your name or email.", true);
-    if (!currentHouse) return setStatus("Please select a house.", true);
-    if (!currentReason) return setStatus("Please select a category.", true);
+    if (!teacher) return setStatus("Enter your name or email.", true);
+    if (!currentHouse) return setStatus("Select a house.", true);
+    if (!currentCategory) return setStatus("Select a category.", true);
 
     const payload = {
-        action: "points",                     // 👈 what your doPost expects
-        teacher: teacher,
-        student: "",                          // mobile flow has no student
+        action: "points",
+        teacher,
+        student: "",
         house: currentHouse,
-        category: currentReason,
+        category: currentCategory,   // 👈 CLEAN VALUE
         points: 1,
         timestamp: new Date().toISOString()
     };
@@ -266,22 +240,17 @@ document.getElementById("submitBtn").addEventListener("click", () => {
     .then(r => r.json().catch(() => ({})))
     .then(data => {
         if (!data || data.status !== "success") {
-            console.log("Backend response:", data);
-            return setStatus("Error submitting. Try again.", true);
+            return setStatus("✗ Error submitting. Try again.", true);
         }
 
-        setStatus("✓ Point awarded!", false);
+        setStatus("✓ Point awarded!");
 
-        // Reset house + category (keep teacher for multiple awards)
         document.querySelectorAll(".house-btn").forEach(b => b.classList.remove("selected"));
         document.querySelectorAll(".reason-btn").forEach(b => b.classList.remove("selected"));
         currentHouse = "";
-        currentReason = "";
+        currentCategory = "";
     })
-    .catch(err => {
-        console.error(err);
-        setStatus("Network error. Try again.", true);
-    });
+    .catch(() => setStatus("✗ Network error.", true));
 });
 </script>
 
