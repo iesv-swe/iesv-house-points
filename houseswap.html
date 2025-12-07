@@ -2,238 +2,421 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>House Swap - IESV</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="sorting-favicon.ico">
-
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 30px 15px;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #102d69 0%, #00a0df 100%);
             min-height: 100vh;
-            margin: 0;
-            padding: 30px;
-            color: white;
+            color: #f5f7ff;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
         }
 
         .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(8px);
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            width: 100%;
+            max-width: 640px;
+            background: rgba(5, 7, 17, 0.92);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+            padding: 28px 24px 26px 24px;
+            border: 1px solid rgba(255,255,255,0.12);
         }
 
         h1 {
-            text-align: center;
-            margin-bottom: 25px;
+            margin: 0 0 4px 0;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 1px;
         }
 
-        .hidden {
-            display: none;
+        .subtitle {
+            margin: 0 0 18px 0;
+            font-size: 14px;
+            color: #b3bddc;
+        }
+
+        .field-group {
+            margin-bottom: 14px;
         }
 
         label {
-            font-weight: bold;
             display: block;
-            margin: 12px 0 6px;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 14px;
         }
 
-        input, select {
+        input[type="email"],
+        input[type="password"],
+        input[type="text"],
+        select,
+        textarea {
             width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            margin-bottom: 15px;
-            font-size: 16px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(10, 14, 30, 0.95);
+            color: #f5f7ff;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #737c99;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #00a0df;
+            box-shadow: 0 0 0 2px rgba(0,160,223,0.45);
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .helper {
+            font-size: 12px;
+            color: #8b93b5;
+            margin-top: 3px;
+        }
+
+        .current-house {
+            font-size: 13px;
+            margin: 4px 0 0;
+            color: #e8e9ff;
+        }
+
+        .current-house span {
+            font-weight: 700;
         }
 
         button {
             width: 100%;
             padding: 14px;
-            font-size: 18px;
+            margin-top: 8px;
+            border-radius: 999px;
             border: none;
-            border-radius: 10px;
             cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
             background: linear-gradient(135deg, #ff4444, #ff8844);
-            color: white;
-            font-weight: bold;
-            margin-top: 10px;
+            color: #fff;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.5);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
         }
 
         button:hover {
-            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 14px 32px rgba(0,0,0,0.65);
         }
 
-        .success {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(0,255,0,0.2);
-            border-left: 4px solid #00ff00;
-            border-radius: 8px;
+        button:disabled {
+            opacity: 0.5;
+            cursor: default;
+            transform: none;
+            box-shadow: none;
         }
 
-        .error {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(255,0,0,0.2);
-            border-left: 4px solid #ff0000;
-            border-radius: 8px;
+        .status {
+            margin-top: 16px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .status.success {
+            background: rgba(46, 204, 113, 0.18);
+            border-left: 4px solid #2ecc71;
+            color: #e8fff0;
+        }
+
+        .status.error {
+            background: rgba(231, 76, 60, 0.18);
+            border-left: 4px solid #e74c3c;
+            color: #ffeaea;
+        }
+
+        .status.info {
+            background: rgba(52, 152, 219, 0.16);
+            border-left: 4px solid #3498db;
+            color: #e4f3ff;
         }
 
         ul.autocomplete {
-            position: relative;
-            background: white;
-            color: black;
             list-style: none;
             padding: 0;
-            border-radius: 6px;
-            max-height: 200px;
+            margin: 4px 0 0 0;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #111827;
+            max-height: 180px;
             overflow-y: auto;
-            border: 1px solid #ccc;
-            margin-top: -10px;
-            margin-bottom: 10px;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.24);
+            position: relative;
+            z-index: 10;
+        }
+
+        ul.autocomplete.hidden {
+            display: none;
         }
 
         ul.autocomplete li {
-            padding: 8px;
+            padding: 8px 10px;
             cursor: pointer;
+            font-size: 13px;
         }
 
         ul.autocomplete li:hover {
-            background: #eee;
+            background: #e5e7eb;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            background: rgba(0,160,223,0.12);
+            color: #dbeafe;
+            margin-left: 4px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px 16px 18px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
         }
     </style>
 </head>
-
 <body>
-    <div class="container">
+<div class="container">
+    <h1>🔄 House Swap Tool</h1>
+    <p class="subtitle">
+        Staff-only manual house change with full audit logging.
+    </p>
 
-        <h1>🔄 House Swap Tool</h1>
-
-        <!-- PASSWORD STEP -->
-        <div id="password-section">
-            <label>Admin Password</label>
-            <input type="password" id="admin-password" placeholder="Enter password…">
-            <button onclick="checkPassword()">Unlock</button>
-            <p id="password-error" class="error hidden">Incorrect password</p>
-        </div>
-
-        <!-- MAIN TOOL -->
-        <div id="swap-section" class="hidden">
-
-            <label>Search Student</label>
-            <input type="text" id="studentSearch" placeholder="Type a name or email…">
-            <ul id="autocomplete-list" class="autocomplete hidden"></ul>
-
-            <label>Student Email</label>
-            <input type="email" id="studentEmail" placeholder="student email…" autocomplete="off">
-
-            <label>New House</label>
-            <select id="newHouse">
-                <option value="">Select…</option>
-                <option value="Phoenix">Phoenix 🔥</option>
-                <option value="Dragon">Dragon 🐉</option>
-                <option value="Hydra">Hydra 🌊</option>
-                <option value="Griffin">Griffin 🦅</option>
-            </select>
-
-            <button onclick="swapHouse()">Apply House Swap</button>
-
-            <div id="result"></div>
-        </div>
-
+    <!-- STAFF DETAILS -->
+    <div class="field-group">
+        <label for="staffEmail">Your Staff Email <span class="badge">Staff only</span></label>
+        <input type="email" id="staffEmail" placeholder="firstname.lastname.staff.vasteras@engelska.se">
+        <div class="helper">Must be a staff/teacher account – students cannot perform swaps.</div>
     </div>
 
+    <div class="field-group">
+        <label for="adminPassword">Admin Password</label>
+        <input type="password" id="adminPassword" placeholder="Enter admin password">
+        <div class="helper">Current password: <strong>135vasteras</strong></div>
+    </div>
+
+    <hr style="border: none; border-top: 1px solid rgba(148,163,184,0.4); margin: 14px 0 18px;">
+
+    <!-- STUDENT SEARCH -->
+    <div class="field-group">
+        <label for="studentSearch">Search Student</label>
+        <input type="text" id="studentSearch" placeholder="Type a name or email…">
+        <ul id="autocomplete-list" class="autocomplete hidden"></ul>
+        <div class="helper">Pulls from the Student Roster sheet (live list).</div>
+    </div>
+
+    <div class="field-group">
+        <label for="studentEmail">Student Email</label>
+        <input type="email" id="studentEmail" placeholder="firstname.lastname.student.vasteras@engelska.se">
+        <div id="currentHouse" class="current-house"></div>
+    </div>
+
+    <div class="field-group">
+        <label for="newHouse">New House</label>
+        <select id="newHouse">
+            <option value="">Select a house…</option>
+            <option value="Phoenix">Phoenix 🔥</option>
+            <option value="Dragon">Dragon 🐉</option>
+            <option value="Hydra">Hydra 🌊</option>
+            <option value="Griffin">Griffin 🦅</option>
+        </select>
+    </div>
+
+    <div class="field-group">
+        <label for="reason">Reason (optional, for audit log)</label>
+        <textarea id="reason" placeholder="e.g. Sibling in Phoenix, pastoral request, house balancing, etc."></textarea>
+    </div>
+
+    <button id="swapButton" onclick="swapHouse()">Apply House Swap</button>
+
+    <div id="status" class="status info">
+        🔎 Start by entering your staff email and searching for a student.
+    </div>
+</div>
+
 <script>
-const PASSWORD = "135vasteras";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
+
 let allStudents = [];
 
-// Unlock tool
-function checkPassword() {
-    const pw = document.getElementById("admin-password").value.trim();
-    const err = document.getElementById("password-error");
-
-    if (pw === PASSWORD) {
-        document.getElementById("password-section").classList.add("hidden");
-        document.getElementById("swap-section").classList.remove("hidden");
-        loadStudents();
-    } else {
-        err.classList.remove("hidden");
-    }
-}
-
-// Load student list from Apps Script
+// Load students for autocomplete
 function loadStudents() {
-    fetch("https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec?action=listStudents")
-        .then(r => r.json())
+    fetch(APPS_SCRIPT_URL + "?action=listStudents")
+        .then(res => res.json())
         .then(data => {
-            allStudents = data.students;
+            if (data.status === "success") {
+                allStudents = data.students || [];
+                setStatus("Student list loaded. Type a name or email to search.", "info");
+            } else {
+                setStatus("Could not load student list: " + (data.message || "Unknown error"), "error");
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            setStatus("Error loading student list. Check Apps Script deployment.", "error");
         });
 }
 
-// Autocomplete handling
-document.getElementById("studentSearch").addEventListener("input", function () {
-    const query = this.value.toLowerCase();
-    const list = document.getElementById("autocomplete-list");
+// Status helper
+function setStatus(msg, type) {
+    const box = document.getElementById("status");
+    box.textContent = msg;
+    box.className = "status " + (type || "info");
+}
 
-    if (!query) {
-        list.classList.add("hidden");
+// Autocomplete behaviour
+const searchInput = document.getElementById("studentSearch");
+const autocompleteList = document.getElementById("autocomplete-list");
+const studentEmailInput = document.getElementById("studentEmail");
+const currentHouseDiv = document.getElementById("currentHouse");
+
+searchInput.addEventListener("input", function () {
+    const q = this.value.toLowerCase().trim();
+    if (!q || !allStudents.length) {
+        autocompleteList.classList.add("hidden");
+        autocompleteList.innerHTML = "";
         return;
     }
 
     const matches = allStudents.filter(s =>
-        s.email.toLowerCase().includes(query) ||
-        s.name.toLowerCase().includes(query)
-    );
+        s.email.toLowerCase().includes(q) ||
+        s.name.toLowerCase().includes(q)
+    ).slice(0, 25);
 
-    list.innerHTML = "";
-    matches.forEach(s => {
-        const li = document.createElement("li");
-        li.textContent = `${s.name} — ${s.email}`;
-        li.onclick = () => {
-            document.getElementById("studentEmail").value = s.email;
-            document.getElementById("studentSearch").value = s.name;
-            list.classList.add("hidden");
-        };
-        list.appendChild(li);
-    });
-
-    list.classList.remove("hidden");
-});
-
-// Send request to server
-function swapHouse() {
-    const email = document.getElementById("studentEmail").value.trim();
-    const newHouse = document.getElementById("newHouse").value;
-    const result = document.getElementById("result");
-
-    if (!email || !newHouse) {
-        result.innerHTML = `<div class="error">Please select a student and a house.</div>`;
+    if (!matches.length) {
+        autocompleteList.classList.add("hidden");
+        autocompleteList.innerHTML = "";
         return;
     }
 
-    fetch("https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec", {
+    autocompleteList.innerHTML = "";
+    matches.forEach(s => {
+        const li = document.createElement("li");
+        li.textContent = `${s.name} — ${s.email} (${s.house})`;
+        li.onclick = () => {
+            searchInput.value = s.name;
+            studentEmailInput.value = s.email;
+            currentHouseDiv.innerHTML = `Current house: <span>${s.house}</span>`;
+            autocompleteList.classList.add("hidden");
+        };
+        autocompleteList.appendChild(li);
+    });
+
+    autocompleteList.classList.remove("hidden");
+});
+
+document.addEventListener("click", (e) => {
+    if (!autocompleteList.contains(e.target) && e.target !== searchInput) {
+        autocompleteList.classList.add("hidden");
+    }
+});
+
+// Main swap function
+function swapHouse() {
+    const staffEmail = document.getElementById("staffEmail").value.trim();
+    const password = document.getElementById("adminPassword").value.trim();
+    const studentEmail = document.getElementById("studentEmail").value.trim();
+    const newHouse = document.getElementById("newHouse").value;
+    const reason = document.getElementById("reason").value.trim();
+    const button = document.getElementById("swapButton");
+
+    if (!staffEmail || !staffEmail.includes("@")) {
+        setStatus("Please enter your staff email.", "error");
+        return;
+    }
+
+    if (staffEmail.includes(".student.")) {
+        setStatus("Access denied: student accounts cannot perform house swaps.", "error");
+        return;
+    }
+
+    if (!password) {
+        setStatus("Please enter the admin password.", "error");
+        return;
+    }
+
+    if (!studentEmail || !studentEmail.includes("@")) {
+        setStatus("Please select or enter a valid student email.", "error");
+        return;
+    }
+
+    if (!newHouse) {
+        setStatus("Please select a new house.", "error");
+        return;
+    }
+
+    button.disabled = true;
+    setStatus("Applying house swap…", "info");
+
+    fetch(APPS_SCRIPT_URL, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             action: "swapHouse",
-            email: email,
+            staffEmail: staffEmail,
+            password: password,
+            email: studentEmail,
             newHouse: newHouse,
-            byStaff: "House Swap Tool"
-        }),
+            reason: reason
+        })
     })
-        .then(r => r.json())
-        .then(res => {
-            if (res.status === "success") {
-                result.innerHTML = `<div class="success">${res.message}</div>`;
-            } else {
-                result.innerHTML = `<div class="error">${res.message}</div>`;
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            setStatus(data.message || "House swap completed.", "success");
+            if (data.newHouse) {
+                currentHouseDiv.innerHTML = `Current house: <span>${data.newHouse}</span>`;
             }
-        });
+        } else {
+            setStatus(data.message || "House swap failed.", "error");
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        setStatus("Error contacting server. Check Apps Script URL.", "error");
+    })
+    .finally(() => {
+        button.disabled = false;
+    });
 }
-</script>
 
+// Initialise
+loadStudents();
+</script>
 </body>
 </html>
