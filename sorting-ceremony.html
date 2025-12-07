@@ -39,7 +39,7 @@
             pointer-events: none;
         }
 
-        /* Particles */
+        /* Particle effects */
         .particles {
             position: absolute;
             inset: 0;
@@ -87,20 +87,19 @@
         /* SHIELD COLUMNS */
         .side-column {
             position: absolute;
-            top: 18%;
+            top: 10%;   /* SHIFTED UP FROM 18% */
             display: flex;
             flex-direction: column;
             gap: 45px;
             z-index: 2;
         }
 
-        /* MOVED INWARD TOWARD CENTER */
         .left-column { left: 90px; }
         .right-column { right: 90px; }
 
         .side-column img {
-            width: 216px; /* 80% BIGGER */
-            opacity: 0.95; /* REDUCED TRANSPARENCY */
+            width: 216px; /* Bigger shields */
+            opacity: 0.95;
             filter: drop-shadow(0 0 18px rgba(120,170,255,0.35))
                     contrast(1.15) brightness(1.05);
         }
@@ -131,6 +130,7 @@
             text-align: center;
         }
 
+        /* BUTTON */
         button {
             padding: 14px 28px;
             background: linear-gradient(145deg, #0f1a2a, #00050a);
