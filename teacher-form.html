@@ -285,7 +285,7 @@ document.getElementById("submitBtn").addEventListener("click", () => {
     if (!currentCategory) return setStatus("Select a category.", true);
 
     const payload = {
-        action: "awardPoints",   // ✅ REQUIRED BY YOUR BACKEND
+        action: "points",   // ✅ Correct action for your backend
         source: "teacher-form",
         teacher,
         house: currentHouse,
