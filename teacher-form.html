@@ -51,7 +51,7 @@
             padding: 20px;
             border-radius: 16px;
             margin-bottom: 18px;
-            box-shadow: 0 0 14px rgba(0,0,0,0.35);
+            box-shadow: 0 10px 35px rgba(0,0,0,0.45);
             backdrop-filter: blur(3px);
         }
 
@@ -285,6 +285,7 @@ document.getElementById("submitBtn").addEventListener("click", () => {
     if (!currentCategory) return setStatus("Select a category.", true);
 
     const payload = {
+        action: "awardPoints",   // ✅ REQUIRED BY YOUR BACKEND
         source: "teacher-form",
         teacher,
         house: currentHouse,
@@ -300,7 +301,7 @@ document.getElementById("submitBtn").addEventListener("click", () => {
     })
     .then(r => r.json().catch(() => ({})))
     .then(data => {
-        if (data.status === "error") {
+        if (!data || data.status === "error") {
             setStatus("✗ Error sending. Try again.", true);
         } else {
             setStatus("✓ Point awarded!");
