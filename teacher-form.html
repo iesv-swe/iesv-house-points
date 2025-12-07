@@ -79,7 +79,7 @@
 
         .house-btn {
             position: relative;
-            height: 150px;
+            height: 180px;
             border-radius: 18px;
             background: #2b2b2b;
             border: none;
@@ -93,18 +93,21 @@
         }
 
         .house-btn img {
-            width: 70%;
+            width: 85%;
             height: auto;
+            max-height: 140px;
+            object-fit: contain;
+            object-position: top;
+            transform: translateY(-10px);
             z-index: 2;
+            pointer-events: none;
         }
 
-        /* Glow when hovered */
         .house-btn:hover {
             box-shadow: 0 0 20px rgba(255,140,0,0.9);
             transform: scale(1.04);
         }
 
-        /* Glow when selected */
         .house-btn.selected {
             box-shadow: 0 0 28px rgba(255,140,0,1);
             transform: scale(1.06);
