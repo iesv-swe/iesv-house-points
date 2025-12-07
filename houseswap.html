@@ -1,257 +1,241 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>House Swap – IESV</title>
-    <link rel="icon" type="image/x-icon" href="console-favicon.ico">
+<meta charset="UTF-8">
+<title>House Swap - IESV</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/x-icon" href="console-favicon.ico">
 
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+        background: linear-gradient(135deg, #102d69, #00a0df);
+        min-height: 100vh;
+        padding: 40px 20px;
+        color: white;
+        animation: fadeIn 0.5s ease;
+    }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            background: linear-gradient(135deg, #102d69 0%, #00a0df 100%);
-            min-height: 100vh;
-            padding: 40px 20px;
-            color: white;
-        }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .container {
-            max-width: 700px;
-            margin: 0 auto;
-            background: rgba(0,0,0,0.55);
-            backdrop-filter: blur(6px);
-            border-radius: 20px;
-            padding: 35px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-            animation: fadeIn 0.6s ease;
-        }
+    .container {
+        max-width: 650px;
+        margin: auto;
+        background: rgba(255,255,255,0.95);
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        color: #102d69;
+    }
 
-        h1 {
-            font-size: 36px;
-            margin-bottom: 15px;
-            font-weight: 700;
-            text-align: center;
-        }
+    h1 {
+        text-align: center;
+        color: white;
+        margin-bottom: 30px;
+        font-size: 36px;
+        text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+    }
 
-        p.subtitle {
-            text-align: center;
-            opacity: 0.8;
-            margin-bottom: 30px;
-        }
+    label {
+        font-weight: 600;
+        margin-top: 10px;
+        display: block;
+    }
 
-        .field-group {
-            margin-bottom: 25px;
-        }
+    input, select, textarea {
+        width: 100%;
+        padding: 12px;
+        margin-top: 6px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+    }
 
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
+    input:disabled {
+        background: #eee;
+    }
 
-        input, select {
-            width: 100%;
-            padding: 14px;
-            border-radius: 10px;
-            border: none;
-            font-size: 16px;
-            background: rgba(255,255,255,0.15);
-            color: white;
-        }
+    textarea {
+        resize: vertical;
+        height: 80px;
+    }
 
-        input::placeholder {
-            color: rgba(255,255,255,0.6);
-        }
+    .button {
+        margin-top: 20px;
+        width: 100%;
+        padding: 16px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #ff4444, #ff8844);
+        color: white;
+        border: none;
+        font-size: 18px;
+        cursor: pointer;
+        transition: transform .2s;
+        font-weight: bold;
+    }
 
-        .helper {
-            font-size: 12px;
-            opacity: 0.7;
-            margin-top: 4px;
-        }
+    .button:hover {
+        transform: translateY(-3px);
+    }
 
-        button {
-            width: 100%;
-            padding: 16px;
-            margin-top: 20px;
-            font-size: 18px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 700;
-            background: linear-gradient(135deg, #00a0df, #102d69);
-            color: white;
-            transition: 0.3s ease;
-        }
+    .status {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        font-weight: bold;
+        display: none;
+    }
 
-        button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
-        }
+    .success { background: #d4edda; color: #155724; display: block; }
+    .error { background: #f8d7da; color: #721c24; display: block; }
 
-        .result-box {
-            margin-top: 25px;
-            padding: 20px;
-            border-radius: 15px;
-            background: rgba(255,255,255,0.15);
-            display: none;
-        }
+    .note {
+        font-size: 13px;
+        opacity: 0.7;
+        margin-top: 4px;
+    }
 
-        .success {
-            background: rgba(0,200,0,0.22);
-        }
-
-        .error {
-            background: rgba(200,0,0,0.22);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
+</style>
 </head>
 <body>
 
+<h1>🏠 House Swap Tool</h1>
+
 <div class="container">
-    <h1>🏠 Manual House Swap</h1>
-    <p class="subtitle">Staff Tool — Move a student or staff member into a different house.</p>
 
-    <!-- EMAIL FIELD -->
-    <div class="field-group">
-        <label for="emailInput">Enter Email Address</label>
-        <input type="email" id="emailInput" placeholder="firstname.lastname@engelska.se">
-        <div class="helper">Must be a staff/teacher account — students cannot perform swaps.</div>
-    </div>
+    <label for="staffEmail">Your Staff Email</label>
+    <input type="email" id="staffEmail" placeholder="name.surname@engelska.se" required>
 
-    <!-- PASSWORD FIELD -->
-    <div class="field-group">
-        <label for="adminPassword">Admin Password</label>
-        <input type="password" id="adminPassword" placeholder="Enter admin password">
-        <div class="helper">Required for access.</div>
-    </div>
+    <label for="password">Admin Password</label>
+    <input type="password" id="password" placeholder="Enter admin password" required>
 
-    <!-- SEARCH BOX -->
-    <div class="field-group">
-        <label for="studentSearch">Search Student</label>
-        <input type="text" id="studentSearch" placeholder="Start typing a name or email...">
-        <div class="helper">Searches the Student Roster live.</div>
-    </div>
+    <label for="studentSearch">Search Student</label>
+    <input list="studentList" id="studentSearch" placeholder="Type a name or email...">
+    <datalist id="studentList"></datalist>
 
-    <!-- SELECTED STUDENT INFO -->
-    <div class="field-group">
-        <label>Selected Student</label>
-        <input type="text" id="selectedStudent" readonly placeholder="No student selected">
-    </div>
+    <label for="studentEmail">Student Email</label>
+    <input type="email" id="studentEmail" disabled>
 
-    <!-- NEW HOUSE -->
-    <div class="field-group">
-        <label for="newHouse">Assign New House</label>
-        <select id="newHouse">
-            <option value="">Select House…</option>
-            <option value="Phoenix">🔥 Phoenix</option>
-            <option value="Dragon">🐉 Dragon</option>
-            <option value="Hydra">🌊 Hydra</option>
-            <option value="Griffin">🦅 Griffin</option>
-        </select>
-    </div>
+    <label for="currentHouse">Current House</label>
+    <input type="text" id="currentHouse" disabled>
 
-    <button onclick="performSwap()">Swap House</button>
+    <label for="newHouse">New House</label>
+    <select id="newHouse">
+        <option value="">Select House…</option>
+        <option value="Phoenix">Phoenix 🔥</option>
+        <option value="Dragon">Dragon 🐉</option>
+        <option value="Hydra">Hydra 🌊</option>
+        <option value="Griffin">Griffin 🦅</option>
+    </select>
 
-    <div id="resultBox" class="result-box"></div>
+    <label for="reason">Reason for Change</label>
+    <textarea id="reason" placeholder="Optional but recommended"></textarea>
+
+    <button class="button" onclick="submitSwap()">Swap House</button>
+
+    <div id="status" class="status"></div>
+
 </div>
 
-<script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
-let studentList = [];
 
-// FETCH STUDENTS
+<script>
+// *** API URL — YOUR LIVE ENDPOINT ***
+const API = "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
+
+let students = [];
+
+// --------------------- Load Student List ----------------------
 async function loadStudents() {
     try {
-        const res = await fetch(APPS_SCRIPT_URL + "?action=listStudents");
-        const json = await res.json();
-        studentList = json.students || [];
+        const res = await fetch(API + "?action=listStudents");
+        const data = await res.json();
+
+        if (data.status !== "success") return;
+
+        students = data.students;
+
+        const dl = document.getElementById("studentList");
+        dl.innerHTML = "";
+
+        students.forEach(s => {
+            const option = document.createElement("option");
+            option.value = `${s.name} (${s.email})`;
+            dl.appendChild(option);
+        });
+
     } catch (err) {
-        console.error(err);
-        showMessage("Could not load student list.", true);
+        console.error("Student list error:", err);
     }
 }
+
 loadStudents();
 
-// LIVE SEARCH
-document.getElementById("studentSearch").addEventListener("input", function () {
-    const q = this.value.toLowerCase();
-    const match = studentList.find(s =>
-        s.email.toLowerCase().includes(q) ||
-        s.name.toLowerCase().includes(q)
+
+// -------------------- Autocomplete Selection --------------------
+document.getElementById("studentSearch").addEventListener("change", () => {
+    const input = document.getElementById("studentSearch").value;
+    const match = students.find(s =>
+        input.includes(s.email) || input.toLowerCase().includes(s.name.toLowerCase())
     );
 
-    if (match) {
-        document.getElementById("selectedStudent").value = match.name + " (" + match.email + ")";
-        document.getElementById("selectedStudent").dataset.email = match.email;
-    }
+    if (!match) return;
+
+    document.getElementById("studentEmail").value = match.email;
+    document.getElementById("currentHouse").value = match.house;
 });
 
-function showMessage(msg, isError = false) {
-    const box = document.getElementById("resultBox");
-    box.style.display = "block";
-    box.textContent = msg;
 
-    if (isError) {
-        box.className = "result-box error";
-    } else {
-        box.className = "result-box success";
-    }
-}
+// ---------------------- Submit Swap ----------------------
+async function submitSwap() {
 
-// PERFORM SWAP
-async function performSwap() {
-    const staffEmail = document.getElementById("emailInput").value.trim().toLowerCase();
-    const pw = document.getElementById("adminPassword").value.trim();
-    const selected = document.getElementById("selectedStudent").dataset.email;
+    const staffEmail = document.getElementById("staffEmail").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const studentEmail = document.getElementById("studentEmail").value.trim();
     const newHouse = document.getElementById("newHouse").value;
+    const reason = document.getElementById("reason").value.trim();
+    const statusBox = document.getElementById("status");
 
-    if (!staffEmail.endsWith("@engelska.se") || staffEmail.includes(".student.")) {
-        showMessage("Access denied — staff email required.", true);
-        return;
-    }
+    statusBox.style.display = "none";
 
-    if (pw !== "135vasteras") {
-        showMessage("Incorrect password.", true);
-        return;
-    }
-
-    if (!selected) {
-        showMessage("Please select a student.", true);
-        return;
-    }
-
-    if (!newHouse) {
-        showMessage("Select a house.", true);
+    if (!staffEmail || !password || !studentEmail || !newHouse) {
+        statusBox.className = "status error";
+        statusBox.innerText = "All required fields must be completed.";
+        statusBox.style.display = "block";
         return;
     }
 
     try {
-        const res = await fetch(APPS_SCRIPT_URL, {
+        const res = await fetch(API, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                action: "houseSwap",
-                staffEmail: staffEmail,
-                studentEmail: selected,
-                newHouse: newHouse
+                action: "swapHouse",
+                staffEmail,
+                password,
+                email: studentEmail,
+                newHouse,
+                reason
             })
         });
 
-        const json = await res.json();
-        if (json.status === "success") {
-            showMessage("Success! House updated and email sent.");
+        const data = await res.json();
+
+        if (data.status === "success") {
+            statusBox.className = "status success";
+            statusBox.innerText = data.message;
+            statusBox.style.display = "block";
+
+            loadStudents(); // refresh house list
         } else {
-            showMessage("Error: " + json.message, true);
+            statusBox.className = "status error";
+            statusBox.innerText = data.message;
+            statusBox.style.display = "block";
         }
+
     } catch (err) {
-        showMessage("Server error. Check Apps Script.", true);
+        statusBox.className = "status error";
+        statusBox.innerText = "Server communication error.";
+        statusBox.style.display = "block";
+        console.error(err);
     }
 }
 </script>
