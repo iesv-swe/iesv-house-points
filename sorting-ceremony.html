@@ -13,7 +13,7 @@
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, sans-serif;
-            height: 100vh;
+            min-height: 100vh;
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -25,16 +25,16 @@
             position: relative;
         }
 
-        /* Subtle stone texture overlay */
+        /* Stone texture overlay — YOU supply stone.png */
         body::before {
             content: "";
             position: absolute;
             inset: 0;
-            background-image: url('https://i.imgur.com/NH62Jg7.png'); /* dark stone texture */
+            background-image: url('stone.png');
             background-size: cover;
             background-repeat: no-repeat;
+            opacity: 0.22;
             mix-blend-mode: overlay;
-            opacity: 0.25;
             pointer-events: none;
         }
 
@@ -79,7 +79,21 @@
             letter-spacing: 2px;
             text-transform: uppercase;
             color: #dfe9ff;
-            text-shadow: 0 0 12px rgba(120,170,255,0.5), 0 0 20px rgba(120,170,255,0.25);
+            text-shadow: 0 0 12px rgba(120,170,255,0.5);
+        }
+
+        /* HOUSE SHIELDS */
+        .shields {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .shields img {
+            width: 70px;
+            height: auto;
+            filter: drop-shadow(0 0 8px rgba(255,255,255,0.25));
         }
 
         /* MAIN CONTAINER */
@@ -147,12 +161,20 @@
     <header>
         <img src="logo.png" alt="School Logo">
         <h1>Sorting Ceremony</h1>
+
+        <!-- HOUSE SHIELDS RESTORED -->
+        <div class="shields">
+            <img src="Oden.png" alt="Oden">
+            <img src="Freja.png" alt="Freja">
+            <img src="Tor.png" alt="Tor">
+            <img src="Balder.png" alt="Balder">
+        </div>
     </header>
 
     <div class="container">
         <input type="text" id="nameInput" placeholder="Enter your name...">
         <br>
-        <button onclick="sortStudent()">Begin the Ritual</button>
+        <button onclick="sortStudent()">DISCOVER YOUR HOUSE</button>
         <div id="result"></div>
     </div>
 
