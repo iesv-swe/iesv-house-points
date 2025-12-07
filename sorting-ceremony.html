@@ -5,14 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sorting Ceremony</title>
 
-    <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="./sorting-favicon.ico">
 
     <style>
-        /* ================================
-           DARK CASTLE RITUAL THEME
-        =================================*/
-
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, sans-serif;
@@ -21,12 +16,11 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            background: radial-gradient(circle at top, #1c2a45 0%, #0a0f18 60%, #000000 100%);
+            background: radial-gradient(circle at top, #1c2a45 0%, #0a0f18 60%, #000 100%);
             color: #e0eaff;
             position: relative;
         }
 
-        /* Stronger stone wall texture */
         body::before {
             content: "";
             position: absolute;
@@ -39,7 +33,6 @@
             pointer-events: none;
         }
 
-        /* Particle effects */
         .particles {
             position: absolute;
             inset: 0;
@@ -62,7 +55,6 @@
             to { transform: translateY(-120vh); opacity: 0; }
         }
 
-        /* HEADER */
         header {
             text-align: center;
             padding: 10px;
@@ -80,14 +72,13 @@
             font-size: 2.2rem;
             letter-spacing: 3px;
             text-transform: uppercase;
-            color: #dfe9ff;
             text-shadow: 0 0 12px rgba(120,170,255,0.5);
         }
 
-        /* SHIELD COLUMNS */
+        /* SHIELDS — raised higher */
         .side-column {
             position: absolute;
-            top: 10%;   /* SHIFTED UP FROM 18% */
+            top: 4%;   /* MOVED UP from 10% */
             display: flex;
             flex-direction: column;
             gap: 45px;
@@ -98,13 +89,12 @@
         .right-column { right: 90px; }
 
         .side-column img {
-            width: 216px; /* Bigger shields */
+            width: 216px;
             opacity: 0.95;
             filter: drop-shadow(0 0 18px rgba(120,170,255,0.35))
                     contrast(1.15) brightness(1.05);
         }
 
-        /* MAIN INPUT AREA */
         .container {
             text-align: center;
             margin-top: 40px;
@@ -127,10 +117,8 @@
         input[type="text"]::placeholder {
             color: #bbbbbb;
             opacity: 0.8;
-            text-align: center;
         }
 
-        /* BUTTON */
         button {
             padding: 14px 28px;
             background: linear-gradient(145deg, #0f1a2a, #00050a);
@@ -178,22 +166,18 @@
         <h1>Sorting Ceremony</h1>
     </header>
 
-    <!-- LEFT SHIELDS -->
     <div class="side-column left-column">
         <img src="./dragon2-removebg.png" alt="Dragon">
         <img src="./griffin2-removebg.png" alt="Griffin">
     </div>
 
-    <!-- RIGHT SHIELDS -->
     <div class="side-column right-column">
         <img src="./hydra2-removebg.png" alt="Hydra">
         <img src="./phoenix2-removebg.png" alt="Phoenix">
     </div>
 
     <div class="container">
-        <input 
-            type="text" 
-            id="nameInput"
+        <input type="text" id="nameInput"
             placeholder="firstname.lastname.student.vasteras@engelska.se">
 
         <br>
@@ -207,7 +191,6 @@
     </footer>
 
     <script>
-        /* PARTICLES */
         const particlesContainer = document.querySelector('.particles');
         for (let i = 0; i < 60; i++) {
             const p = document.createElement('div');
@@ -219,14 +202,14 @@
             particlesContainer.appendChild(p);
         }
 
-        /* SORTING LOGIC */
         const houses = ["Dragon", "Griffin", "Hydra", "Phoenix"];
 
         function sortStudent() {
             const email = document.getElementById("nameInput").value;
 
             if (!email) {
-                document.getElementById("result").textContent = "Please enter your email address.";
+                document.getElementById("result").textContent =
+                    "Please enter your email address.";
                 return;
             }
 
@@ -234,6 +217,7 @@
             for (let i = 0; i < email.length; i++) {
                 hash = email.charCodeAt(i) + ((hash << 5) - hash);
             }
+
             const index = Math.abs(hash % houses.length);
 
             document.getElementById("result").textContent =
