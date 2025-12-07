@@ -19,13 +19,12 @@
             flex-direction: column;
             justify-content: space-between;
 
-            /* Dark castle gradient background */
             background: radial-gradient(circle at top, #1c2a45 0%, #0a0f18 60%, #000000 100%);
             color: #e0eaff;
             position: relative;
         }
 
-        /* Stone texture overlay — YOU supply stone.png */
+        /* Stone texture overlay (you supply stone.png) */
         body::before {
             content: "";
             position: absolute;
@@ -33,7 +32,7 @@
             background-image: url('stone.png');
             background-size: cover;
             background-repeat: no-repeat;
-            opacity: 0.22;
+            opacity: 0.25;
             mix-blend-mode: overlay;
             pointer-events: none;
         }
@@ -61,44 +60,55 @@
             to { transform: translateY(-120vh); opacity: 0; }
         }
 
-        /* HEADER */
+        /* HEADER AREA */
         header {
             text-align: center;
-            padding: 20px;
+            padding: 10px;
             z-index: 2;
         }
 
+        /* SCHOOL LOGO (no white background) */
         header img {
-            height: 70px;
-            filter: drop-shadow(0 0 10px rgba(0, 140, 255, 0.35));
+            height: 90px;
+            margin-top: 10px;
+            filter: drop-shadow(0 0 12px rgba(120,170,255,0.5))
+                    brightness(1.2)
+                    contrast(1.2);
+            mix-blend-mode: screen; /* removes white background visually */
         }
 
         h1 {
-            margin-top: 10px;
-            font-size: 2rem;
-            letter-spacing: 2px;
+            margin-top: 5px;
+            font-size: 2.2rem;
+            letter-spacing: 3px;
             text-transform: uppercase;
             color: #dfe9ff;
-            text-shadow: 0 0 12px rgba(120,170,255,0.5);
+            text-shadow: 0 0 12px rgba(120,170,255,0.5),
+                         0 0 20px rgba(120,170,255,0.25);
         }
 
-        /* HOUSE SHIELDS */
-        .shields {
-            margin-top: 10px;
+        /* SIDE SHIELDS */
+        .side-column {
+            position: absolute;
+            top: 20%;
             display: flex;
-            justify-content: center;
-            gap: 20px;
+            flex-direction: column;
+            gap: 30px;
+            z-index: 2;
         }
 
-        .shields img {
-            width: 70px;
-            height: auto;
-            filter: drop-shadow(0 0 8px rgba(255,255,255,0.25));
+        .left-column { left: 30px; }
+        .right-column { right: 30px; }
+
+        .side-column img {
+            width: 120px;
+            filter: drop-shadow(0 0 15px rgba(120,170,255,0.4));
         }
 
-        /* MAIN CONTAINER */
+        /* MAIN CEREMONY INPUT AREA */
         .container {
             text-align: center;
+            margin-top: 40px;
             z-index: 2;
         }
 
@@ -113,7 +123,7 @@
             font-size: 1.1rem;
         }
 
-        /* Magical stone button */
+        /* Magical button */
         button {
             padding: 14px 26px;
             background: linear-gradient(145deg, #0f1a2a, #00050a);
@@ -133,7 +143,6 @@
             box-shadow: 0 0 18px rgba(120,170,255,0.7);
         }
 
-        /* RESULT BOX */
         #result {
             margin-top: 25px;
             font-size: 1.5rem;
@@ -142,7 +151,6 @@
             text-shadow: 0 0 8px rgba(255,255,255,0.4);
         }
 
-        /* FOOTER */
         footer {
             text-align: center;
             padding: 15px;
@@ -150,6 +158,7 @@
             color: #8ea0c0;
             z-index: 2;
         }
+
     </style>
 </head>
 
@@ -159,17 +168,21 @@
     <div class="particles"></div>
 
     <header>
-        <img src="logo.png" alt="School Logo">
+        <img src="ies-logo.png" alt="School Logo">
         <h1>Sorting Ceremony</h1>
-
-        <!-- HOUSE SHIELDS RESTORED -->
-        <div class="shields">
-            <img src="Oden.png" alt="Oden">
-            <img src="Freja.png" alt="Freja">
-            <img src="Tor.png" alt="Tor">
-            <img src="Balder.png" alt="Balder">
-        </div>
     </header>
+
+    <!-- LEFT SHIELDS -->
+    <div class="side-column left-column">
+        <img src="dragon2-removebg.png" alt="Dragon House">
+        <img src="griffin2-removebg.png" alt="Griffin House">
+    </div>
+
+    <!-- RIGHT SHIELDS -->
+    <div class="side-column right-column">
+        <img src="hydra2-removebg.png" alt="Hydra House">
+        <img src="phoenix2-removebg.png" alt="Phoenix House">
+    </div>
 
     <div class="container">
         <input type="text" id="nameInput" placeholder="Enter your name...">
@@ -183,24 +196,20 @@
     </footer>
 
     <script>
-        // ================================
-        // PARTICLE CREATION SCRIPT
-        // ================================
+        /* PARTICLES */
         const particlesContainer = document.querySelector('.particles');
         for (let i = 0; i < 60; i++) {
             const p = document.createElement('div');
             p.classList.add('particle');
             p.style.left = Math.random() * 100 + 'vw';
-            p.style.top = (Math.random() * 100) + 'vh';
-            p.style.animationDelay = (Math.random() * 5) + 's';
+            p.style.top = Math.random() * 100 + 'vh';
+            p.style.animationDelay = Math.random() * 5 + 's';
             p.style.opacity = Math.random() * 0.8 + 0.2;
             particlesContainer.appendChild(p);
         }
 
-        // ================================
-        // SORTING LOGIC (unchanged)
-        // ================================
-        const houses = ["Oden", "Freja", "Tor", "Balder"];
+        /* SORTING LOGIC */
+        const houses = ["Dragon", "Griffin", "Hydra", "Phoenix"];
 
         function sortStudent() {
             const name = document.getElementById("nameInput").value;
