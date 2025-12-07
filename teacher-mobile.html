@@ -13,45 +13,54 @@
             box-sizing: border-box;
         }
 
+        html, body {
+            height: 100%;
+            /* overflow: hidden;  <-- ❌ REMOVE THIS */
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: url('castle-wall.png') no-repeat center center;
             background-size: cover;
-            background-color: #000;
-            min-height: 100vh;
             display: flex;
             justify-content: center;
+            align-items: flex-start;
+            overflow-y: auto; /* ✔️ Allow scroll if needed */
         }
 
         .container {
             width: 100%;
             max-width: 480px;
-            background: rgba(0,0,0,0.25);
-            padding: 12px;
+            min-height: 100%;
+            padding: 10px;
             display: flex;
             flex-direction: column;
+            background: rgba(0,0,0,0.25);
         }
 
-        label {
+        .input-area {
+            margin-bottom: 10px;
+        }
+
+        .input-area label {
+            font-size: 15px;
             color: white;
-            font-size: 14px;
             margin-bottom: 4px;
+            display: block;
         }
 
-        input {
+        .input-area input {
             width: 100%;
             padding: 12px;
             font-size: 16px;
             border-radius: 10px;
             border: none;
-            margin-bottom: 12px;
         }
 
-        input::placeholder {
+        .input-area input::placeholder {
             color: #333;
         }
 
-        /* HOUSE CARDS – flexible, not fixed height */
         .house-grid {
             width: 100%;
             display: grid;
@@ -75,7 +84,6 @@
             object-fit: contain;
         }
 
-        /* CATEGORIES */
         .categories {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -107,7 +115,6 @@
             text-align: center;
             font-size: 11px;
             color: #ddd;
-            margin-top: 4px;
         }
     </style>
 </head>
@@ -116,8 +123,10 @@
 
 <div class="container">
 
-    <label>Your Name or Email</label>
-    <input type="text" placeholder="Enter your name or school email">
+    <div class="input-area">
+        <label>Your Name or Email</label>
+        <input type="text" placeholder="Enter your name or school email">
+    </div>
 
     <div class="house-grid">
         <div class="house-card"><img src="phoenix2-removebg.png" alt="Phoenix"></div>
