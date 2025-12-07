@@ -1,493 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>House Points Console - IESV</title>
-    <link rel="icon" type="image/x-icon" href="console-favicon.ico">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<title>House Points Console - IESV</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f3f5fb;
+    margin: 0;
+    padding: 30px 16px 40px;
+    color: #18224d;
+  }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #102d69 0%, #00a0df 100%);
-            min-height: 100vh;
-            padding: 40px 20px;
-            color: white;
-            animation: page-fade-in 0.5s ease;
-        }
+  .wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 24px;
+    padding: 30px 30px 32px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.1);
+  }
 
-        @keyframes page-fade-in {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
+  h1 {
+    margin-top: 10px;
+    margin-bottom: 4px;
+    font-size: 32px;
+  }
 
-        .header {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 40px;
-            animation: fadeIn 1s ease;
-            max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
-        }
+  h2 {
+    margin-top: 22px;
+    margin-bottom: 8px;
+    font-size: 20px;
+    border-bottom: 1px solid #e1e4f0;
+    padding-bottom: 4px;
+  }
 
-        .logo {
-            width: 37.5px;
-            filter: brightness(0) invert(1);
-            flex-shrink: 0;
-        }
+  h3 {
+    margin-top: 18px;
+    margin-bottom: 4px;
+    font-size: 16px;
+  }
 
-        .header-text {
-            flex: 1;
-        }
+  .tagline {
+    color: #6b718a;
+    margin-bottom: 18px;
+  }
 
-        h1 {
-            font-size: 42px;
-            font-weight: 700;
-            margin-bottom: 5px;
-            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
-        }
+  .link-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
 
-        .subtitle {
-            font-size: 18px;
-            opacity: 0.9;
-        }
+  .btn-link {
+    display: inline-block;
+    padding: 9px 14px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    border: 1px solid #d5d8ea;
+    background: #f8f9ff;
+    color: #18224d;
+    white-space: nowrap;
+  }
 
-        .console-container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
+  .btn-link span {
+    margin-right: 6px;
+  }
 
-        .section {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 25px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            animation: slideIn 0.8s ease;
-        }
+  .btn-link.admin {
+    background: #102d69;
+    color: #ffffff;
+    border-color: #102d69;
+  }
 
-        .section h2 {
-            color: #102d69;
-            font-size: 24px;
-            margin-bottom: 20px;
-            border-bottom: 3px solid #00a0df;
-            padding-bottom: 10px;
-        }
+  .btn-link.danger {
+    background: #b71c1c;
+    border-color: #b71c1c;
+    color: #ffffff;
+  }
 
-        .button-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-        }
+  .note {
+    font-size: 13px;
+    color: #6b718a;
+    margin-top: 4px;
+  }
 
-        .console-button {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 20px;
-            background: linear-gradient(135deg, #102d69, #00a0df);
-            color: white;
-            text-decoration: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
+  code {
+    background: #f2f4ff;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
 
-        .console-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-        }
+  ul {
+    padding-left: 18px;
+    margin-top: 4px;
+    margin-bottom: 6px;
+  }
 
-        .console-button .icon {
-            font-size: 32px;
-            min-width: 40px;
-            text-align: center;
-        }
+  li {
+    margin-bottom: 2px;
+  }
 
-        .console-button .text {
-            flex: 1;
-        }
+  img.logo {
+    height: 56px;
+  }
 
-        .console-button .label {
-            font-size: 12px;
-            opacity: 0.8;
-            margin-top: 3px;
-        }
-
-        .admin-button {
-            background: linear-gradient(135deg, #ff4444, #ff8844) !important;
-        }
-
-        .backend-button {
-            background: linear-gradient(135deg, #44aa44, #88dd44) !important;
-        }
-
-        .display-button {
-            background: linear-gradient(135deg, #4488ff, #44ddff) !important;
-        }
-
-        .house-button {
-            background: linear-gradient(135deg, #9b59b6, #e74c3c) !important;
-        }
-
-        .info-box {
-            background: rgba(0, 160, 223, 0.1);
-            border-left: 4px solid #00a0df;
-            padding: 15px;
-            margin-top: 20px;
-            border-radius: 5px;
-            color: #102d69;
-            font-size: 14px;
-        }
-
-        .logos-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .logo-item {
-            text-align: center;
-        }
-
-        .logo-item img {
-            width: 100px;
-            height: 100px;
-            object-fit: contain;
-            margin-bottom: 10px;
-            transition: transform 0.3s ease;
-            cursor: pointer;
-        }
-
-        .logo-item img:hover {
-            transform: scale(1.1);
-        }
-
-        .logo-item a {
-            display: block;
-            text-decoration: none;
-        }
-
-        .logo-item .logo-name {
-            font-size: 14px;
-            font-weight: 600;
-            color: #102d69;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @media (max-width: 768px) {
-            h1 { font-size: 32px; }
-            .button-grid { grid-template-columns: 1fr; }
-            .logos-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-    </style>
+  @media (max-width: 640px) {
+    .wrapper {
+      padding: 22px 16px 24px;
+      border-radius: 18px;
+    }
+    h1 {
+      font-size: 26px;
+    }
+  }
+</style>
 </head>
 <body>
-    <div class="header">
-        <img src="https://raw.githubusercontent.com/iesv-swe/IESV-Now-and-Next/main/logo.png" alt="IES Logo" class="logo">
-        <div class="header-text">
-            <h1>House Points Console</h1>
-            <p class="subtitle">Staff Administration Portal</p>
-        </div>
-    </div>
+<div class="wrapper">
 
-    <div class="console-container">
-        <!-- PUBLIC PAGES -->
-        <div class="section">
-            <h2>📱 Public Pages</h2>
-            <div class="button-grid" style="grid-template-columns: repeat(2, 1fr);">
-                <a href="https://iesv-swe.github.io/iesv-house-points/sorting-ceremony.html" class="console-button" target="_blank">
-                    <div class="icon">🎩</div>
-                    <div class="text">
-                        Sorting Ceremony
-                        <div class="label">Student & staff house sorting</div>
-                    </div>
-                </a>
-                
-                <a href="https://iesv-swe.github.io/iesv-house-points/teacher-form.html" class="console-button" target="_blank">
-                    <div class="icon">⭐</div>
-                    <div class="text">
-                        Award Points
-                        <div class="label">Teacher points form</div>
-                    </div>
-                </a>
-                
-                <a href="https://iesv-swe.github.io/iesv-house-points/teacher-mobile.html" class="console-button" target="_blank">
-                    <div class="icon">📱</div>
-                    <div class="text">
-                        Mobile Teacher App
-                        <div class="label">Quick point awarding (PWA)</div>
-                    </div>
-                </a>
-                
-                <a href="https://iesv-swe.github.io/iesv-house-points/leaderboard.html" class="console-button display-button" target="_blank">
-                    <div class="icon">🏆</div>
-                    <div class="text">
-                        Leaderboard
-                        <div class="label">Live rankings display</div>
-                    </div>
-                </a>
-            </div>
-        </div>
+  <img src="ies-logo.png" alt="IESV Logo" class="logo">
 
-        <!-- HOUSE PAGES -->
-        <div class="section">
-            <h2>🏠 Individual House Pages</h2>
-            <div class="button-grid" style="grid-template-columns: repeat(2, 1fr);">
-                <a href="https://iesv-swe.github.io/iesv-house-points/house-page.html?house=phoenix" class="console-button house-button" target="_blank">
-                    <div class="icon">🔥</div>
-                    <div class="text">
-                        Phoenix House
-                        <div class="label">Stats, categories & recent activity</div>
-                    </div>
-                </a>
-                
-                <a href="https://iesv-swe.github.io/iesv-house-points/house-page.html?house=dragon" class="console-button house-button" target="_blank">
-                    <div class="icon">🐉</div>
-                    <div class="text">
-                        Dragon House
-                        <div class="label">Stats, categories & recent activity</div>
-                    </div>
-                </a>
-                
-                <a href="https://iesv-swe.github.io/iesv-house-points/house-page.html?house=hydra" class="console-button house-button" target="_blank">
-                    <div class="icon">🌊</div>
-                    <div class="text">
-                        Hydra House
-                        <div class="label">Stats, categories & recent activity</div>
-                    </div>
-                </a>
-                
-                <a href="https://iesv-swe.github.io/iesv-house-points/house-page.html?house=griffin" class="console-button house-button" target="_blank">
-                    <div class="icon">🦅</div>
-                    <div class="text">
-                        Griffin House
-                        <div class="label">Stats, categories & recent activity</div>
-                    </div>
-                </a>
-            </div>
-            <div class="info-box">
-                ✨ NEW: Individual house pages with animated displays, category breakdowns, and recent awards
-            </div>
-        </div>
+  <h1>House Points Console</h1>
+  <p class="tagline">Staff administration portal for the IES Västerås House Points system.</p>
 
-        <!-- ADMIN PAGES -->
-        <div class="section">
-            <h2>🔐 Admin Pages</h2>
-            <div class="button-grid">
-                <a href="https://iesv-swe.github.io/iesv-house-points/admin-bulk-entry.html" class="console-button admin-button" target="_blank">
-                    <div class="icon">💯</div>
-                    <div class="text">
-                        Bulk Points Entry
-                        <div class="label">Award points to entire house</div>
-                    </div>
-                </a>
-                
-                <a href="https://iesv-swe.github.io/iesv-house-points/settings.html" class="console-button admin-button" target="_blank">
-                    <div class="icon">⚙️</div>
-                    <div class="text">
-                        System Settings
-                        <div class="label">Monthly reset & configuration</div>
-                    </div>
-                </a>
-            </div>
-            <div class="info-box">
-                ⚠️ Admin pages are not linked publicly - bookmark for easy access
-            </div>
-        </div>
+  <h2>Public Pages</h2>
+  <div class="link-row">
+    <a class="btn-link" href="sorting-ceremony.html"><span>🎩</span>Sorting Ceremony</a>
+    <a class="btn-link" href="teacher-form.html"><span>⭐</span>Award Points</a>
+    <a class="btn-link" href="teacher-mobile.html"><span>📱</span>Mobile Teacher App</a>
+    <a class="btn-link" href="leaderboard.html"><span>🏆</span>Leaderboard</a>
+  </div>
 
-        <!-- BACKEND RESOURCES -->
-        <div class="section">
-            <h2>⚙️ Backend Resources</h2>
-            <div class="button-grid">
-                <a href="https://docs.google.com/spreadsheets/d/1rpiTKhNvHkA1suptamC4JSk_33YBLrW1qfLtiloVtL0/edit" class="console-button backend-button" target="_blank">
-                    <div class="icon">📊</div>
-                    <div class="text">
-                        Google Sheet
-                        <div class="label">Data & formulas</div>
-                    </div>
-                </a>
-                
-                <a href="https://script.google.com/u/0/home/projects/1S-8pgLT4Q02NbT5M1nREJFHMtrkNyQbv1xpf_rCew92Vkcy7v5m3FQRY/edit" class="console-button backend-button" target="_blank">
-                    <div class="icon">🔧</div>
-                    <div class="text">
-                        Apps Script
-                        <div class="label">API & email automation</div>
-                    </div>
-                </a>
-                
-                <a href="https://github.com/iesv-swe/iesv-house-points" class="console-button backend-button" target="_blank">
-                    <div class="icon">💻</div>
-                    <div class="text">
-                        GitHub Repository
-                        <div class="label">Source code & files</div>
-                    </div>
-                </a>
-            </div>
-        </div>
+  <h2>Individual House Pages</h2>
+  <div class="link-row">
+    <a class="btn-link" href="house-phoenix.html">🔥 Phoenix</a>
+    <a class="btn-link" href="house-dragon.html">🐉 Dragon</a>
+    <a class="btn-link" href="house-hydra.html">🌊 Hydra</a>
+    <a class="btn-link" href="house-griffin.html">🦅 Griffin</a>
+  </div>
+  <p class="note">Animated displays, category breakdowns, and recent awards for each house.</p>
 
-        <!-- HOUSE LOGOS -->
-        <div class="section">
-            <h2>🎨 House Logos</h2>
-            <div style="margin-bottom: 30px;">
-                <h3 style="color: #102d69; font-size: 18px; margin-bottom: 15px;">Shield Logos (NEW - Transparent)</h3>
-                <div class="logos-grid">
-                    <div class="logo-item">
-                        <a href="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/phoenix2-removebg.png" target="_blank">
-                            <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/phoenix2-removebg.png" alt="Phoenix Shield">
-                        </a>
-                        <div class="logo-name">Phoenix 🔥</div>
-                    </div>
-                    <div class="logo-item">
-                        <a href="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/dragon2-removebg.png" target="_blank">
-                            <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/dragon2-removebg.png" alt="Dragon Shield">
-                        </a>
-                        <div class="logo-name">Dragon 🐉</div>
-                    </div>
-                    <div class="logo-item">
-                        <a href="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/hydra2-removebg.png" target="_blank">
-                            <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/hydra2-removebg.png" alt="Hydra Shield">
-                        </a>
-                        <div class="logo-name">Hydra 🌊</div>
-                    </div>
-                    <div class="logo-item">
-                        <a href="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/griffin2-removebg.png" target="_blank">
-                            <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/griffin2-removebg.png" alt="Griffin Shield">
-                        </a>
-                        <div class="logo-name">Griffin 🦅</div>
-                    </div>
-                </div>
-            </div>
-            <div style="margin-bottom: 30px;">
-                <h3 style="color: #102d69; font-size: 18px; margin-bottom: 15px;">Shield Logos (Original)</h3>
-                <div class="logos-grid">
-                    <div class="logo-item">
-                        <a href="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/phoenix2.png" target="_blank">
-                            <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/phoenix2.png" alt="Phoenix Shield">
-                        </a>
-                        <div class="logo-name">Phoenix 🔥</div>
-                    </div>
-                    <div class="logo-item">
-                        <a href="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/dragon2.png" target="_blank">
-                            <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/dragon2.png" alt="Dragon Shield">
-                        </a>
-                        <div class="logo-name">Dragon 🐉</div>
-                    </div>
-                    <div class="logo-item">
-                        <a href="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/hydra2.png" target="_blank">
-                            <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/hydra2.png" alt="Hydra Shield">
-                        </a>
-                        <div class="logo-name">Hydra 🌊</div>
-                    </div>
-                    <div class="logo-item">
-                        <a href="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/griffin2.png" target="_blank">
-                            <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/griffin2.png" alt="Griffin Shield">
-                        </a>
-                        <div class="logo-name">Griffin 🦅</div>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <h3 style="color: #102d69; font-size: 18px; margin-bottom: 15px;">Original Logos</h3>
-                <div class="logos-grid">
-                    <div class="logo-item">
-                        <a href="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/phoenix.png" target="_blank">
-                            <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/phoenix.png" alt="Phoenix Logo">
-                        </a>
-                        <div class="logo-name">Phoenix 🔥</div>
-                    </div>
-                    <div class="logo-item">
-                        <a href="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/dragon.png" target="_blank">
-                            <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/dragon.png" alt="Dragon Logo">
-                        </a>
-                        <div class="logo-name">Dragon 🐉</div>
-                    </div>
-                    <div class="logo-item">
-                        <a href="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/hydra.png" target="_blank">
-                            <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/hydra.png" alt="Hydra Logo">
-                        </a>
-                        <div class="logo-name">Hydra 🌊</div>
-                    </div>
-                    <div class="logo-item">
-                        <a href="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/griffin.png" target="_blank">
-                            <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/griffin.png" alt="Griffin Logo">
-                        </a>
-                        <div class="logo-name">Griffin 🦅</div>
-                    </div>
-                </div>
-            </div>
-            <div style="margin-top: 30px;">
-                <h3 style="color: #102d69; font-size: 18px; margin-bottom: 15px;">House Creatures</h3>
-                <div class="logos-grid">
-                    <div class="logo-item">
-                        <div style="font-size: 64px; margin-bottom: 10px;">🔥</div>
-                        <div class="logo-name">Phoenix</div>
-                    </div>
-                    <div class="logo-item">
-                        <div style="font-size: 64px; margin-bottom: 10px;">🐉</div>
-                        <div class="logo-name">Dragon</div>
-                    </div>
-                    <div class="logo-item">
-                        <div style="font-size: 64px; margin-bottom: 10px;">🌊</div>
-                        <div class="logo-name">Hydra</div>
-                    </div>
-                    <div class="logo-item">
-                        <div style="font-size: 64px; margin-bottom: 10px;">🦅</div>
-                        <div class="logo-name">Griffin</div>
-                    </div>
-                </div>
-            </div>
-            <div class="info-box">
-                📥 Right-click any logo to download • Use for posters, certificates, presentations
-            </div>
-        </div>
+  <h2>Admin Pages</h2>
+  <div class="link-row">
+    <a class="btn-link admin" href="admin-bulk-entry.html"><span>📦</span>Bulk Points Entry</a>
+    <a class="btn-link admin" href="settings.html"><span>⚙️</span>System Settings</a>
+    <a class="btn-link admin" href="houseswap.html"><span>🔁</span>House Swap (staff only)</a>
+  </div>
+  <p class="note">⚠️ Admin tools are not linked publicly. Bookmark this page. Protect passwords.</p>
 
-        <!-- QUICK INFO -->
-        <div class="section">
-            <h2>ℹ️ Quick Info</h2>
-            <div style="color: #102d69; line-height: 1.8;">
-                <p><strong>Apps Script URL:</strong><br>
-                <code style="background: rgba(0,0,0,0.05); padding: 5px 10px; border-radius: 5px; font-size: 12px; display: inline-block; margin-top: 5px;">https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec</code></p>
-                
-                <p style="margin-top: 15px;"><strong>Sheet ID:</strong><br>
-                <code style="background: rgba(0,0,0,0.05); padding: 5px 10px; border-radius: 5px; font-size: 12px; display: inline-block; margin-top: 5px;">1rpiTKhNvHkA1suptamC4JSk_33YBLrW1qfLtiloVtL0</code></p>
-                
-                <p style="margin-top: 15px;"><strong>4 Houses:</strong> Phoenix 🔥 | Dragon 🐉 | Hydra 🌊 | Griffin 🦅</p>
-                
-                <p style="margin-top: 15px;"><strong>7 Categories:</strong> Kindness | Academic Effort | Teamwork | Respect | Leadership | Creativity | Responsibility</p>
-                
-                <p style="margin-top: 15px;"><strong>V2 Features:</strong> Animated displays ✨ | Individual house pages 🏠 | Confetti effects 🎉 | Floating particles ✨ | Mobile PWA 📱</p>
-            </div>
-        </div>
-    </div>
+  <h2>⚙️ Backend Resources</h2>
+  <div class="link-row">
+    <a class="btn-link" href="https://docs.google.com"><span>📊</span>Google Sheet Data &amp; formulas</a>
+    <a class="btn-link" href="https://script.google.com"><span>🧠</span>Apps Script API &amp; email automation</a>
+    <a class="btn-link" href="https://github.com/iesv-swe/iesv-house-points"><span>💻</span>GitHub Repository</a>
+  </div>
+
+  <h2>House Logos</h2>
+  <h3>Shield Logos (Transparent)</h3>
+  <ul>
+    <li>Phoenix – <a href="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/phoenix2-removebg.png">download</a></li>
+    <li>Dragon – <a href="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/dragon2-removebg.png">download</a></li>
+    <li>Hydra – <a href="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/hydra2-removebg.png">download</a></li>
+    <li>Griffin – <a href="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/griffin2-removebg.png">download</a></li>
+  </ul>
+
+  <h3>Quick Info</h3>
+  <p>Apps Script URL:<br><code>https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec</code></p>
+  <p>Sheet ID:<br><code>1rpiTKhNvHkA1suptamC4JSk_33YBLrW1qfLtiloVtL0</code></p>
+  <p>Houses: Phoenix | Dragon | Hydra | Griffin</p>
+  <p>Categories: Kindness | Academic Effort | Teamwork | Respect | Leadership | Creativity | Responsibility</p>
+
+</div>
 </body>
 </html>
