@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sorting Ceremony</title>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="./sorting-favicon.ico">
+
     <style>
         /* ================================
            DARK CASTLE RITUAL THEME
@@ -18,18 +21,17 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-
             background: radial-gradient(circle at top, #1c2a45 0%, #0a0f18 60%, #000000 100%);
             color: #e0eaff;
             position: relative;
         }
 
-        /* Stone texture overlay (you supply stone.png) */
+        /* Stone texture overlay (working once stone.png is uploaded) */
         body::before {
             content: "";
             position: absolute;
             inset: 0;
-            background-image: url('stone.png');
+            background-image: url('./stone.png');
             background-size: cover;
             background-repeat: no-repeat;
             opacity: 0.25;
@@ -37,7 +39,7 @@
             pointer-events: none;
         }
 
-        /* Magical particle effects */
+        /* Particle effects */
         .particles {
             position: absolute;
             inset: 0;
@@ -60,21 +62,18 @@
             to { transform: translateY(-120vh); opacity: 0; }
         }
 
-        /* HEADER AREA */
+        /* HEADER */
         header {
             text-align: center;
             padding: 10px;
             z-index: 2;
         }
 
-        /* SCHOOL LOGO (no white background) */
         header img {
             height: 90px;
             margin-top: 10px;
-            filter: drop-shadow(0 0 12px rgba(120,170,255,0.5))
-                    brightness(1.2)
-                    contrast(1.2);
-            mix-blend-mode: screen; /* removes white background visually */
+            filter: drop-shadow(0 0 12px rgba(120,170,255,0.5)) brightness(1.2);
+            mix-blend-mode: screen; /* reduces white background effect */
         }
 
         h1 {
@@ -83,11 +82,10 @@
             letter-spacing: 3px;
             text-transform: uppercase;
             color: #dfe9ff;
-            text-shadow: 0 0 12px rgba(120,170,255,0.5),
-                         0 0 20px rgba(120,170,255,0.25);
+            text-shadow: 0 0 12px rgba(120,170,255,0.5);
         }
 
-        /* SIDE SHIELDS */
+        /* SHIELD COLUMNS */
         .side-column {
             position: absolute;
             top: 20%;
@@ -105,7 +103,7 @@
             filter: drop-shadow(0 0 15px rgba(120,170,255,0.4));
         }
 
-        /* MAIN CEREMONY INPUT AREA */
+        /* MAIN INPUT AREA */
         .container {
             text-align: center;
             margin-top: 40px;
@@ -113,24 +111,34 @@
         }
 
         input[type="text"] {
-            padding: 12px;
-            width: 260px;
-            max-width: 80%;
+            padding: 14px;
+            width: 320px;
+            max-width: 90%;
             border-radius: 6px;
-            border: none;
+            border: 1px solid #444;
+            background-color: #222; /* Dark grey textbox */
+            color: #fff;
+            text-align: center; /* Center input text */
+            font-size: 1.05rem;
             outline: none;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
         }
 
-        /* Magical button */
+        /* Placeholder styling */
+        input[type="text"]::placeholder {
+            color: #bbbbbb;
+            opacity: 0.8;
+            text-align: center;
+        }
+
+        /* BUTTON */
         button {
-            padding: 14px 26px;
+            padding: 14px 28px;
             background: linear-gradient(145deg, #0f1a2a, #00050a);
             border: 2px solid #5a77c8;
             color: #dfe9ff;
             cursor: pointer;
             border-radius: 8px;
+            margin-top: 10px;
             font-size: 1rem;
             letter-spacing: 1px;
             text-transform: uppercase;
@@ -143,6 +151,7 @@
             box-shadow: 0 0 18px rgba(120,170,255,0.7);
         }
 
+        /* RESULT BOX */
         #result {
             margin-top: 25px;
             font-size: 1.5rem;
@@ -158,36 +167,40 @@
             color: #8ea0c0;
             z-index: 2;
         }
-
     </style>
 </head>
 
 <body>
 
-    <!-- Particle layer -->
+    <!-- Particles -->
     <div class="particles"></div>
 
     <header>
-        <img src="ies-logo.png" alt="School Logo">
+        <img src="./ies-logo.png" alt="School Logo">
         <h1>Sorting Ceremony</h1>
     </header>
 
     <!-- LEFT SHIELDS -->
     <div class="side-column left-column">
-        <img src="dragon2-removebg.png" alt="Dragon House">
-        <img src="griffin2-removebg.png" alt="Griffin House">
+        <img src="./dragon2-removebg.png" alt="Dragon">
+        <img src="./griffin2-removebg.png" alt="Griffin">
     </div>
 
     <!-- RIGHT SHIELDS -->
     <div class="side-column right-column">
-        <img src="hydra2-removebg.png" alt="Hydra House">
-        <img src="phoenix2-removebg.png" alt="Phoenix House">
+        <img src="./hydra2-removebg.png" alt="Hydra">
+        <img src="./phoenix2-removebg.png" alt="Phoenix">
     </div>
 
     <div class="container">
-        <input type="text" id="nameInput" placeholder="Enter your name...">
+        <input 
+            type="text" 
+            id="nameInput"
+            placeholder="firstname.lastname.student.vasteras@engelska.se">
+
         <br>
         <button onclick="sortStudent()">DISCOVER YOUR HOUSE</button>
+
         <div id="result"></div>
     </div>
 
@@ -212,20 +225,21 @@
         const houses = ["Dragon", "Griffin", "Hydra", "Phoenix"];
 
         function sortStudent() {
-            const name = document.getElementById("nameInput").value;
-            if (!name) {
-                document.getElementById("result").textContent = "Please enter a name.";
+            const email = document.getElementById("nameInput").value;
+
+            if (!email) {
+                document.getElementById("result").textContent = "Please enter your email address.";
                 return;
             }
 
             let hash = 0;
-            for (let i = 0; i < name.length; i++) {
-                hash = name.charCodeAt(i) + ((hash << 5) - hash);
+            for (let i = 0; i < email.length; i++) {
+                hash = email.charCodeAt(i) + ((hash << 5) - hash);
             }
             const index = Math.abs(hash % houses.length);
 
             document.getElementById("result").textContent =
-                `${name}, you belong to House ${houses[index]}!`;
+                `${email}, you belong to House ${houses[index]}!`;
         }
     </script>
 
