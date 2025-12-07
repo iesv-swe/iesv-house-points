@@ -15,7 +15,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #102d69 0%, #00a0df 100%);
+            background: url("stone.png") center/cover no-repeat fixed;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -34,6 +34,7 @@
             margin-bottom: 6px;
             font-size: 32px;
             letter-spacing: 1px;
+            text-shadow: 0 0 8px black;
         }
 
         .subtitle {
@@ -41,15 +42,17 @@
             margin-bottom: 20px;
             font-size: 15px;
             opacity: 0.9;
+            text-shadow: 0 0 8px black;
         }
 
         .card {
-            background: #3c3c3c;
+            background: rgba(60,60,60,0.92);
             color: white;
             padding: 20px;
             border-radius: 16px;
             margin-bottom: 18px;
             box-shadow: 0 0 14px rgba(0,0,0,0.35);
+            backdrop-filter: blur(3px);
         }
 
         .card h2 {
@@ -66,7 +69,7 @@
             font-size: 16px;
         }
 
-        /* ---- HOUSE BUTTON GRID ---- */
+        /* ---- HOUSE 2×2 GRID ---- */
         .house-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -76,47 +79,38 @@
 
         .house-btn {
             position: relative;
-            padding: 40px 10px;
+            height: 150px;
+            border-radius: 18px;
+            background: #2b2b2b;
             border: none;
-            border-radius: 16px;
             cursor: pointer;
-            font-weight: 700;
-            font-size: 22px;
-            color: white;
-            text-shadow: 0 0 6px rgba(0,0,0,0.8);
             overflow: hidden;
-            transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+            padding: 0;
+            transition: 0.25s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .house-btn::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: url("phoenix2-removebg.png") no-repeat center/contain;
-            opacity: 0.18;
-        }
-
-        /* override per house */
-        .house-phoenix::before { background-image: url("phoenix2-removebg.png"); }
-        .house-dragon::before  { background-image: url("dragon2-removebg.png"); }
-        .house-hydra::before   { background-image: url("hydra2-removebg.png"); }
-        .house-griffin::before { background-image: url("griffin2-removebg.png"); }
-
-        .house-btn span {
-            position: relative;
+        .house-btn img {
+            width: 70%;
+            height: auto;
             z-index: 2;
         }
 
+        /* Glow when hovered */
         .house-btn:hover {
-            filter: brightness(1.15);
+            box-shadow: 0 0 20px rgba(255,140,0,0.9);
+            transform: scale(1.04);
         }
 
+        /* Glow when selected */
         .house-btn.selected {
-            box-shadow: 0 0 18px rgba(255,255,255,0.7);
-            transform: scale(1.03);
+            box-shadow: 0 0 28px rgba(255,140,0,1);
+            transform: scale(1.06);
         }
 
-        /* ---- CATEGORY BUTTON GRID ---- */
+        /* ---- CATEGORY BUTTONS ---- */
         .category-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -167,6 +161,7 @@
             margin-top: 10px;
             font-size: 13px;
             opacity: 0.85;
+            text-shadow: 0 0 8px black;
         }
 
         .status-message {
@@ -196,16 +191,30 @@
     <div class="card">
         <h2>Select House</h2>
         <div class="house-grid">
-            <button class="house-btn house-phoenix" data-house="Phoenix"><span>Phoenix</span></button>
-            <button class="house-btn house-dragon"  data-house="Dragon"><span>Dragon</span></button>
-            <button class="house-btn house-hydra"   data-house="Hydra"><span>Hydra</span></button>
-            <button class="house-btn house-griffin" data-house="Griffin"><span>Griffin</span></button>
+
+            <button class="house-btn" data-house="Phoenix">
+                <img src="phoenix2-removebg.png" alt="Phoenix">
+            </button>
+
+            <button class="house-btn" data-house="Dragon">
+                <img src="dragon2-removebg.png" alt="Dragon">
+            </button>
+
+            <button class="house-btn" data-house="Hydra">
+                <img src="hydra2-removebg.png" alt="Hydra">
+            </button>
+
+            <button class="house-btn" data-house="Griffin">
+                <img src="griffin2-removebg.png" alt="Griffin">
+            </button>
+
         </div>
     </div>
 
     <!-- CATEGORY SELECTION -->
     <div class="card">
         <h2>Select Category</h2>
+
         <div class="category-grid">
             <div class="category-btn" data-category="Kindness/Helping Others">❤️ Kindness/Helping Others</div>
             <div class="category-btn" data-category="Academic Effort/Excellence">📚 Academic Effort/Excellence</div>
@@ -256,30 +265,21 @@ categoryButtons.forEach(btn => {
     });
 });
 
-/* ---- STATUS HANDLING ---- */
-function setStatus(msg, isError = false) {
-    const box = document.getElementById("status");
-    box.textContent = msg;
-    box.classList.remove("status-success", "status-error");
-    if (msg) box.classList.add(isError ? "status-error" : "status-success");
+/* ---- STATUS ---- */
+function setStatus(msg, error = false) {
+    const el = document.getElementById("status");
+    el.textContent = msg;
+    el.classList.remove("status-success", "status-error");
+    el.classList.add(error ? "status-error" : "status-success");
 }
 
 /* ---- SUBMIT ---- */
 document.getElementById("submitBtn").addEventListener("click", () => {
     const teacher = document.getElementById("teacherInput").value.trim();
 
-    if (!teacher) {
-        setStatus("Please enter your name or email.", true);
-        return;
-    }
-    if (!currentHouse) {
-        setStatus("Please select a house.", true);
-        return;
-    }
-    if (!currentCategory) {
-        setStatus("Please select a category.", true);
-        return;
-    }
+    if (!teacher) return setStatus("Enter your name or email.", true);
+    if (!currentHouse) return setStatus("Select a house.", true);
+    if (!currentCategory) return setStatus("Select a category.", true);
 
     const payload = {
         source: "teacher-form",
@@ -300,8 +300,7 @@ document.getElementById("submitBtn").addEventListener("click", () => {
         if (data.status === "error") {
             setStatus("✗ Error sending. Try again.", true);
         } else {
-            setStatus("✓ Point awarded!", false);
-
+            setStatus("✓ Point awarded!");
             houseButtons.forEach(b => b.classList.remove("selected"));
             categoryButtons.forEach(b => b.classList.remove("selected"));
             currentHouse = "";
