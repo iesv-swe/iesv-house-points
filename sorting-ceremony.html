@@ -26,7 +26,7 @@
             position: relative;
         }
 
-        /* Stone texture overlay (working once stone.png is uploaded) */
+        /* Stronger stone wall texture */
         body::before {
             content: "";
             position: absolute;
@@ -34,12 +34,12 @@
             background-image: url('./stone.png');
             background-size: cover;
             background-repeat: no-repeat;
-            opacity: 0.25;
+            opacity: 0.45; /* Increased from 0.25 */
             mix-blend-mode: overlay;
             pointer-events: none;
         }
 
-        /* Particle effects */
+        /* Particles */
         .particles {
             position: absolute;
             inset: 0;
@@ -69,11 +69,14 @@
             z-index: 2;
         }
 
+        /* FIXED SCHOOL LOGO (less bright, white removed visually) */
         header img {
             height: 90px;
             margin-top: 10px;
-            filter: drop-shadow(0 0 12px rgba(120,170,255,0.5)) brightness(1.2);
-            mix-blend-mode: screen; /* reduces white background effect */
+            opacity: 0.8;                  /* reduces brightness */
+            filter: brightness(0.7) 
+                    contrast(0.9);         /* muting bright tones */
+            mix-blend-mode: multiply;      /* removes white background on dark walls */
         }
 
         h1 {
@@ -118,12 +121,11 @@
             border: 1px solid #444;
             background-color: #222; /* Dark grey textbox */
             color: #fff;
-            text-align: center; /* Center input text */
+            text-align: center;
             font-size: 1.05rem;
             outline: none;
         }
 
-        /* Placeholder styling */
         input[type="text"]::placeholder {
             color: #bbbbbb;
             opacity: 0.8;
@@ -182,14 +184,14 @@
 
     <!-- LEFT SHIELDS -->
     <div class="side-column left-column">
-        <img src="./dragon2-removebg.png" alt="Dragon">
-        <img src="./griffin2-removebg.png" alt="Griffin">
+        <img src="./dragon2-removebg.png">
+        <img src="./griffin2-removebg.png">
     </div>
 
     <!-- RIGHT SHIELDS -->
     <div class="side-column right-column">
-        <img src="./hydra2-removebg.png" alt="Hydra">
-        <img src="./phoenix2-removebg.png" alt="Phoenix">
+        <img src="./hydra2-removebg.png">
+        <img src="./phoenix2-removebg.png">
     </div>
 
     <div class="container">
