@@ -75,10 +75,9 @@
             text-shadow: 0 0 12px rgba(120,170,255,0.5);
         }
 
-        /* SHIELDS — raised higher */
         .side-column {
             position: absolute;
-            top: 4%;   /* MOVED UP from 10% */
+            top: 4%;
             display: flex;
             flex-direction: column;
             gap: 45px;
@@ -119,6 +118,7 @@
             opacity: 0.8;
         }
 
+        /* BUTTON — increased spacing */
         button {
             padding: 14px 28px;
             background: linear-gradient(145deg, #0f1a2a, #00050a);
@@ -126,7 +126,7 @@
             color: #dfe9ff;
             cursor: pointer;
             border-radius: 8px;
-            margin-top: 10px;
+            margin-top: 22px;     /* WAS 10px — gives more breathing room */
             font-size: 1rem;
             letter-spacing: 1px;
             text-transform: uppercase;
@@ -177,7 +177,9 @@
     </div>
 
     <div class="container">
-        <input type="text" id="nameInput"
+        <input 
+            type="text" 
+            id="nameInput"
             placeholder="firstname.lastname.student.vasteras@engelska.se">
 
         <br>
