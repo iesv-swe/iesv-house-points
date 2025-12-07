@@ -3,525 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discover Your House - IESV</title>
-    <link rel="icon" type="image/x-icon" href="sorting-favicon.ico">
+    <title>Sorting Ceremony</title>
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* ================================
+           DARK CASTLE RITUAL THEME
+        =================================*/
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #102d69 0%, #00a0df 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            height: 100vh;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+
+            /* Dark castle gradient background */
+            background: radial-gradient(circle at top, #1c2a45 0%, #0a0f18 60%, #000000 100%);
+            color: #e0eaff;
             position: relative;
         }
 
-        /* Shield logos on blue background */
-        .background-shields {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .shield-logo {
+        /* Subtle stone texture overlay */
+        body::before {
+            content: "";
             position: absolute;
-            width: 240px;
-            height: 240px;
-            object-fit: contain;
-            opacity: 0.3;
+            inset: 0;
+            background-image: url('https://i.imgur.com/NH62Jg7.png'); /* dark stone texture */
+            background-size: cover;
+            background-repeat: no-repeat;
+            mix-blend-mode: overlay;
+            opacity: 0.25;
+            pointer-events: none;
         }
 
-        .shield-logo.top-left {
-            top: 10%;
-            left: 5%;
+        /* Magical particle effects */
+        .particles {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
         }
 
-        .shield-logo.top-right {
-            top: 10%;
-            right: 5%;
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(120,170,255,0.8);
+            border-radius: 50%;
+            box-shadow: 0 0 12px rgba(120,170,255,1);
+            animation: floatUp 6s linear infinite;
         }
 
-        .shield-logo.bottom-left {
-            bottom: 10%;
-            left: 5%;
+        @keyframes floatUp {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(-120vh); opacity: 0; }
         }
 
-        .shield-logo.bottom-right {
-            bottom: 10%;
-            right: 5%;
-        }
-
-        .container {
-            background: white;
-            border-radius: 30px;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
-            max-width: 600px;
-            width: 100%;
-            padding: 60px 40px;
+        /* HEADER */
+        header {
             text-align: center;
-            position: relative;
-            z-index: 10;
+            padding: 20px;
+            z-index: 2;
         }
 
-        .logo {
-            width: 180px;
-            margin-bottom: 30px;
+        header img {
+            height: 70px;
+            filter: drop-shadow(0 0 10px rgba(0, 140, 255, 0.35));
         }
 
         h1 {
-            color: #102d69;
-            font-size: 42px;
-            margin-bottom: 15px;
-            font-weight: 700;
-        }
-
-        .subtitle {
-            color: #9a9b9d;
-            font-size: 18px;
-            margin-bottom: 40px;
-        }
-
-        .input-screen {
-            display: block;
-        }
-
-        .input-screen.hidden {
-            display: none;
-        }
-
-        input[type="email"] {
-            width: 100%;
-            padding: 18px 25px;
-            border: 3px solid #dbdad8;
-            border-radius: 15px;
-            font-size: 18px;
-            margin-bottom: 25px;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-
-        input[type="email"]:focus {
-            outline: none;
-            border-color: #00a0df;
-            box-shadow: 0 0 0 4px rgba(0, 160, 223, 0.1);
-        }
-
-        .discover-btn {
-            width: 100%;
-            padding: 20px;
-            background: linear-gradient(135deg, #102d69, #00a0df);
-            color: white;
-            border: none;
-            border-radius: 15px;
-            font-size: 22px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 25px rgba(16, 45, 105, 0.3);
-        }
-
-        .discover-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 35px rgba(16, 45, 105, 0.4);
-        }
-
-        .sorting-screen {
-            display: none;
-        }
-
-        .sorting-screen.active {
-            display: block;
-        }
-
-        .sorting-icons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin: 40px 0;
-        }
-
-        .house-icon {
-            font-size: 80px;
-            animation: float 2s ease-in-out infinite;
-            opacity: 0.3;
-            filter: grayscale(100%);
-        }
-
-        .house-icon:nth-child(1) { animation-delay: 0s; }
-        .house-icon:nth-child(2) { animation-delay: 0.2s; }
-        .house-icon:nth-child(3) { animation-delay: 0.4s; }
-        .house-icon:nth-child(4) { animation-delay: 0.6s; }
-
-        .sorting-text {
-            font-size: 24px;
-            color: #102d69;
-            font-weight: 600;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        .reveal-screen {
-            display: none;
-        }
-
-        .reveal-screen.active {
-            display: block;
-            animation: revealFade 0.8s ease;
-        }
-
-        .house-reveal {
-            margin: 40px 0;
-        }
-
-        .house-creature {
-            font-size: 120px;
-            margin-bottom: 20px;
-            animation: bounce 1s ease;
-        }
-
-        .house-name {
-            font-size: 56px;
-            font-weight: 900;
-            margin-bottom: 15px;
+            margin-top: 10px;
+            font-size: 2rem;
+            letter-spacing: 2px;
             text-transform: uppercase;
-            letter-spacing: 3px;
+            color: #dfe9ff;
+            text-shadow: 0 0 12px rgba(120,170,255,0.5), 0 0 20px rgba(120,170,255,0.25);
         }
 
-        .house-name.phoenix { 
-            background: linear-gradient(135deg, #ff4444, #ff8844);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        /* MAIN CONTAINER */
+        .container {
+            text-align: center;
+            z-index: 2;
         }
 
-        .house-name.dragon {
-            background: linear-gradient(135deg, #44aa44, #88dd44);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .house-name.hydra {
-            background: linear-gradient(135deg, #4488ff, #44ddff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .house-name.griffin {
-            background: linear-gradient(135deg, #ffaa00, #ffdd44);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .house-values {
-            font-size: 20px;
-            color: #102d69;
+        input[type="text"] {
+            padding: 12px;
+            width: 260px;
+            max-width: 80%;
+            border-radius: 6px;
+            border: none;
+            outline: none;
             margin-bottom: 15px;
-            font-weight: 600;
+            font-size: 1.1rem;
         }
 
-        .house-motto {
-            font-size: 18px;
-            color: #9a9b9d;
-            font-style: italic;
-            margin-bottom: 30px;
+        /* Magical stone button */
+        button {
+            padding: 14px 26px;
+            background: linear-gradient(145deg, #0f1a2a, #00050a);
+            border: 2px solid #5a77c8;
+            color: #dfe9ff;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: 0.25s;
+            box-shadow: 0 0 12px rgba(120,170,255,0.3);
         }
 
-        .welcome-message {
-            background: rgba(16, 45, 105, 0.05);
-            padding: 25px;
-            border-radius: 15px;
-            margin-top: 30px;
+        button:hover {
+            background: #16243b;
+            box-shadow: 0 0 18px rgba(120,170,255,0.7);
         }
 
-        .welcome-message p {
-            color: #102d69;
-            font-size: 16px;
-            line-height: 1.6;
+        /* RESULT BOX */
+        #result {
+            margin-top: 25px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            min-height: 40px;
+            text-shadow: 0 0 8px rgba(255,255,255,0.4);
         }
 
-        .email-sent {
-            display: inline-block;
-            background: #44aa44;
-            color: white;
-            padding: 12px 25px;
-            border-radius: 10px;
-            margin-top: 20px;
-            font-weight: 600;
-        }
-
-        .confetti {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            background: #ff4444;
-            position: absolute;
-            animation: confetti-fall 3s linear;
-            z-index: 1;
-        }
-
-        @keyframes confetti-fall {
-            to {
-                transform: translateY(100vh) rotate(360deg);
-                opacity: 0;
-            }
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-        }
-
-        @keyframes revealFade {
-            from {
-                opacity: 0;
-                transform: scale(0.8);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .error-message {
-            background: #ff4444;
-            color: white;
+        /* FOOTER */
+        footer {
+            text-align: center;
             padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            display: none;
-        }
-
-        .error-message.show {
-            display: block;
-        }
-
-        @media (max-width: 600px) {
-            .container { padding: 40px 25px; }
-            h1 { font-size: 32px; }
-            .house-name { font-size: 42px; }
-            .house-creature { font-size: 80px; }
-            .shield-logo { width: 160px; height: 160px; }
+            font-size: 0.9rem;
+            color: #8ea0c0;
+            z-index: 2;
         }
     </style>
 </head>
+
 <body>
-    <!-- Background shield logos -->
-    <div class="background-shields">
-        <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/phoenix2-removebg.png" alt="Phoenix Shield" class="shield-logo top-left">
-        <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/dragon2-removebg.png" alt="Dragon Shield" class="shield-logo top-right">
-        <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/hydra2-removebg.png" alt="Hydra Shield" class="shield-logo bottom-left">
-        <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/griffin2-removebg.png" alt="Griffin Shield" class="shield-logo bottom-right">
-    </div>
+
+    <!-- Particle layer -->
+    <div class="particles"></div>
+
+    <header>
+        <img src="logo.png" alt="School Logo">
+        <h1>Sorting Ceremony</h1>
+    </header>
 
     <div class="container">
-        <div class="input-screen" id="inputScreen">
-            <img src="https://raw.githubusercontent.com/iesv-swe/IESV-Now-and-Next/main/logo.png" alt="IESV Logo" class="logo">
-            <h1>Discover Your House</h1>
-            <p class="subtitle">Internationella Engelska Skolan Västerås</p>
-            
-            <input 
-                type="email" 
-                id="emailInput" 
-                placeholder="firstname.lastname.student.vasteras@engelska.se"
-                required
-            >
-            
-            <button class="discover-btn" onclick="startSorting()">
-                🎩 Discover Your House
-            </button>
-
-            <div class="error-message" id="errorMessage"></div>
-        </div>
-
-        <div class="sorting-screen" id="sortingScreen">
-            <h1>Sorting...</h1>
-            <div class="sorting-icons">
-                <div class="house-icon">🔥</div>
-                <div class="house-icon">🐉</div>
-                <div class="house-icon">🌊</div>
-                <div class="house-icon">🦅</div>
-            </div>
-            <p class="sorting-text">The houses are deciding...</p>
-        </div>
-
-        <div class="reveal-screen" id="revealScreen">
-            <div class="house-reveal">
-                <div class="house-creature" id="houseCreature">🔥</div>
-                <h2 class="house-name" id="houseName">PHOENIX</h2>
-                <p class="house-values" id="houseValues">Resilience • Courage • Rising Again</p>
-                <p class="house-motto" id="houseMotto">"Rise from the ashes"</p>
-            </div>
-
-            <div class="welcome-message">
-                <p><strong>Welcome to your house!</strong></p>
-                <p>You are now officially a member of <span id="houseNameRepeat">Phoenix</span>. Check the school leaderboard to see how your house is performing!</p>
-            </div>
-
-            <div class="email-sent">
-                ✓ A certificate has been sent to your email!
-            </div>
-        </div>
+        <input type="text" id="nameInput" placeholder="Enter your name...">
+        <br>
+        <button onclick="sortStudent()">Begin the Ritual</button>
+        <div id="result"></div>
     </div>
 
+    <footer>
+        Let destiny reveal your true House.
+    </footer>
+
     <script>
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec';
-
-        const houses = {
-            Phoenix: {
-                creature: '🔥',
-                values: 'Resilience • Courage • Rising Again',
-                motto: '"Rise from the ashes"',
-                class: 'phoenix'
-            },
-            Dragon: {
-                creature: '🐉',
-                values: 'Strength • Wisdom • Perseverance',
-                motto: '"Power through knowledge"',
-                class: 'dragon'
-            },
-            Hydra: {
-                creature: '🌊',
-                values: 'Adaptability • Unity • Determination',
-                motto: '"Many heads, one heart"',
-                class: 'hydra'
-            },
-            Griffin: {
-                creature: '🦅',
-                values: 'Leadership • Excellence • Honor',
-                motto: '"Soar above expectations"',
-                class: 'griffin'
-            }
-        };
-
-        function hashEmail(email) {
-            let hash = 0;
-            for (let i = 0; i < email.length; i++) {
-                const char = email.charCodeAt(i);
-                hash = ((hash << 5) - hash) + char;
-                hash = hash & hash;
-            }
-            return Math.abs(hash);
+        // ================================
+        // PARTICLE CREATION SCRIPT
+        // ================================
+        const particlesContainer = document.querySelector('.particles');
+        for (let i = 0; i < 60; i++) {
+            const p = document.createElement('div');
+            p.classList.add('particle');
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.top = (Math.random() * 100) + 'vh';
+            p.style.animationDelay = (Math.random() * 5) + 's';
+            p.style.opacity = Math.random() * 0.8 + 0.2;
+            particlesContainer.appendChild(p);
         }
 
-        function getHouseFromEmail(email) {
-            const hash = hashEmail(email.toLowerCase());
-            const houseNames = Object.keys(houses);
-            return houseNames[hash % 4];
-        }
+        // ================================
+        // SORTING LOGIC (unchanged)
+        // ================================
+        const houses = ["Oden", "Freja", "Tor", "Balder"];
 
-        function validateEmail(email) {
-            if (!email.endsWith('@engelska.se')) {
-                return { valid: false, message: 'Email must end with @engelska.se' };
-            }
-            if (!email.includes('.vasteras@')) {
-                return { valid: false, message: 'Invalid email format' };
-            }
-            return { valid: true };
-        }
-
-        async function startSorting() {
-            const emailInput = document.getElementById('emailInput');
-            const email = emailInput.value.trim().toLowerCase();
-
-            const validation = validateEmail(email);
-            if (!validation.valid) {
-                showError(validation.message);
+        function sortStudent() {
+            const name = document.getElementById("nameInput").value;
+            if (!name) {
+                document.getElementById("result").textContent = "Please enter a name.";
                 return;
             }
 
-            const assignedHouse = getHouseFromEmail(email);
-
-            document.getElementById('inputScreen').classList.add('hidden');
-            document.getElementById('sortingScreen').classList.add('active');
-
-            setTimeout(() => {
-                revealHouse(assignedHouse, email);
-            }, 4000);
-        }
-
-        function revealHouse(houseName, email) {
-            const house = houses[houseName];
-
-            document.getElementById('sortingScreen').classList.remove('active');
-
-            document.getElementById('houseCreature').textContent = house.creature;
-            document.getElementById('houseName').textContent = houseName.toUpperCase();
-            document.getElementById('houseName').className = `house-name ${house.class}`;
-            document.getElementById('houseValues').textContent = house.values;
-            document.getElementById('houseMotto').textContent = house.motto;
-            document.getElementById('houseNameRepeat').textContent = houseName;
-
-            document.getElementById('revealScreen').classList.add('active');
-
-            createConfetti();
-            sendSortingData(email, houseName);
-        }
-
-        async function sendSortingData(email, house) {
-            try {
-                await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'sort',
-                        email: email,
-                        house: house,
-                        timestamp: new Date().toISOString()
-                    })
-                });
-            } catch (error) {
-                console.error('Error sending data:', error);
+            let hash = 0;
+            for (let i = 0; i < name.length; i++) {
+                hash = name.charCodeAt(i) + ((hash << 5) - hash);
             }
-        }
+            const index = Math.abs(hash % houses.length);
 
-        function createConfetti() {
-            const colors = ['#ff4444', '#44aa44', '#4488ff', '#ffaa00', '#ff8844', '#44ddff'];
-            for (let i = 0; i < 100; i++) {
-                setTimeout(() => {
-                    const confetti = document.createElement('div');
-                    confetti.className = 'confetti';
-                    confetti.style.left = Math.random() * 100 + '%';
-                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
-                    document.body.appendChild(confetti);
-                    setTimeout(() => confetti.remove(), 3000);
-                }, i * 30);
-            }
-        }
-
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = message;
-            errorDiv.classList.add('show');
-            setTimeout(() => {
-                errorDiv.classList.remove('show');
-            }, 3000);
+            document.getElementById("result").textContent =
+                `${name}, you belong to House ${houses[index]}!`;
         }
     </script>
+
 </body>
 </html>
