@@ -31,75 +31,33 @@
 
         h1 {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 6px;
             font-size: 32px;
             letter-spacing: 1px;
         }
 
-        .card {
-            background: #3c3c3c;       /* grey card */
-            color: white;              /* white text */
-            padding: 22px;
-            border-radius: 14px;
+        .subtitle {
+            text-align: center;
             margin-bottom: 20px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.3);
-        }
-
-        /* --- LARGE 2x2 HOUSE BUTTON GRID --- */
-        .house-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .house-btn {
-            padding: 35px 0;
-            border: none;
-            font-size: 20px;
-            border-radius: 14px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
-            color: white;
-        }
-
-        .house-btn:hover {
-            transform: scale(1.03);
-            filter: brightness(1.25);
-        }
-
-        /* House colours */
-        .north   { background: #bf0000; }
-        .south   { background: #006600; }
-        .east    { background: #002b80; }
-        .west    { background: #d4a300; color: black; }
-
-        /* --- 2 ROW REASONS GRID --- */
-        .reason-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 10px;
-        }
-
-        .reason-btn {
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            background: #555;
-            color: white;
             font-size: 15px;
-            cursor: pointer;
-            transition: 0.15s;
+            opacity: 0.9;
         }
 
-        .reason-btn:hover {
-            background: #777;
+        .card {
+            background: #3c3c3c;
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 18px;
+            box-shadow: 0 0 14px rgba(0,0,0,0.35);
         }
 
-        /* --- NORMAL FORM ELEMENTS --- */
-        input, select {
+        .card h2 {
+            font-size: 19px;
+            margin-bottom: 10px;
+        }
+
+        input {
             width: 100%;
             padding: 12px;
             margin-top: 6px;
@@ -108,18 +66,96 @@
             font-size: 16px;
         }
 
+        /* ---- HOUSE BUTTON GRID ---- */
+        .house-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-top: 8px;
+        }
+
+        .house-btn {
+            position: relative;
+            padding: 40px 10px;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 22px;
+            color: white;
+            text-shadow: 0 0 6px rgba(0,0,0,0.8);
+            overflow: hidden;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+        }
+
+        .house-btn::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: url("phoenix2-removebg.png") no-repeat center/contain;
+            opacity: 0.18;
+        }
+
+        /* override per house */
+        .house-phoenix::before { background-image: url("phoenix2-removebg.png"); }
+        .house-dragon::before  { background-image: url("dragon2-removebg.png"); }
+        .house-hydra::before   { background-image: url("hydra2-removebg.png"); }
+        .house-griffin::before { background-image: url("griffin2-removebg.png"); }
+
+        .house-btn span {
+            position: relative;
+            z-index: 2;
+        }
+
+        .house-btn:hover {
+            filter: brightness(1.15);
+        }
+
+        .house-btn.selected {
+            box-shadow: 0 0 18px rgba(255,255,255,0.7);
+            transform: scale(1.03);
+        }
+
+        /* ---- CATEGORY BUTTON GRID ---- */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .category-btn {
+            padding: 12px;
+            border-radius: 12px;
+            background: #555;
+            color: white;
+            cursor: pointer;
+            transition: 0.15s;
+            font-size: 15px;
+        }
+
+        .category-btn:hover {
+            background: #777;
+            transform: translateY(-1px);
+        }
+
+        .category-btn.selected {
+            background: #00c3ff;
+            color: black;
+            font-weight: bold;
+        }
+
         #submitBtn {
             width: 100%;
             padding: 16px;
             background: #00c3ff;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             font-size: 20px;
             color: black;
             font-weight: bold;
             cursor: pointer;
             transition: 0.2s;
-            margin-top: 10px;
         }
 
         #submitBtn:hover {
@@ -128,112 +164,154 @@
 
         .footer-note {
             text-align: center;
-            margin-top: 15px;
+            margin-top: 10px;
             font-size: 13px;
-            opacity: 0.8;
+            opacity: 0.85;
         }
+
+        .status-message {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+            min-height: 20px;
+        }
+
+        .status-success { color: #7CFC7C; }
+        .status-error   { color: #ffb3b3; }
     </style>
 </head>
 
 <body>
 <div class="container">
+    <h1>House Points</h1>
+    <p class="subtitle">Award 1 point for positive behaviour</p>
 
-    <h1>Teacher Award Form</h1>
+    <!-- TEACHER INPUT -->
+    <div class="card">
+        <h2>Your Name or Email</h2>
+        <input id="teacherInput" type="text" placeholder="Enter your name or school email">
+    </div>
 
     <!-- HOUSE SELECTION -->
     <div class="card">
         <h2>Select House</h2>
-
         <div class="house-grid">
-            <button class="house-btn north" onclick="setHouse('North')">North</button>
-            <button class="house-btn south" onclick="setHouse('South')">South</button>
-            <button class="house-btn east"  onclick="setHouse('East')">East</button>
-            <button class="house-btn west"  onclick="setHouse('West')">West</button>
+            <button class="house-btn house-phoenix" data-house="Phoenix"><span>Phoenix</span></button>
+            <button class="house-btn house-dragon"  data-house="Dragon"><span>Dragon</span></button>
+            <button class="house-btn house-hydra"   data-house="Hydra"><span>Hydra</span></button>
+            <button class="house-btn house-griffin" data-house="Griffin"><span>Griffin</span></button>
         </div>
     </div>
 
-    <!-- STUDENT NAME INPUT -->
+    <!-- CATEGORY SELECTION -->
     <div class="card">
-        <h2>Student</h2>
-        <input id="studentInput" type="text" placeholder="Type or select student name…" list="studentList">
-        <datalist id="studentList"></datalist>
-    </div>
-
-    <!-- REASONS -->
-    <div class="card">
-        <h2>Reason</h2>
-        <div class="reason-grid">
-            <button class="reason-btn" onclick="setReason('Outstanding Work')">Outstanding Work</button>
-            <button class="reason-btn" onclick="setReason('Helping Others')">Helping Others</button>
-            <button class="reason-btn" onclick="setReason('Great Attitude')">Great Attitude</button>
-            <button class="reason-btn" onclick="setReason('Leadership')">Leadership</button>
-            <button class="reason-btn" onclick="setReason('Teamwork')">Teamwork</button>
-            <button class="reason-btn" onclick="setReason('Perseverance')">Perseverance</button>
+        <h2>Select Category</h2>
+        <div class="category-grid">
+            <div class="category-btn" data-category="Kindness/Helping Others">❤️ Kindness/Helping Others</div>
+            <div class="category-btn" data-category="Academic Effort/Excellence">📚 Academic Effort/Excellence</div>
+            <div class="category-btn" data-category="Teamwork/Collaboration">🤝 Teamwork/Collaboration</div>
+            <div class="category-btn" data-category="Respect">🙏 Respect</div>
+            <div class="category-btn" data-category="Leadership">⭐ Leadership</div>
+            <div class="category-btn" data-category="Creativity/Problem Solving">💡 Creativity/Problem Solving</div>
+            <div class="category-btn" data-category="Responsibility">✅ Responsibility</div>
         </div>
-
-        <input id="reasonInput" type="text" placeholder="Or type your own reason…">
     </div>
 
     <!-- SUBMIT -->
-    <button id="submitBtn" onclick="submitForm()">Submit</button>
+    <button id="submitBtn">Award 1 Point</button>
 
     <p class="footer-note">multiple points can be awarded upon special request</p>
+    <div id="status" class="status-message"></div>
+
+    <input type="hidden" id="selectedHouse">
+    <input type="hidden" id="selectedCategory">
 </div>
 
 <script>
-let selectedHouse = "";
-let selectedReason = "";
+const APPS_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
 
-function setHouse(h) {
-    selectedHouse = h;
-}
+let currentHouse = "";
+let currentCategory = "";
 
-function setReason(r) {
-    selectedReason = r;
-    document.getElementById("reasonInput").value = r;
-}
-
-/* Load student autocomplete list */
-fetch('https://script.google.com/macros/s/AKfycbx6k0xxxxxxx/exec?action=students')
-    .then(res => res.json())
-    .then(data => {
-        const dl = document.getElementById("studentList");
-        data.forEach(name => {
-            const opt = document.createElement("option");
-            opt.value = name;
-            dl.appendChild(opt);
-        });
+/* ---- HOUSE BUTTON LOGIC ---- */
+const houseButtons = [...document.querySelectorAll(".house-btn")];
+houseButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+        houseButtons.forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        currentHouse = btn.dataset.house;
+        document.getElementById("selectedHouse").value = currentHouse;
     });
+});
 
-function submitForm() {
-    const student = document.getElementById("studentInput").value.trim();
-    const reason  = document.getElementById("reasonInput").value.trim();
+/* ---- CATEGORY BUTTON LOGIC ---- */
+const categoryButtons = [...document.querySelectorAll(".category-btn")];
+categoryButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+        categoryButtons.forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        currentCategory = btn.dataset.category;
+        document.getElementById("selectedCategory").value = currentCategory;
+    });
+});
 
-    if (!selectedHouse || !student || !reason) {
-        alert("Please choose a house, student, and reason.");
+/* ---- STATUS HANDLING ---- */
+function setStatus(msg, isError = false) {
+    const box = document.getElementById("status");
+    box.textContent = msg;
+    box.classList.remove("status-success", "status-error");
+    if (msg) box.classList.add(isError ? "status-error" : "status-success");
+}
+
+/* ---- SUBMIT ---- */
+document.getElementById("submitBtn").addEventListener("click", () => {
+    const teacher = document.getElementById("teacherInput").value.trim();
+
+    if (!teacher) {
+        setStatus("Please enter your name or email.", true);
+        return;
+    }
+    if (!currentHouse) {
+        setStatus("Please select a house.", true);
+        return;
+    }
+    if (!currentCategory) {
+        setStatus("Please select a category.", true);
         return;
     }
 
     const payload = {
-        action: "awardPoints",
-        student,
-        house: selectedHouse,
-        reason
+        source: "teacher-form",
+        teacher,
+        house: currentHouse,
+        category: currentCategory,
+        points: 1
     };
 
-    fetch("https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec", {
+    setStatus("Submitting…");
+
+    fetch(APPS_SCRIPT_URL, {
         method: "POST",
         body: JSON.stringify(payload)
     })
-    .then(r => r.json())
-    .then(() => {
-        alert("Points awarded!");
-        document.getElementById("studentInput").value = "";
-        document.getElementById("reasonInput").value = "";
-        selectedHouse = "";
-        selectedReason = "";
-    });
-}
+    .then(r => r.json().catch(() => ({})))
+    .then(data => {
+        if (data.status === "error") {
+            setStatus("✗ Error sending. Try again.", true);
+        } else {
+            setStatus("✓ Point awarded!", false);
+
+            houseButtons.forEach(b => b.classList.remove("selected"));
+            categoryButtons.forEach(b => b.classList.remove("selected"));
+            currentHouse = "";
+            currentCategory = "";
+            document.getElementById("selectedHouse").value = "";
+            document.getElementById("selectedCategory").value = "";
+        }
+    })
+    .catch(() => setStatus("✗ Network error.", true));
+});
 </script>
 
 </body>
