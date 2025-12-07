@@ -39,7 +39,7 @@
             pointer-events: none;
         }
 
-        /* Particle effects */
+        /* Particles */
         .particles {
             position: absolute;
             inset: 0;
@@ -87,19 +87,22 @@
         /* SHIELD COLUMNS */
         .side-column {
             position: absolute;
-            top: 20%;
+            top: 18%;
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            gap: 45px;
             z-index: 2;
         }
 
-        .left-column { left: 30px; }
-        .right-column { right: 30px; }
+        /* MOVED INWARD TOWARD CENTER */
+        .left-column { left: 90px; }
+        .right-column { right: 90px; }
 
         .side-column img {
-            width: 120px;
-            filter: drop-shadow(0 0 15px rgba(120,170,255,0.4));
+            width: 216px; /* 80% BIGGER */
+            opacity: 0.95; /* REDUCED TRANSPARENCY */
+            filter: drop-shadow(0 0 18px rgba(120,170,255,0.35))
+                    contrast(1.15) brightness(1.05);
         }
 
         /* MAIN INPUT AREA */
@@ -111,7 +114,7 @@
 
         input[type="text"] {
             padding: 14px;
-            width: 420px; /* UPDATED WIDTH */
+            width: 420px;
             max-width: 95%;
             border-radius: 6px;
             border: 1px solid #444;
@@ -128,7 +131,6 @@
             text-align: center;
         }
 
-        /* BUTTON */
         button {
             padding: 14px 28px;
             background: linear-gradient(145deg, #0f1a2a, #00050a);
@@ -149,7 +151,6 @@
             box-shadow: 0 0 18px rgba(120,170,255,0.7);
         }
 
-        /* RESULT */
         #result {
             margin-top: 25px;
             font-size: 1.5rem;
@@ -179,14 +180,14 @@
 
     <!-- LEFT SHIELDS -->
     <div class="side-column left-column">
-        <img src="./dragon2-removebg.png">
-        <img src="./griffin2-removebg.png">
+        <img src="./dragon2-removebg.png" alt="Dragon">
+        <img src="./griffin2-removebg.png" alt="Griffin">
     </div>
 
     <!-- RIGHT SHIELDS -->
     <div class="side-column right-column">
-        <img src="./hydra2-removebg.png">
-        <img src="./phoenix2-removebg.png">
+        <img src="./hydra2-removebg.png" alt="Hydra">
+        <img src="./phoenix2-removebg.png" alt="Phoenix">
     </div>
 
     <div class="container">
