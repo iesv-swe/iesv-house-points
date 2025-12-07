@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>House Points Leaderboard - IESV</title>
 <link rel="icon" type="image/x-icon" href="leaderboard-favicon.ico">
+
 <style>
     * { margin:0; padding:0; box-sizing:border-box; }
 
@@ -27,6 +28,7 @@
         to { opacity:1; }
     }
 
+    /* Particle embers */
     .particles {
         position:fixed;
         top:0; left:0;
@@ -38,7 +40,7 @@
     .particle {
         position:absolute;
         width:4px; height:4px;
-        background:rgba(255,140,0,0.8);
+        background:rgba(255,140,0,0.85);
         border-radius:50%;
         animation:float 8s infinite ease-in-out;
     }
@@ -49,6 +51,7 @@
         100% { transform:translateY(-120vh); opacity:0; }
     }
 
+    /* Header */
     .header {
         display:flex;
         align-items:center;
@@ -76,6 +79,7 @@
         margin-top:-4px;
     }
 
+    /* Leaderboard grid */
     .leaderboard {
         display:grid;
         grid-template-columns:repeat(2, 1fr);
@@ -88,18 +92,19 @@
         z-index:5;
     }
 
+    /* House card */
     .house-card {
         background:rgba(0,0,0,0.55);
         border-radius:22px;
         padding:18px 22px;
-        box-shadow:0 8px 28px rgba(0,0,0,0.6);
-        border:2px solid rgba(255,255,255,0.05);
+        box-shadow:0 8px 28px rgba(0,0,0,0.65);
+        border:2px solid rgba(255,255,255,0.06);
         backdrop-filter:blur(6px);
         display:flex;
         flex-direction:column;
+        cursor:pointer;
         position:relative;
         overflow:hidden;
-        cursor:pointer;
         transition:transform .3s ease, box-shadow .3s ease;
     }
 
@@ -109,32 +114,37 @@
     }
 
     .house-card.winner {
-        border:3px solid rgba(255,180,0,0.9);
-        box-shadow:0 0 25px rgba(255,150,0,0.8);
+        border:3px solid rgba(255,150,0,0.9);
+        box-shadow:0 0 25px rgba(255,140,0,0.9);
     }
 
+    /* Card header */
     .card-header {
         display:flex;
         align-items:center;
         height:75px;
-        gap:12px;
+        gap:14px;
         z-index:3;
     }
 
+    /* Carved Stone Medallion */
     .crest-wrap {
-        width:78px;
-        height:78px;
+        width:86px;
+        height:86px;
         border-radius:50%;
-        background:url('stone-medallion.png') center/cover no-repeat;
+        background:url('stone-medallion-B.png') center/cover no-repeat;
         display:flex;
         align-items:center;
         justify-content:center;
-        box-shadow:inset 0 0 12px rgba(0,0,0,0.7);
+        box-shadow:
+            inset 0 0 12px rgba(0,0,0,0.9),
+            inset 0 0 22px rgba(0,0,0,0.6);
     }
 
     .crest-wrap img {
         width:72%;
-        opacity:0.92;
+        opacity:0.95;
+        filter:drop-shadow(0 2px 4px black);
     }
 
     .house-name {
@@ -143,6 +153,7 @@
         text-shadow:0 3px 10px black;
     }
 
+    /* Rank badge */
     .rank-badge {
         margin-left:auto;
         width:54px;
@@ -158,28 +169,19 @@
         backdrop-filter:blur(3px);
     }
 
-    .rank-badge.gold {
-        background:linear-gradient(135deg,#ffd700,#ffae00);
-        color:#000;
-    }
-    .rank-badge.silver {
-        background:linear-gradient(135deg,#d4d4d4,#f1f1f1);
-        color:#000;
-    }
-    .rank-badge.bronze {
-        background:linear-gradient(135deg,#cd7f32,#e2a46e);
-        color:#000;
-    }
+    .rank-badge.gold { background:linear-gradient(135deg,#ffd700,#ffae00); color:#000; }
+    .rank-badge.silver { background:linear-gradient(135deg,#d4d4d4,#f7f7f7); color:#000; }
+    .rank-badge.bronze { background:linear-gradient(135deg,#cd7f32,#e2a46e); color:#000; }
 
+    /* Score area */
     .points-area {
         flex:1;
         display:flex;
         flex-direction:column;
-        justify-content:center; /* CENTER vertically */
+        justify-content:center;
         align-items:center;
         text-align:center;
         padding-bottom:10px;
-        z-index:3;
     }
 
     .points-label {
@@ -191,7 +193,7 @@
     }
 
     .points {
-        font-size:clamp(42px, 7vw, 74px); /* AUTO SCALE */
+        font-size:clamp(42px, 7vw, 74px);
         font-weight:900;
         color:white;
         line-height:1;
@@ -206,6 +208,7 @@
             0 0 28px rgba(255,120,0,1);
     }
 
+    /* Footer */
     .last-updated {
         text-align:center;
         opacity:0.85;
@@ -231,18 +234,17 @@
 <div class="last-updated" id="lastUpdated">Loading data...</div>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec?action=houseTotals";
+const API =
+ "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec?action=houseTotals";
 
-const crests = {
-    Phoenix: "phoenix.png",
-    Dragon: "dragon.png",
-    Hydra: "hydra.png",
-    Griffin: "griffin.png"
+const shields = {
+    Phoenix: "phoenix2-removebg.png",
+    Dragon: "dragon2-removebg.png",
+    Hydra:  "hydra2-removebg.png",
+    Griffin: "griffin2-removebg.png"
 };
 
-function roundScore(score) {
-    return Math.round(parseFloat(score));
-}
+function roundScore(n) { return Math.round(parseFloat(n)); }
 
 async function loadLeaderboard() {
     try {
@@ -256,45 +258,42 @@ async function loadLeaderboard() {
         document.getElementById("lastUpdated").textContent =
             "Last updated: " + new Date().toLocaleString();
     } catch (err) {
-        document.getElementById("lastUpdated").textContent =
-            "Error loading data.";
+        document.getElementById("lastUpdated").textContent = "Error loading data.";
     }
 }
 
-function renderLeaderboard(houses) {
+function renderLeaderboard(h) {
     const board = document.getElementById("leaderboard");
     board.innerHTML = "";
 
-    houses.forEach(h => {
+    h.forEach(x => {
         const rankClass =
-            h.rank === 1 ? "gold" :
-            h.rank === 2 ? "silver" :
-            h.rank === 3 ? "bronze" : "";
+            x.rank === 1 ? "gold" :
+            x.rank === 2 ? "silver" :
+            x.rank === 3 ? "bronze" : "";
 
-        const winnerCard = h.rank === 1 ? "winner" : "";
-        const winnerPoints = h.rank === 1 ? "winner-points" : "";
+        const winner = x.rank === 1 ? "winner" : "";
+        const winnerPts = x.rank === 1 ? "winner-points" : "";
 
         const card = document.createElement("div");
-        card.className = `house-card ${winnerCard}`;
-        card.onclick = () =>
-            window.location.href = `house-page.html?house=${h.house.toLowerCase()}`;
+        card.className = `house-card ${winner}`;
+        card.onclick = () => window.location.href =
+            `house-page.html?house=${x.house.toLowerCase()}`;
 
         card.innerHTML = `
             <div class="card-header">
                 <div class="crest-wrap">
-                    <img src="${crests[h.house]}">
+                    <img src="${shields[x.house]}">
                 </div>
-                <div class="house-name">${h.house}</div>
+                <div class="house-name">${x.house}</div>
                 <div class="rank-badge ${rankClass}">
-                    ${h.rank}st
+                    ${x.rank}${x.rank === 1 ? "st" : x.rank === 2 ? "nd" : x.rank === 3 ? "rd" : "th"}
                 </div>
             </div>
 
             <div class="points-area">
                 <div class="points-label">House Score</div>
-                <div class="points ${winnerPoints}">
-                    ${roundScore(h.houseScore)}
-                </div>
+                <div class="points ${winnerPts}">${roundScore(x.houseScore)}</div>
             </div>
         `;
 
