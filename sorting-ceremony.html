@@ -205,41 +205,130 @@
             margin-bottom: 20px;
         }
 
+        .sorting-icons-wrapper {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            margin: 30px auto;
+        }
+
+        /* magical aura behind icons */
+        .sorting-icons-wrapper::before {
+            content: "";
+            position: absolute;
+            inset: 20px;
+            border-radius: 50%;
+            box-shadow:
+                0 0 25px rgba(255, 215, 0, 0.35),
+                0 0 40px rgba(255, 255, 255, 0.25);
+            opacity: 0.7;
+            animation: auraPulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes auraPulse {
+            0%, 100% { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+        }
+
         .sorting-icons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin: 30px 0;
-            justify-items: center;
+            position: absolute;
+            inset: 0;
         }
 
-        .house-icon {
-            font-size: 64px;
-            animation: float 2s ease-in-out infinite;
-            opacity: 0.6;
-            filter: grayscale(40%);
+        .sorting-icons img {
+            position: absolute;
+            width: 110px;
+            opacity: 0.95;
+            filter: drop-shadow(0 0 15px rgba(255,255,255,0.4));
         }
 
-        .house-icon:nth-child(1) { animation-delay: 0s; }
-        .house-icon:nth-child(2) { animation-delay: 0.2s; }
-        .house-icon:nth-child(3) { animation-delay: 0.4s; }
-        .house-icon:nth-child(4) { animation-delay: 0.6s; }
+        /* 2x2 positions (corners of a square), plus shuffle/orbit animation */
+        .icon-phoenix {
+            animation: shufflePhoenix 4s infinite ease-in-out;
+        }
+        .icon-dragon {
+            animation: shuffleDragon 4s infinite ease-in-out;
+        }
+        .icon-hydra {
+            animation: shuffleHydra 4s infinite ease-in-out;
+        }
+        .icon-griffin {
+            animation: shuffleGriffin 4s infinite ease-in-out;
+        }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-14px); }
+        /* Each keyframe moves the shields through all four corners,
+           like a magical shell-game shuffle */
+
+        @keyframes shufflePhoenix {
+            0%   { transform: translate(0, 0) scale(1); }
+            20%  { transform: translate(150px, 0) scale(1.05) rotate(5deg); }
+            40%  { transform: translate(150px, 150px) scale(1.1) rotate(-3deg); }
+            60%  { transform: translate(0, 150px) scale(1.05) rotate(2deg); }
+            80%  { transform: translate(75px, 75px) scale(0.9) rotate(0deg); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+
+        @keyframes shuffleDragon {
+            0%   { transform: translate(150px, 0) scale(1); }
+            20%  { transform: translate(150px, 150px) scale(1.05) rotate(-4deg); }
+            40%  { transform: translate(0, 150px) scale(1.1) rotate(4deg); }
+            60%  { transform: translate(0, 0) scale(1.05) rotate(-2deg); }
+            80%  { transform: translate(75px, 75px) scale(0.9) rotate(1deg); }
+            100% { transform: translate(150px, 0) scale(1); }
+        }
+
+        @keyframes shuffleHydra {
+            0%   { transform: translate(0, 150px) scale(1); }
+            20%  { transform: translate(0, 0) scale(1.05) rotate(3deg); }
+            40%  { transform: translate(150px, 0) scale(1.1) rotate(-3deg); }
+            60%  { transform: translate(150px, 150px) scale(1.05) rotate(2deg); }
+            80%  { transform: translate(75px, 75px) scale(0.9) rotate(-2deg); }
+            100% { transform: translate(0, 150px) scale(1); }
+        }
+
+        @keyframes shuffleGriffin {
+            0%   { transform: translate(150px, 150px) scale(1); }
+            20%  { transform: translate(0, 150px) scale(1.05) rotate(-2deg); }
+            40%  { transform: translate(0, 0) scale(1.1) rotate(3deg); }
+            60%  { transform: translate(150px, 0) scale(1.05) rotate(-1deg); }
+            80%  { transform: translate(75px, 75px) scale(0.9) rotate(2deg); }
+            100% { transform: translate(150px, 150px) scale(1); }
         }
 
         .sorting-text {
             font-size: 1.2rem;
             color: #e0eaff;
             font-weight: 600;
+            margin-top: 10px;
             animation: pulse 1.5s ease-in-out infinite;
         }
 
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
+        }
+
+        /* Wand / spark trail */
+        .wand-spark {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            box-shadow:
+                0 0 10px rgba(255, 215, 0, 0.9),
+                0 0 18px rgba(255, 255, 255, 0.8);
+            background: radial-gradient(circle, #ffffff 0%, #ffd700 40%, rgba(0,0,0,0) 70%);
+            animation: wandOrbit 2.3s linear infinite;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        @keyframes wandOrbit {
+            0%   { transform: translate(130px, 0); opacity: 1; }
+            25%  { transform: translate(260px, 130px); opacity: 0.9; }
+            50%  { transform: translate(130px, 260px); opacity: 0.8; }
+            75%  { transform: translate(0, 130px); opacity: 0.9; }
+            100% { transform: translate(130px, 0); opacity: 1; }
         }
 
         /* REVEAL SCREEN */
@@ -434,13 +523,20 @@
 
         <!-- SORTING SCREEN -->
         <div class="screen" id="sortingScreen">
-            <h2>Sorting...</h2>
-            <div class="sorting-icons">
-                <div class="house-icon">🔥</div>
-                <div class="house-icon">🐉</div>
-                <div class="house-icon">🌊</div>
-                <div class="house-icon">🦅</div>
+            <h2>The Sorting Ritual</h2>
+
+            <div class="sorting-icons-wrapper">
+                <!-- Magical wand spark trail -->
+                <div class="wand-spark"></div>
+
+                <div class="sorting-icons">
+                    <img src="./phoenix2-removebg.png" alt="Phoenix" class="icon-phoenix">
+                    <img src="./dragon2-removebg.png" alt="Dragon" class="icon-dragon">
+                    <img src="./hydra2-removebg.png" alt="Hydra" class="icon-hydra">
+                    <img src="./griffin2-removebg.png" alt="Griffin" class="icon-griffin">
+                </div>
             </div>
+
             <p class="sorting-text">The houses are deciding...</p>
         </div>
 
@@ -473,7 +569,7 @@
     </footer>
 
     <script>
-        /* APPS SCRIPT ENDPOINT (same as old page) */
+        /* APPS SCRIPT ENDPOINT (same as before) */
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec';
 
         /* House data */
@@ -516,7 +612,7 @@
             particlesContainer.appendChild(p);
         }
 
-        /* Hash + house selection (unchanged logic) */
+        /* Hash + house selection (same logic as old page) */
         function hashEmail(email) {
             let hash = 0;
             for (let i = 0; i < email.length; i++) {
