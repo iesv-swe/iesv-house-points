@@ -20,15 +20,9 @@
         color:white;
         overflow:hidden;
         position:relative;
-        animation:page-fade-in 0.5s ease;
     }
 
-    @keyframes page-fade-in {
-        from { opacity:0; }
-        to { opacity:1; }
-    }
-
-    /* Particle embers */
+    /* Particle embers (global background) */
     .particles {
         position:fixed;
         top:0; left:0;
@@ -79,16 +73,14 @@
         margin-top:-4px;
     }
 
-    /* Leaderboard grid */
+    /* Leaderboard layout */
     .leaderboard {
         display:grid;
         grid-template-columns:repeat(2, 1fr);
         gap:18px;
         width:100%;
         height:calc(100vh - 160px);
-        max-height:calc(100vh - 160px);
         overflow:hidden;
-        position:relative;
         z-index:5;
     }
 
@@ -103,9 +95,9 @@
         display:flex;
         flex-direction:column;
         cursor:pointer;
-        position:relative;
         overflow:hidden;
-        transition:transform .3s ease, box-shadow .3s ease;
+        transition:0.3s ease;
+        position:relative;
     }
 
     .house-card:hover {
@@ -113,36 +105,71 @@
         box-shadow:0 14px 38px rgba(0,0,0,0.75);
     }
 
+    /* WINNER CARD — FULL FIRE ANIMATION */
     .house-card.winner {
-        border:3px solid rgba(255,150,0,0.9);
-        box-shadow:0 0 25px rgba(255,140,0,0.9);
+        border:3px solid rgba(255,170,40,1);
+        animation:winnerGlow 3.5s ease-in-out infinite;
+        box-shadow:
+            0 0 22px rgba(255,150,0,0.9),
+            0 0 44px rgba(255,120,0,0.7),
+            inset 0 0 18px rgba(255,120,0,0.4);
+    }
+
+    @keyframes winnerGlow {
+        0% {
+            box-shadow:
+                0 0 22px rgba(255,150,0,0.9),
+                0 0 44px rgba(255,120,0,0.7),
+                inset 0 0 18px rgba(255,120,0,0.4);
+            border-color:rgba(255,180,40,1);
+        }
+        50% {
+            box-shadow:
+                0 0 32px rgba(255,180,0,1),
+                0 0 72px rgba(255,150,0,0.9),
+                inset 0 0 28px rgba(255,140,0,0.6);
+            border-color:rgba(255,210,60,1);
+        }
+        100% {
+            box-shadow:
+                0 0 22px rgba(255,150,0,0.9),
+                0 0 44px rgba(255,120,0,0.7),
+                inset 0 0 18px rgba(255,120,0,0.4);
+            border-color:rgba(255,180,40,1);
+        }
+    }
+
+    /* Internal floating embers for winner card */
+    @keyframes emberFloat {
+        0%   { transform:translateY(0) scale(1); opacity:0.6; }
+        50%  { transform:translateY(-14px) scale(1.4); opacity:1; }
+        100% { transform:translateY(0) scale(1); opacity:0.6; }
     }
 
     /* Card header */
     .card-header {
         display:flex;
         align-items:center;
-        height:75px;
-        gap:14px;
-        z-index:3;
+        height:80px;
+        gap:16px;
     }
 
-    /* Carved Stone Medallion */
+    /* Carved stone medallion (B type) */
     .crest-wrap {
-        width:86px;
-        height:86px;
+        width:90px;
+        height:90px;
         border-radius:50%;
         background:url('stone-medallion-B.png') center/cover no-repeat;
         display:flex;
         align-items:center;
         justify-content:center;
         box-shadow:
-            inset 0 0 12px rgba(0,0,0,0.9),
-            inset 0 0 22px rgba(0,0,0,0.6);
+            inset 0 0 14px rgba(0,0,0,0.9),
+            inset 0 0 26px rgba(0,0,0,0.7);
     }
 
     .crest-wrap img {
-        width:72%;
+        width:74%;
         opacity:0.95;
         filter:drop-shadow(0 2px 4px black);
     }
@@ -166,7 +193,6 @@
         font-size:18px;
         font-weight:700;
         border:2px solid rgba(255,255,255,0.18);
-        backdrop-filter:blur(3px);
     }
 
     .rank-badge.gold { background:linear-gradient(135deg,#ffd700,#ffae00); color:#000; }
@@ -181,7 +207,6 @@
         justify-content:center;
         align-items:center;
         text-align:center;
-        padding-bottom:10px;
     }
 
     .points-label {
@@ -189,23 +214,34 @@
         text-transform:uppercase;
         letter-spacing:1px;
         color:#bbb;
-        margin-bottom:4px;
+        margin-bottom:6px;
     }
 
+    /* MASSIVE score text */
     .points {
-        font-size:clamp(42px, 7vw, 74px);
+        font-size:clamp(80px, 14vw, 200px);
         font-weight:900;
         color:white;
         line-height:1;
-        text-shadow:0 3px 12px rgba(0,0,0,0.7);
+        text-shadow:0 6px 22px rgba(0,0,0,0.9);
     }
 
+    /* Winner number animation */
     .points.winner-points {
-        color:#ffcc55;
+        color:#ffdd77;
         text-shadow:
-            0 0 8px rgba(255,200,50,1),
-            0 0 14px rgba(255,160,0,1),
-            0 0 28px rgba(255,120,0,1);
+            0 0 12px rgba(255,200,50,1),
+            0 0 26px rgba(255,160,0,1),
+            0 0 44px rgba(255,120,0,1),
+            0 0 60px rgba(255,90,0,1);
+        animation:winnerNumber 2.2s infinite ease-in-out;
+    }
+
+    @keyframes winnerNumber {
+        0%,100% { opacity:1; transform:scale(1); }
+        45% { opacity:0.92; transform:scale(1.03); }
+        50% { opacity:1; transform:scale(1.05); }
+        55% { opacity:0.93; transform:scale(1.02); }
     }
 
     /* Footer */
@@ -239,8 +275,8 @@ const API =
 
 const shields = {
     Phoenix: "phoenix2-removebg.png",
-    Dragon: "dragon2-removebg.png",
-    Hydra:  "hydra2-removebg.png",
+    Dragon:  "dragon2-removebg.png",
+    Hydra:   "hydra2-removebg.png",
     Griffin: "griffin2-removebg.png"
 };
 
@@ -258,7 +294,8 @@ async function loadLeaderboard() {
         document.getElementById("lastUpdated").textContent =
             "Last updated: " + new Date().toLocaleString();
     } catch (err) {
-        document.getElementById("lastUpdated").textContent = "Error loading data.";
+        document.getElementById("lastUpdated").textContent =
+            "Error loading data.";
     }
 }
 
@@ -277,8 +314,8 @@ function renderLeaderboard(h) {
 
         const card = document.createElement("div");
         card.className = `house-card ${winner}`;
-        card.onclick = () => window.location.href =
-            `house-page.html?house=${x.house.toLowerCase()}`;
+        card.onclick = () =>
+            window.location.href = `house-page.html?house=${x.house.toLowerCase()}`;
 
         card.innerHTML = `
             <div class="card-header">
@@ -293,9 +330,28 @@ function renderLeaderboard(h) {
 
             <div class="points-area">
                 <div class="points-label">House Score</div>
-                <div class="points ${winnerPts}">${roundScore(x.houseScore)}</div>
+                <div class="points ${winnerPts}">
+                    ${roundScore(x.houseScore)}
+                </div>
             </div>
         `;
+
+        /* WINNER CARD — Add floating embers */
+        if (x.rank === 1) {
+            for (let i = 0; i < 12; i++) {
+                const ember = document.createElement("div");
+                ember.style.position = "absolute";
+                ember.style.width = "6px";
+                ember.style.height = "6px";
+                ember.style.borderRadius = "50%";
+                ember.style.background = "rgba(255,140,0,0.9)";
+                ember.style.left = Math.random()*90 + "%";
+                ember.style.top = (60 + Math.random()*40) + "%";
+                ember.style.filter = "blur(1px)";
+                ember.style.animation = `emberFloat ${3 + Math.random()*3}s infinite ease-in-out`;
+                card.appendChild(ember);
+            }
+        }
 
         board.appendChild(card);
     });
@@ -320,3 +376,4 @@ setInterval(loadLeaderboard, 30000);
 
 </body>
 </html>
+
