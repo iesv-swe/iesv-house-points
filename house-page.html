@@ -13,122 +13,169 @@
             box-sizing: border-box;
         }
 
-        /* NEW: Stone background */
+        /* Stone background */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             padding: 20px;
             background-image: url('stone.png');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             color: white;
-            animation: page-fade-in 0.5s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: pageFade 0.4s ease;
         }
 
-        @keyframes page-fade-in {
+        @keyframes pageFade {
             from { opacity: 0; }
             to { opacity: 1; }
         }
 
-        /* House tint overlay for clarity */
-        body.phoenix { background-color: rgba(255, 68, 68, 0.15); background-blend-mode: overlay; }
-        body.dragon { background-color: rgba(68, 170, 68, 0.15); background-blend-mode: overlay; }
-        body.hydra { background-color: rgba(68, 136, 255, 0.15); background-blend-mode: overlay; }
-        body.griffin { background-color: rgba(255, 170, 0, 0.15); background-blend-mode: overlay; }
+        /* House tint overlays */
+        body.phoenix { background-color: rgba(255, 68, 68, 0.18); background-blend-mode: overlay; }
+        body.dragon { background-color: rgba(68, 170, 68, 0.18); background-blend-mode: overlay; }
+        body.hydra  { background-color: rgba(68, 136, 255, 0.18); background-blend-mode: overlay; }
+        body.griffin{ background-color: rgba(255, 170, 0, 0.18); background-blend-mode: overlay; }
 
         .container {
             max-width: 1400px;
             width: 100%;
-            animation: fadeIn 1s ease;
         }
 
         header {
             text-align: center;
             margin-bottom: 20px;
-            color: white;
         }
 
         .house-logo {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 10px;
-            animation: creature-float 3s ease-in-out infinite;
+            width: 90px;
+            height: 90px;
+            animation: float 3s ease-in-out infinite;
         }
 
-        @keyframes creature-float {
-            0%, 100% { transform: translateY(0px) }
+        @keyframes float {
+            0%,100% { transform: translateY(0) }
             50% { transform: translateY(-10px) }
         }
 
         h1 {
-            font-size: 36px;
-            font-weight: 700;
-            margin-bottom: 5px;
-            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            font-size: 38px;
+            font-weight: bold;
+            text-shadow: 0 4px 10px black;
         }
 
         .motto {
-            font-size: 16px;
             font-style: italic;
             opacity: 0.9;
         }
 
-        /* Cards */
-        .stat-card, .category-breakdown, .recent-activity, .members-list {
+        .stat-card, .category-box, .recent-box, .members-box {
             background: white;
+            color: black;
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-            color: black;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
         }
 
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
-            margin-bottom: 20px;
         }
 
-        .category-breakdown h2,
-        .recent-activity h2,
-        .members-list h2 {
-            font-size: 22px;
-            margin-bottom: 15px;
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            opacity: 0.7;
         }
 
-        .members-list {
-            margin-top: 30px;
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
         }
 
-        .member-item {
-            font-size: 16px;
-            padding: 5px 0;
-            border-bottom: 1px solid #ddd;
+        .rank-badge {
+            margin-top: 5px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: black;
+            display: inline-block;
         }
 
-        .member-item:last-child {
-            border-bottom: none;
+        .rank-1 { background: gold; }
+        .rank-2 { background: silver; }
+        .rank-3 { background: #cd7f32; color: white; }
+        .rank-4 { background: #666; color: white; }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
         }
 
-        /* Recent items */
+        /* Category rows */
+        .category-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .category-name {
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .category-points {
+            font-weight: bold;
+            margin-right: 10px;
+            width: 40px;
+            text-align: right;
+        }
+
+        .category-bar {
+            flex: 2;
+            height: 14px;
+            background: #ddd;
+            border-radius: 7px;
+            overflow: hidden;
+        }
+
+        .category-fill {
+            height: 100%;
+            transition: width 1s;
+        }
+
+        .phoenix .category-fill { background: #ff4444; }
+        .dragon  .category-fill { background: #44aa44; }
+        .hydra   .category-fill { background: #4488ff; }
+        .griffin .category-fill { background: #ffaa00; }
+
+        /* Recent Activity */
         .activity-item {
+            background: #f1f1f1;
+            border-left: 5px solid;
             padding: 10px;
-            border-left: 4px solid;
-            background: #f9f9f9;
             border-radius: 6px;
             margin-bottom: 10px;
         }
 
-        .phoenix .activity-item { border-left-color: #ff4444; }
-        .dragon .activity-item { border-left-color: #44aa44; }
-        .hydra .activity-item { border-left-color: #4488ff; }
-        .griffin .activity-item { border-left-color: #ffaa00; }
+        .phoenix .activity-item { border-color: #ff4444; }
+        .dragon  .activity-item { border-color: #44aa44; }
+        .hydra   .activity-item { border-color: #4488ff; }
+        .griffin .activity-item { border-color: #ffaa00; }
 
-        /* Back button */
+        /* Members list */
+        .member-item {
+            padding: 5px 0;
+            border-bottom: 1px solid #ddd;
+            font-size: 16px;
+        }
+
         .back-button {
             position: fixed;
             top: 20px;
@@ -136,164 +183,199 @@
             background: rgba(255,255,255,0.9);
             color: #333;
             padding: 10px 20px;
-            border-radius: 25px;
+            border-radius: 22px;
             text-decoration: none;
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
-        @media (max-width: 768px) {
-            h1 { font-size: 28px; }
-            .stats-grid { grid-template-columns: 1fr 1fr; }
+        @media(max-width:800px) {
             .content-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            h1 { font-size: 30px; }
         }
     </style>
 </head>
 
 <body>
-<a href="leaderboard.html" class="back-button">← Back</a>
+    <a class="back-button" href="leaderboard.html">← Back</a>
 
-<div class="container">
+    <div class="container">
 
-    <div id="loading" class="loading">Loading...</div>
+        <div id="loading" style="color:white; text-align:center; font-size:26px; margin-top:60px;">Loading...</div>
 
-    <div id="content" style="display:none;">
+        <div id="content" style="display:none;">
 
-        <header>
-            <img id="houseLogo" class="house-logo" src="" alt="">
-            <h1 id="houseName"></h1>
-            <p id="houseMotto" class="motto"></p>
-        </header>
+            <!-- HEADER -->
+            <header>
+                <img id="houseLogo" class="house-logo" src="">
+                <h1 id="houseName"></h1>
+                <p id="houseMotto" class="motto"></p>
+            </header>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Current Rank</div>
-                <div class="stat-value" id="rank">-</div>
-                <div class="rank-badge" id="rankBadge">-</div>
+            <!-- RANK + TOTAL -->
+            <div class="stats-grid">
+
+                <div class="stat-card">
+                    <div class="stat-label">Current Rank</div>
+                    <div id="rank" class="stat-value">-</div>
+                    <div id="rankBadge" class="rank-badge">-</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Total Points</div>
+                    <div id="totalPoints" class="stat-value">-</div>
+                </div>
+
             </div>
 
-            <div class="stat-card">
-                <div class="stat-label">Total Points</div>
-                <div class="stat-value" id="totalPoints">-</div>
+            <!-- CATEGORY + RECENT -->
+            <div class="content-grid">
+
+                <div class="category-box">
+                    <h2>Points by Category</h2>
+                    <div id="categoryBreakdown"></div>
+                </div>
+
+                <div class="recent-box">
+                    <h2>Recent Activity</h2>
+                    <div id="recentActivity"></div>
+                </div>
+
             </div>
+
+            <!-- MEMBERS -->
+            <div class="members-box">
+                <h2>House Members</h2>
+                <div id="membersList">Loading...</div>
+            </div>
+
         </div>
-
-        <div class="content-grid">
-            <div class="category-breakdown">
-                <h2>Points by Category</h2>
-                <div id="categoryBreakdown"></div>
-            </div>
-
-            <div class="recent-activity">
-                <h2>Recent Rewards</h2>
-                <div id="recentActivity"></div>
-            </div>
-        </div>
-
-        <!-- NEW MEMBERS LIST -->
-        <div class="members-list">
-            <h2>House Members</h2>
-            <div id="membersContainer">Loading...</div>
-        </div>
-
     </div>
-</div>
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
 
-const houseData = {
-    phoenix: { name:"Phoenix", emoji:"🔥", color:"#ff4444", motto:'"Rise from the ashes"', logo:"phoenix2.png" },
-    dragon:  { name:"Dragon", emoji:"🐉", color:"#44aa44", motto:'"Power through knowledge"', logo:"dragon2.png" },
-    hydra:   { name:"Hydra", emoji:"🌊", color:"#4488ff", motto:'"Many heads, one heart"', logo:"hydra2.png" },
-    griffin: { name:"Griffin", emoji:"🦅", color:"#ffaa00", motto:'"Soar above expectations"', logo:"griffin2.png" }
+const houses = {
+    phoenix: { name:"Phoenix", emoji:"🔥", color:"#ff4444", logo:"phoenix2.png", motto:'"Rise from the ashes"' },
+    dragon:  { name:"Dragon",  emoji:"🐉", color:"#44aa44", logo:"dragon2.png",  motto:'"Power through knowledge"' },
+    hydra:   { name:"Hydra",   emoji:"🌊", color:"#4488ff", logo:"hydra2.png",   motto:'"Many heads, one heart"' },
+    griffin: { name:"Griffin", emoji:"🦅", color:"#ffaa00", logo:"griffin2.png", motto:'"Soar above expectations"' }
 };
 
-const urlParams = new URLSearchParams(window.location.search);
-const houseName = urlParams.get('house');
+const url = new URLSearchParams(window.location.search);
+const houseName = url.get("house");
 
-if (!houseName || !houseData[houseName]) {
+if (!houseName || !houses[houseName]) {
     document.getElementById("loading").innerHTML = "Invalid house.";
 } else {
-    loadPage();
+    loadHouse();
 }
 
-async function loadPage() {
-    const house = houseData[houseName];
+async function loadHouse() {
+    const h = houses[houseName];
 
     document.body.classList.add(houseName);
-    document.title = `${house.name} House`;
 
-    // Header
-    document.getElementById("houseLogo").src = house.logo;
-    document.getElementById("houseName").textContent = `${house.emoji} ${house.name}`;
-    document.getElementById("houseMotto").textContent = house.motto;
+    document.getElementById("houseLogo").src = h.logo;
+    document.getElementById("houseName").textContent = `${h.emoji} ${h.name}`;
+    document.getElementById("houseMotto").textContent = h.motto;
 
-    // Show content
     document.getElementById("loading").style.display = "none";
     document.getElementById("content").style.display = "block";
 
     loadTotals();
     loadRecent();
-    loadMembers(); // NEW
-}
-
-async function loadMembers() {
-    try {
-        const res = await fetch(`${API}?action=listStudents`);
-        const json = await res.json();
-
-        const members = json.students
-            .filter(s => s.house.toLowerCase() === houseName)
-            .map(s => `${s.firstName} ${s.lastName}`)
-            .sort();
-
-        const box = document.getElementById("membersContainer");
-        box.innerHTML = members.length
-            ? members.map(m => `<div class="member-item">• ${m}</div>`).join("")
-            : "<div>No members yet.</div>";
-
-    } catch (e) {
-        document.getElementById("membersContainer").innerHTML = "Error loading members.";
-    }
+    loadMembers();
 }
 
 async function loadTotals() {
-    const csv = await fetch(`https://docs.google.com/spreadsheets/d/1rpiTKhNvHkA1suptamC4JSk_33YBLrW1qfLtiloVtL0/gviz/tq?tqx=out:csv&sheet=House%20Totals&range=A2:E5`);
-    const text = await csv.text();
-    const rows = text.trim().split("\n").map(r => r.split(","));
+    const res = await fetch(`${API}?action=houseTotals`);
+    const json = await res.json();
 
-    const row = rows.find(r => r[0].toLowerCase() === houseName);
+    const row = json.data.houses.find(h => h.house.toLowerCase() === houseName);
     if (!row) return;
 
-    document.getElementById("totalPoints").textContent = row[1];
-    document.getElementById("rank").textContent = row[4];
+    document.getElementById("totalPoints").textContent = row.totalPoints;
+    document.getElementById("rank").textContent = row.rank;
 
-    const rankBadge = document.getElementById("rankBadge");
-    const pos = parseInt(row[4]);
-    rankBadge.textContent = ["1st","2nd","3rd","4th"][pos-1];
-    rankBadge.className = `rank-badge rank-${pos}`;
+    const badge = document.getElementById("rankBadge");
+    badge.textContent = ["1st","2nd","3rd","4th"][row.rank - 1];
+    badge.className = `rank-badge rank-${row.rank}`;
+
+    buildCategoryBreakdown(row.house);
+}
+
+async function buildCategoryBreakdown(houseLabel) {
+    const res = await fetch(`${API}?action=recentPoints&limit=500`);
+    const json = await res.json();
+
+    const rows = json.data.entries.filter(e => e.house === houseLabel);
+
+    const map = {};
+
+    for (const r of rows) {
+        const cat = r.category;
+        map[cat] = (map[cat] || 0) + r.points;
+    }
+
+    const sorted = Object.entries(map).sort((a,b)=>b[1]-a[1]);
+
+    const max = sorted.length ? sorted[0][1] : 1;
+
+    const div = document.getElementById("categoryBreakdown");
+    div.innerHTML = "";
+
+    sorted.forEach(([cat,pts]) => {
+        div.innerHTML += `
+            <div class="category-row">
+                <div class="category-name">${cat}</div>
+                <div class="category-points">${pts}</div>
+                <div class="category-bar">
+                    <div class="category-fill ${houseName}" style="width:${(pts/max)*100}%"></div>
+                </div>
+            </div>
+        `;
+    });
 }
 
 async function loadRecent() {
-    const csv = await fetch(`https://docs.google.com/spreadsheets/d/1rpiTKhNvHkA1suptamC4JSk_33YBLrW1qfLtiloVtL0/gviz/tq?tqx=out:csv&sheet=Points%20Log`);
-    const text = await csv.text();
-    const rows = text.trim().split("\n").slice(1).map(r => r.split(","));
+    const res = await fetch(`${API}?action=recentPoints&limit=50`);
+    const json = await res.json();
 
-    const houseRows = rows.filter(r => r[3].toLowerCase() === houseName).slice(-10).reverse();
+    const rows = json.data.entries
+        .filter(e => e.house.toLowerCase() === houseName)
+        .slice(-10)
+        .reverse();
 
     const box = document.getElementById("recentActivity");
-    if (houseRows.length === 0) {
+
+    if (rows.length === 0) {
         box.innerHTML = "<p>No activity yet.</p>";
         return;
     }
 
-    box.innerHTML = houseRows.map(r => `
+    box.innerHTML = rows.map(r => `
         <div class="activity-item">
-            <strong>+${r[5]}</strong> — ${r[4]}
-            <div style="font-size:11px;color:#666">${r[0]}</div>
+            <strong>+${r.points}</strong> — ${r.category}
+            <div style="font-size:11px;color:#555">${new Date(r.timestamp).toLocaleString()}</div>
         </div>
     `).join("");
+}
+
+async function loadMembers() {
+    const res = await fetch(`${API}?action=listStudents`);
+    const json = await res.json();
+
+    const members = json.students
+        .filter(s => s.house.toLowerCase() === houseName)
+        .map(s => `${s.firstName} ${s.lastName}`)
+        .sort();
+
+    const box = document.getElementById("membersList");
+    box.innerHTML = members.length
+        ? members.map(m => `<div class="member-item">• ${m}</div>`).join("")
+        : "<p>No members yet.</p>";
 }
 </script>
 
