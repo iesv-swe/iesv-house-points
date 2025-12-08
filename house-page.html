@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>House Page - IESV House Points</title>
     <link rel="icon" type="image/x-icon" href="house-favicon.ico">
+
     <style>
         * {
             margin: 0;
@@ -12,6 +13,7 @@
             box-sizing: border-box;
         }
 
+        /* NEW: Stone background */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
@@ -19,32 +21,24 @@
             flex-direction: column;
             align-items: center;
             padding: 20px;
-            transition: background 0.5s ease;
+            background-image: url('stone.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
             animation: page-fade-in 0.5s ease;
         }
 
         @keyframes page-fade-in {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        /* House-specific backgrounds */
-        body.phoenix {
-            background: linear-gradient(135deg, #ff4444 0%, #aa0000 100%);
-        }
-        body.dragon {
-            background: linear-gradient(135deg, #44aa44 0%, #006600 100%);
-        }
-        body.hydra {
-            background: linear-gradient(135deg, #4488ff 0%, #0044aa 100%);
-        }
-        body.griffin {
-            background: linear-gradient(135deg, #ffaa00 0%, #cc6600 100%);
-        }
+        /* House tint overlay for clarity */
+        body.phoenix { background-color: rgba(255, 68, 68, 0.15); background-blend-mode: overlay; }
+        body.dragon { background-color: rgba(68, 170, 68, 0.15); background-blend-mode: overlay; }
+        body.hydra { background-color: rgba(68, 136, 255, 0.15); background-blend-mode: overlay; }
+        body.griffin { background-color: rgba(255, 170, 0, 0.15); background-blend-mode: overlay; }
 
         .container {
             max-width: 1400px;
@@ -66,18 +60,8 @@
         }
 
         @keyframes creature-float {
-            0%, 100% {
-                transform: translateY(0px) rotate(0deg) scale(1);
-            }
-            25% {
-                transform: translateY(-10px) rotate(-8deg) scale(1.05);
-            }
-            50% {
-                transform: translateY(0px) rotate(0deg) scale(1);
-            }
-            75% {
-                transform: translateY(-10px) rotate(8deg) scale(1.05);
-            }
+            0%, 100% { transform: translateY(0px) }
+            50% { transform: translateY(-10px) }
         }
 
         h1 {
@@ -93,144 +77,50 @@
             opacity: 0.9;
         }
 
+        /* Cards */
+        .stat-card, .category-breakdown, .recent-activity, .members-list {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            color: black;
+        }
+
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr 1fr;
             gap: 15px;
             margin-bottom: 20px;
         }
 
-        .stat-card {
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-            text-align: center;
-            animation: slideIn 0.8s ease;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: #666;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        .stat-value {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .stat-card.phoenix .stat-value { color: #ff4444; }
-        .stat-card.dragon .stat-value { color: #44aa44; }
-        .stat-card.hydra .stat-value { color: #4488ff; }
-        .stat-card.griffin .stat-value { color: #ffaa00; }
-
-        .rank-badge {
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 18px;
-            font-weight: 700;
-            color: white;
-            margin-top: 5px;
-        }
-
-        .rank-1 { background: linear-gradient(135deg, #ffd700, #ffed4e); color: #000; }
-        .rank-2 { background: linear-gradient(135deg, #c0c0c0, #e8e8e8); color: #000; }
-        .rank-3 { background: linear-gradient(135deg, #cd7f32, #e89f65); color: #fff; }
-        .rank-4 { background: linear-gradient(135deg, #666, #999); color: #fff; }
-
-        .content-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .category-breakdown {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-        }
-
-        .category-breakdown h2 {
-            margin-bottom: 15px;
+        .category-breakdown h2,
+        .recent-activity h2,
+        .members-list h2 {
             font-size: 22px;
+            margin-bottom: 15px;
         }
 
-        .category-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-            padding: 6px;
-            border-radius: 6px;
-            transition: transform 0.2s;
+        .members-list {
+            margin-top: 30px;
         }
 
-        .category-row:hover {
-            transform: translateX(5px);
-            background: #f5f5f5;
-        }
-
-        .category-name {
-            flex: 1;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .category-points {
+        .member-item {
             font-size: 16px;
-            font-weight: 700;
-            margin-right: 10px;
-            min-width: 30px;
+            padding: 5px 0;
+            border-bottom: 1px solid #ddd;
         }
 
-        .phoenix .category-points { color: #ff4444; }
-        .dragon .category-points { color: #44aa44; }
-        .hydra .category-points { color: #4488ff; }
-        .griffin .category-points { color: #ffaa00; }
-
-        .category-bar {
-            flex: 1.5;
-            height: 16px;
-            background: #e0e0e0;
-            border-radius: 8px;
-            overflow: hidden;
+        .member-item:last-child {
+            border-bottom: none;
         }
 
-        .category-fill {
-            height: 100%;
-            transition: width 1s ease;
-            border-radius: 8px;
-        }
-
-        .phoenix .category-fill { background: linear-gradient(90deg, #ff4444, #ff8888); }
-        .dragon .category-fill { background: linear-gradient(90deg, #44aa44, #88dd88); }
-        .hydra .category-fill { background: linear-gradient(90deg, #4488ff, #88bbff); }
-        .griffin .category-fill { background: linear-gradient(90deg, #ffaa00, #ffcc66); }
-
-        .recent-activity {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-        }
-
-        .recent-activity h2 {
-            margin-bottom: 15px;
-            font-size: 22px;
-        }
-
+        /* Recent items */
         .activity-item {
             padding: 10px;
-            border-left: 3px solid;
-            margin-bottom: 8px;
+            border-left: 4px solid;
             background: #f9f9f9;
-            border-radius: 4px;
-            animation: slideIn 0.5s ease;
+            border-radius: 6px;
+            margin-bottom: 10px;
         }
 
         .phoenix .activity-item { border-left-color: #ff4444; }
@@ -238,41 +128,7 @@
         .hydra .activity-item { border-left-color: #4488ff; }
         .griffin .activity-item { border-left-color: #ffaa00; }
 
-        .activity-points {
-            font-size: 18px;
-            font-weight: 700;
-            display: inline-block;
-            margin-right: 8px;
-        }
-
-        .activity-category {
-            font-weight: 600;
-            font-size: 14px;
-            color: #333;
-        }
-
-        .activity-time {
-            font-size: 11px;
-            color: #999;
-            margin-top: 3px;
-        }
-
-        .loading {
-            text-align: center;
-            color: white;
-            font-size: 24px;
-            padding: 60px;
-        }
-
-        .error {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            color: #d32f2f;
-            font-size: 18px;
-        }
-
+        /* Back button */
         .back-button {
             position: fixed;
             top: 20px;
@@ -284,264 +140,162 @@
             text-decoration: none;
             font-weight: 600;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            transition: all 0.3s;
-        }
-
-        .back-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideIn {
-            from { 
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to { 
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         @media (max-width: 768px) {
             h1 { font-size: 28px; }
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
-            .category-row {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .category-bar {
-                width: 100%;
-                margin-top: 5px;
-            }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .content-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
-<body>
-    <a href="leaderboard.html" class="back-button">← Back to Leaderboard</a>
-    
-    <div class="container">
-        <div id="loading" class="loading">Loading house data...</div>
-        <div id="content" style="display: none;">
-            <header>
-                <img id="houseLogo" class="house-logo" src="" alt="">
-                <h1 id="houseName"></h1>
-                <p id="houseMotto" class="motto"></p>
-            </header>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">Current Rank</div>
-                    <div class="stat-value" id="rank">-</div>
-                    <div class="rank-badge" id="rankBadge">-</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Total Points</div>
-                    <div class="stat-value" id="totalPoints">-</div>
-                </div>
+<body>
+<a href="leaderboard.html" class="back-button">← Back</a>
+
+<div class="container">
+
+    <div id="loading" class="loading">Loading...</div>
+
+    <div id="content" style="display:none;">
+
+        <header>
+            <img id="houseLogo" class="house-logo" src="" alt="">
+            <h1 id="houseName"></h1>
+            <p id="houseMotto" class="motto"></p>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Current Rank</div>
+                <div class="stat-value" id="rank">-</div>
+                <div class="rank-badge" id="rankBadge">-</div>
             </div>
 
-            <div class="content-grid">
-                <div class="category-breakdown">
-                    <h2>Points by Category</h2>
-                    <div id="categoryBreakdown"></div>
-                </div>
-
-                <div class="recent-activity">
-                    <h2>Recent Point Awards (Last 10)</h2>
-                    <div id="recentActivity"></div>
-                </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Points</div>
+                <div class="stat-value" id="totalPoints">-</div>
             </div>
         </div>
+
+        <div class="content-grid">
+            <div class="category-breakdown">
+                <h2>Points by Category</h2>
+                <div id="categoryBreakdown"></div>
+            </div>
+
+            <div class="recent-activity">
+                <h2>Recent Rewards</h2>
+                <div id="recentActivity"></div>
+            </div>
+        </div>
+
+        <!-- NEW MEMBERS LIST -->
+        <div class="members-list">
+            <h2>House Members</h2>
+            <div id="membersContainer">Loading...</div>
+        </div>
+
     </div>
+</div>
 
-    <script>
-        const SHEET_ID = '1rpiTKhNvHkA1suptamC4JSk_33YBLrW1qfLtiloVtL0';
-        
-        const houseData = {
-            phoenix: {
-                name: 'Phoenix',
-                emoji: '🔥',
-                color: '#ff4444',
-                motto: '"Rise from the ashes"',
-                logo: 'phoenix2.png'
-            },
-            dragon: {
-                name: 'Dragon',
-                emoji: '🐉',
-                color: '#44aa44',
-                motto: '"Power through knowledge"',
-                logo: 'dragon2.png'
-            },
-            hydra: {
-                name: 'Hydra',
-                emoji: '🌊',
-                color: '#4488ff',
-                motto: '"Many heads, one heart"',
-                logo: 'hydra2.png'
-            },
-            griffin: {
-                name: 'Griffin',
-                emoji: '🦅',
-                color: '#ffaa00',
-                motto: '"Soar above expectations"',
-                logo: 'griffin2.png'
-            }
-        };
+<script>
+const API = "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
 
-        // Get house from URL parameter
-        const urlParams = new URLSearchParams(window.location.search);
-        const houseName = urlParams.get('house');
+const houseData = {
+    phoenix: { name:"Phoenix", emoji:"🔥", color:"#ff4444", motto:'"Rise from the ashes"', logo:"phoenix2.png" },
+    dragon:  { name:"Dragon", emoji:"🐉", color:"#44aa44", motto:'"Power through knowledge"', logo:"dragon2.png" },
+    hydra:   { name:"Hydra", emoji:"🌊", color:"#4488ff", motto:'"Many heads, one heart"', logo:"hydra2.png" },
+    griffin: { name:"Griffin", emoji:"🦅", color:"#ffaa00", motto:'"Soar above expectations"', logo:"griffin2.png" }
+};
 
-        if (!houseName || !houseData[houseName.toLowerCase()]) {
-            document.getElementById('loading').innerHTML = '<div class="error">Invalid house specified. Please select a house from the leaderboard.</div>';
-        } else {
-            const house = houseData[houseName.toLowerCase()];
-            loadHouseData(house, houseName);
-        }
+const urlParams = new URLSearchParams(window.location.search);
+const houseName = urlParams.get('house');
 
-        async function loadHouseData(house, houseName) {
-            try {
-                // Show content first
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('content').style.display = 'block';
+if (!houseName || !houseData[houseName]) {
+    document.getElementById("loading").innerHTML = "Invalid house.";
+} else {
+    loadPage();
+}
 
-                // Apply house styling
-                document.body.classList.add(houseName.toLowerCase());
-                document.querySelectorAll('.stat-card').forEach(card => {
-                    card.classList.add(houseName.toLowerCase());
-                });
+async function loadPage() {
+    const house = houseData[houseName];
 
-                // Set house header info
-                document.getElementById('houseName').textContent = `${house.emoji} ${house.name}`;
-                document.getElementById('houseMotto').textContent = house.motto;
-                document.getElementById('houseLogo').src = house.logo;
-                document.getElementById('houseLogo').alt = house.name;
-                document.title = `${house.name} - IESV House Points`;
+    document.body.classList.add(houseName);
+    document.title = `${house.name} House`;
 
-                // Fetch house totals
-                const totalsUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=House%20Totals&range=A2:E5`;
-                const totalsResponse = await fetch(totalsUrl);
-                const totalsText = await totalsResponse.text();
-                const totalsRows = totalsText.trim().split('\n').map(row => {
-                    return row.split(',').map(cell => cell.replace(/^"|"$/g, ''));
-                });
+    // Header
+    document.getElementById("houseLogo").src = house.logo;
+    document.getElementById("houseName").textContent = `${house.emoji} ${house.name}`;
+    document.getElementById("houseMotto").textContent = house.motto;
 
-                // Find this house's data
-                const houseRow = totalsRows.find(row => row[0].toLowerCase() === house.name.toLowerCase());
-                if (houseRow) {
-                    const [name, totalPoints, peopleCount, houseScore, rank] = houseRow;
-                    document.getElementById('totalPoints').textContent = parseInt(totalPoints).toLocaleString();
-                    document.getElementById('rank').textContent = rank;
-                    
-                    const rankBadge = document.getElementById('rankBadge');
-                    const rankNum = parseInt(rank);
-                    const ordinal = ['1st', '2nd', '3rd', '4th'][rankNum - 1];
-                    rankBadge.textContent = ordinal;
-                    rankBadge.className = `rank-badge rank-${rankNum}`;
-                }
+    // Show content
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("content").style.display = "block";
 
-                // Fetch points log for category breakdown and recent activity
-                const logUrl = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Points%20Log`;
-                const logResponse = await fetch(logUrl);
-                const logText = await logResponse.text();
-                const logRows = logText.trim().split('\n').slice(1).map(row => {
-                    return row.split(',').map(cell => cell.replace(/^"|"$/g, ''));
-                });
+    loadTotals();
+    loadRecent();
+    loadMembers(); // NEW
+}
 
-                // Filter for this house
-                const housePoints = logRows.filter(row => row[3] && row[3].toLowerCase() === house.name.toLowerCase());
+async function loadMembers() {
+    try {
+        const res = await fetch(`${API}?action=listStudents`);
+        const json = await res.json();
 
-                // Calculate category breakdown - use actual categories from data
-                const categoryTotals = {};
-                
-                housePoints.forEach(row => {
-                    const category = row[4];
-                    const points = parseInt(row[5]) || 0;
-                    if (category) {
-                        if (!categoryTotals[category]) {
-                            categoryTotals[category] = 0;
-                        }
-                        categoryTotals[category] += points;
-                    }
-                });
+        const members = json.students
+            .filter(s => s.house.toLowerCase() === houseName)
+            .map(s => `${s.firstName} ${s.lastName}`)
+            .sort();
 
-                // Get all categories sorted by points (descending)
-                const sortedCategories = Object.entries(categoryTotals)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([cat, pts]) => ({ name: cat, points: pts }));
+        const box = document.getElementById("membersContainer");
+        box.innerHTML = members.length
+            ? members.map(m => `<div class="member-item">• ${m}</div>`).join("")
+            : "<div>No members yet.</div>";
 
-                // Find max for percentage calculation
-                const maxPoints = Math.max(...Object.values(categoryTotals), 1);
+    } catch (e) {
+        document.getElementById("membersContainer").innerHTML = "Error loading members.";
+    }
+}
 
-                // Display category breakdown
-                const breakdownDiv = document.getElementById('categoryBreakdown');
-                breakdownDiv.className = houseName.toLowerCase();
-                sortedCategories.forEach(cat => {
-                    const percentage = (cat.points / maxPoints) * 100;
-                    breakdownDiv.innerHTML += `
-                        <div class="category-row">
-                            <div class="category-name">${cat.name}</div>
-                            <div class="category-points">${cat.points}</div>
-                            <div class="category-bar">
-                                <div class="category-fill" style="width: ${percentage}%"></div>
-                            </div>
-                        </div>
-                    `;
-                });
+async function loadTotals() {
+    const csv = await fetch(`https://docs.google.com/spreadsheets/d/1rpiTKhNvHkA1suptamC4JSk_33YBLrW1qfLtiloVtL0/gviz/tq?tqx=out:csv&sheet=House%20Totals&range=A2:E5`);
+    const text = await csv.text();
+    const rows = text.trim().split("\n").map(r => r.split(","));
 
-                // Display recent activity (last 10)
-                const recentDiv = document.getElementById('recentActivity');
-                recentDiv.className = houseName.toLowerCase();
-                const recent = housePoints.slice(-10).reverse();
-                
-                if (recent.length === 0) {
-                    recentDiv.innerHTML = '<p style="color: #999; text-align: center;">No points awarded yet. Be the first!</p>';
-                } else {
-                    recent.forEach(row => {
-                        const timestamp = row[0];
-                        const category = row[4];
-                        const points = parseInt(row[5]);
-                        
-                        const date = new Date(timestamp);
-                        const timeAgo = getTimeAgo(date);
-                        
-                        recentDiv.innerHTML += `
-                            <div class="activity-item">
-                                <span class="activity-points">+${points}</span>
-                                <span class="activity-category">${category}</span>
-                                <div class="activity-time">${timeAgo}</div>
-                            </div>
-                        `;
-                    });
-                }
+    const row = rows.find(r => r[0].toLowerCase() === houseName);
+    if (!row) return;
 
-            } catch (error) {
-                console.error('Error loading house data:', error);
-                document.getElementById('loading').innerHTML = '<div class="error">Error loading house data. Please try again.</div>';
-            }
-        }
+    document.getElementById("totalPoints").textContent = row[1];
+    document.getElementById("rank").textContent = row[4];
 
-        function getTimeAgo(date) {
-            const seconds = Math.floor((new Date() - date) / 1000);
-            
-            if (seconds < 60) return 'Just now';
-            if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
-            if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
-            if (seconds < 604800) return `${Math.floor(seconds / 86400)} days ago`;
-            
-            return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-        }
-    </script>
+    const rankBadge = document.getElementById("rankBadge");
+    const pos = parseInt(row[4]);
+    rankBadge.textContent = ["1st","2nd","3rd","4th"][pos-1];
+    rankBadge.className = `rank-badge rank-${pos}`;
+}
+
+async function loadRecent() {
+    const csv = await fetch(`https://docs.google.com/spreadsheets/d/1rpiTKhNvHkA1suptamC4JSk_33YBLrW1qfLtiloVtL0/gviz/tq?tqx=out:csv&sheet=Points%20Log`);
+    const text = await csv.text();
+    const rows = text.trim().split("\n").slice(1).map(r => r.split(","));
+
+    const houseRows = rows.filter(r => r[3].toLowerCase() === houseName).slice(-10).reverse();
+
+    const box = document.getElementById("recentActivity");
+    if (houseRows.length === 0) {
+        box.innerHTML = "<p>No activity yet.</p>";
+        return;
+    }
+
+    box.innerHTML = houseRows.map(r => `
+        <div class="activity-item">
+            <strong>+${r[5]}</strong> — ${r[4]}
+            <div style="font-size:11px;color:#666">${r[0]}</div>
+        </div>
+    `).join("");
+}
+</script>
+
 </body>
 </html>
