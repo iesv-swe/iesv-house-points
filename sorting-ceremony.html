@@ -167,6 +167,11 @@ input[type="email"] {
     outline: none;
 }
 
+input[type="email"]::placeholder {
+    color: #bbbbbb;
+    opacity: 0.8;
+}
+
 button.discover-btn {
     padding: 14px 28px;
     background: linear-gradient(145deg, #0f1a2a, #00050a);
@@ -196,7 +201,7 @@ button.discover-btn:hover {
 .error-message.show { display: inline-block; }
 
 /* ============================================================
-   SORTING SCREEN — C1 ANIMATION
+   SORTING SCREEN — SMALL CIRCLE + SOFT DRIFT
 ============================================================ */
 
 #sortingScreen h2 {
@@ -204,11 +209,11 @@ button.discover-btn:hover {
     margin-bottom: 20px;
 }
 
-/* Larger ritual circle wrapper */
+/* Smaller ritual circle wrapper (~260px, responsive) */
 .sorting-icons-wrapper {
     position: relative;
-    width: min(380px, 70vw);
-    height: min(380px, 70vw);
+    width: min(260px, 70vw);
+    height: min(260px, 70vw);
     margin: 30px auto;
 }
 
@@ -216,99 +221,96 @@ button.discover-btn:hover {
 .sorting-icons-wrapper::before {
     content: "";
     position: absolute;
-    inset: 20%;
+    inset: 22%;
     border-radius: 50%;
     box-shadow:
-        0 0 35px rgba(255, 215, 0, 0.35),
-        0 0 55px rgba(255, 255, 255, 0.25);
-    opacity: 0.75;
+        0 0 28px rgba(255, 215, 0, 0.35),
+        0 0 45px rgba(255, 255, 255, 0.25);
+    opacity: 0.8;
     animation: auraPulse 2.7s ease-in-out infinite;
 }
 
 @keyframes auraPulse {
     0%,100% { transform: scale(0.9); opacity: 0.6; }
-    50%     { transform: scale(1.05); opacity: 1; }
+    50%     { transform: scale(1.03); opacity: 1; }
 }
 
+.sorting-icons {
+    position: absolute;
+    inset: 0;
+}
+
+/* Shared shield style */
 .sorting-icons img {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 105px;
+    width: 90px;
+    max-width: 40%;
     transform-origin: center;
-    filter: drop-shadow(0 0 15px rgba(255,255,255,0.4));
-    opacity: 0.95;
+    filter: drop-shadow(0 0 15px rgba(0,0,0,0.7))
+            drop-shadow(0 0 14px rgba(255,255,255,0.35));
+    opacity: 0.96;
 }
 
-/* 🎩 The C1 Ritual Animations — elegant, smooth, dynamic */
+/* Radius for orbits */
+:root {
+    --orbit-radius: 78px;
+}
 
-/* PHOENIX */
+/* Soft circular drift with subtle scale (different phase for each) */
 .icon-phoenix {
-    animation: phoenixOrbit 4.8s ease-in-out infinite;
+    animation: orbitPhoenix 11s linear infinite;
 }
-@keyframes phoenixOrbit {
-    0%   { transform: translate(-50%, -50%) translate(-26vw, -26vw) scale(1); }
-    25%  { transform: translate(-50%, -50%) translate( 26vw, -26vw) scale(1.05); }
-    50%  { transform: translate(-50%, -50%) translate( 26vw,  26vw) scale(1.1); }
-    75%  { transform: translate(-50%, -50%) translate(-26vw,  26vw) scale(1.05); }
-    100% { transform: translate(-50%, -50%) translate(-26vw, -26vw) scale(1); }
+@keyframes orbitPhoenix {
+    0%   { transform: translate(-50%, -50%) rotate(0deg)   translate(var(--orbit-radius)) rotate(0deg)   scale(1); }
+    50%  { transform: translate(-50%, -50%) rotate(180deg) translate(var(--orbit-radius)) rotate(-180deg) scale(1.03); }
+    100% { transform: translate(-50%, -50%) rotate(360deg) translate(var(--orbit-radius)) rotate(-360deg) scale(1); }
 }
 
-/* DRAGON */
 .icon-dragon {
-    animation: dragonOrbit 4.8s ease-in-out infinite;
+    animation: orbitDragon 11s linear infinite;
 }
-@keyframes dragonOrbit {
-    0%   { transform: translate(-50%, -50%) translate( 26vw, -26vw) scale(1); }
-    25%  { transform: translate(-50%, -50%) translate( 26vw,  26vw) scale(1.05); }
-    50%  { transform: translate(-50%, -50%) translate(-26vw,  26vw) scale(1.1); }
-    75%  { transform: translate(-50%, -50%) translate(-26vw, -26vw) scale(1.05); }
-    100% { transform: translate(-50%, -50%) translate( 26vw, -26vw) scale(1); }
+@keyframes orbitDragon {
+    0%   { transform: translate(-50%, -50%) rotate(90deg)   translate(var(--orbit-radius)) rotate(-90deg)   scale(1); }
+    50%  { transform: translate(-50%, -50%) rotate(270deg)  translate(var(--orbit-radius)) rotate(-270deg)  scale(1.03); }
+    100% { transform: translate(-50%, -50%) rotate(450deg)  translate(var(--orbit-radius)) rotate(-450deg)  scale(1); }
 }
 
-/* HYDRA */
 .icon-hydra {
-    animation: hydraOrbit 4.8s ease-in-out infinite;
+    animation: orbitHydra 11s linear infinite;
 }
-@keyframes hydraOrbit {
-    0%   { transform: translate(-50%, -50%) translate(-26vw,  26vw) scale(1); }
-    25%  { transform: translate(-50%, -50%) translate(-26vw, -26vw) scale(1.05); }
-    50%  { transform: translate(-50%, -50%) translate( 26vw, -26vw) scale(1.1); }
-    75%  { transform: translate(-50%, -50%) translate( 26vw,  26vw) scale(1.05); }
-    100% { transform: translate(-50%, -50%) translate(-26vw,  26vw) scale(1); }
+@keyframes orbitHydra {
+    0%   { transform: translate(-50%, -50%) rotate(180deg)  translate(var(--orbit-radius)) rotate(-180deg)  scale(1); }
+    50%  { transform: translate(-50%, -50%) rotate(360deg)  translate(var(--orbit-radius)) rotate(-360deg)  scale(1.03); }
+    100% { transform: translate(-50%, -50%) rotate(540deg)  translate(var(--orbit-radius)) rotate(-540deg)  scale(1); }
 }
 
-/* GRIFFIN */
 .icon-griffin {
-    animation: griffinOrbit 4.8s ease-in-out infinite;
+    animation: orbitGriffin 11s linear infinite;
 }
-@keyframes griffinOrbit {
-    0%   { transform: translate(-50%, -50%) translate( 26vw,  26vw) scale(1); }
-    25%  { transform: translate(-50%, -50%) translate(-26vw,  26vw) scale(1.05); }
-    50%  { transform: translate(-50%, -50%) translate(-26vw, -26vw) scale(1.1); }
-    75%  { transform: translate(-50%, -50%) translate( 26vw, -26vw) scale(1.05); }
-    100% { transform: translate(-50%, -50%) translate( 26vw,  26vw) scale(1); }
+@keyframes orbitGriffin {
+    0%   { transform: translate(-50%, -50%) rotate(270deg)  translate(var(--orbit-radius)) rotate(-270deg)  scale(1); }
+    50%  { transform: translate(-50%, -50%) rotate(450deg)  translate(var(--orbit-radius)) rotate(-450deg)  scale(1.03); }
+    100% { transform: translate(-50%, -50%) rotate(630deg)  translate(var(--orbit-radius)) rotate(-630deg)  scale(1); }
 }
 
-/* Wand spark */
+/* Wand spark following a slightly larger ring */
 .wand-spark {
     position: absolute;
     top: 50%; left: 50%;
-    width: 14px; height: 14px;
+    width: 13px; height: 13px;
     border-radius: 50%;
     background: radial-gradient(circle, #fff 0%, #ffd700 45%, rgba(0,0,0,0) 70%);
     box-shadow: 0 0 12px rgba(255,215,0,0.9);
-    animation: wandSpin 2.8s linear infinite;
+    animation: wandSpin 7s linear infinite;
     pointer-events: none;
     z-index: 3;
 }
 
 @keyframes wandSpin {
-    0%   { transform: translate(-50%, -50%) translate(32vw, 0); }
-    25%  { transform: translate(-50%, -50%) translate(0, 32vw); }
-    50%  { transform: translate(-50%, -50%) translate(-32vw, 0); }
-    75%  { transform: translate(-50%, -50%) translate(0, -32vw); }
-    100% { transform: translate(-50%, -50%) translate(32vw, 0); }
+    0%   { transform: translate(-50%, -50%) rotate(0deg)   translate(calc(var(--orbit-radius) + 18px)); }
+    100% { transform: translate(-50%, -50%) rotate(360deg) translate(calc(var(--orbit-radius) + 18px)); }
 }
 
 .sorting-text {
@@ -349,10 +351,22 @@ button.discover-btn:hover {
     text-transform: uppercase;
 }
 
-.house-name.phoenix { background: linear-gradient(135deg, #ff4444, #ff8844); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-.house-name.dragon  { background: linear-gradient(135deg, #44aa44, #88dd44); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-.house-name.hydra   { background: linear-gradient(135deg, #4488ff, #44ddff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-.house-name.griffin { background: linear-gradient(135deg, #ffaa00, #ffdd44); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.house-name.phoenix { background: linear-gradient(135deg, #ff4444, #ff8844); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.house-name.dragon  { background: linear-gradient(135deg, #44aa44, #88dd44); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.house-name.hydra   { background: linear-gradient(135deg, #4488ff, #44ddff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.house-name.griffin { background: linear-gradient(135deg, #ffaa00, #ffdd44); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+.house-values {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+}
+
+.house-motto {
+    font-size: 1rem;
+    color: #c2cadf;
+    font-style: italic;
+    margin-bottom: 18px;
+}
 
 .welcome-message {
     background: rgba(16, 45, 105, 0.45);
@@ -395,22 +409,25 @@ button.discover-btn:hover {
     }
 
     .sorting-icons-wrapper {
-        width: 300px;
-        height: 300px;
+        width: min(220px, 80vw);
+        height: min(220px, 80vw);
+    }
+
+    :root {
+        --orbit-radius: 62px;
     }
 
     .sorting-icons img {
-        width: 85px;
+        width: 75px;
     }
 
     .wand-spark {
-        width: 12px;
-        height: 12px;
+        width: 11px;
+        height: 11px;
     }
 
     h1 { font-size: 1.9rem; }
 }
-
 </style>
 </head>
 
@@ -418,19 +435,19 @@ button.discover-btn:hover {
 <div class="particles"></div>
 
 <header>
-    <img src="./ies-logo-removebg-preview.png">
+    <img src="./ies-logo-removebg-preview.png" alt="School Logo">
     <h1>Sorting Ceremony</h1>
     <div class="subtitle">Discover your house at Internationella Engelska Skolan Västerås</div>
 </header>
 
 <!-- Side shields -->
 <div class="side-column left-column">
-    <img src="./dragon2-removebg.png">
-    <img src="./griffin2-removebg.png">
+    <img src="./dragon2-removebg.png" alt="Dragon">
+    <img src="./griffin2-removebg.png" alt="Griffin">
 </div>
 <div class="side-column right-column">
-    <img src="./hydra2-removebg.png">
-    <img src="./phoenix2-removebg.png">
+    <img src="./hydra2-removebg.png" alt="Hydra">
+    <img src="./phoenix2-removebg.png" alt="Phoenix">
 </div>
 
 <div class="container">
@@ -439,7 +456,11 @@ button.discover-btn:hover {
     <div class="screen active" id="inputScreen">
         <h2>Enter your school email</h2>
         <p>Please use your IES Västerås student email to discover your house.</p>
-        <input type="email" id="emailInput" placeholder="firstname.lastname.student.vasteras@engelska.se">
+        <input
+            type="email"
+            id="emailInput"
+            placeholder="firstname.lastname.student.vasteras@engelska.se"
+        >
         <button class="discover-btn" onclick="startSorting()">🎩 Discover Your House</button>
         <div class="error-message" id="errorMessage"></div>
     </div>
@@ -449,13 +470,14 @@ button.discover-btn:hover {
         <h2>The Sorting Ritual</h2>
 
         <div class="sorting-icons-wrapper">
+            <!-- Wand spark -->
             <div class="wand-spark"></div>
 
             <div class="sorting-icons">
-                <img src="./phoenix2-removebg.png" class="icon-phoenix">
-                <img src="./dragon2-removebg.png" class="icon-dragon">
-                <img src="./hydra2-removebg.png" class="icon-hydra">
-                <img src="./griffin2-removebg.png" class="icon-griffin">
+                <img src="./phoenix2-removebg.png" alt="Phoenix" class="icon-phoenix">
+                <img src="./dragon2-removebg.png" alt="Dragon" class="icon-dragon">
+                <img src="./hydra2-removebg.png" alt="Hydra" class="icon-hydra">
+                <img src="./griffin2-removebg.png" alt="Griffin" class="icon-griffin">
             </div>
         </div>
 
@@ -466,32 +488,35 @@ button.discover-btn:hover {
     <div class="screen" id="revealScreen">
         <div class="house-reveal">
             <div class="house-creature">
-                <img id="houseShield" src="./phoenix2-removebg.png">
+                <img id="houseShield" src="./phoenix2-removebg.png" alt="House Shield">
             </div>
             <h2 class="house-name phoenix" id="houseName">PHOENIX</h2>
-            <p class="house-values" id="houseValues"></p>
-            <p class="house-motto" id="houseMotto"></p>
+            <p class="house-values" id="houseValues">Resilience • Courage • Rising Again</p>
+            <p class="house-motto" id="houseMotto">"Rise from the ashes"</p>
         </div>
 
         <div class="welcome-message">
             <p><strong>Welcome to your house!</strong></p>
-            <p>You are now officially a member of <span id="houseNameRepeat">Phoenix</span>.</p>
+            <p>
+                You are now officially a member of
+                <span id="houseNameRepeat">Phoenix</span>.
+                Check the school leaderboard to see how your house is performing!
+            </p>
         </div>
 
-        <div class="email-sent">✓ A certificate has been sent to your email!</div>
+        <div class="email-sent">
+            ✓ A certificate has been sent to your email!
+        </div>
     </div>
-
 </div>
 
-<footer>Let destiny reveal your true House.</footer>
+<footer>
+    Let destiny reveal your true House.
+</footer>
 
 <script>
-/* ============================================================
-   EMAIL VALIDATION + HOUSE ASSIGNMENT
-============================================================ */
-
 const APPS_SCRIPT_URL =
-    'https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec';
+  'https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec';
 
 const houses = {
     Phoenix: {
@@ -520,67 +545,93 @@ const houses = {
     }
 };
 
+/* Particles init (kept from your original) */
+const particlesContainer = document.querySelector('.particles');
+for (let i = 0; i < 60; i++) {
+    const p = document.createElement('div');
+    p.classList.add('particle');
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.top = Math.random() * 100 + 'vh';
+    p.style.animationDelay = Math.random() * 5 + 's';
+    p.style.opacity = Math.random() * 0.8 + 0.2;
+    particlesContainer.appendChild(p);
+}
+
 function hashEmail(email) {
     let hash = 0;
     for (let i = 0; i < email.length; i++) {
-        hash = ((hash << 5) - hash) + email.charCodeAt(i);
-        hash |= 0;
+        const char = email.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
     }
     return Math.abs(hash);
 }
 
 function getHouseFromEmail(email) {
-    const keys = Object.keys(houses);
-    return keys[hashEmail(email) % 4];
-}
-
-function showError(msg) {
-    const e = document.getElementById("errorMessage");
-    e.textContent = msg;
-    e.classList.add("show");
-    setTimeout(() => e.classList.remove("show"), 3000);
+    const houseNames = Object.keys(houses);
+    return houseNames[hashEmail(email.toLowerCase()) % 4];
 }
 
 function validateEmail(email) {
-    if (!email.endsWith('@engelska.se'))
-        return { valid:false, msg:"Email must end with @engelska.se" };
-    if (!email.includes('.vasteras@'))
-        return { valid:false, msg:"Invalid email format" };
-    return { valid:true };
+    if (!email.endsWith('@engelska.se')) {
+        return { valid: false, message: 'Email must end with @engelska.se' };
+    }
+    if (!email.includes('.vasteras@')) {
+        return { valid: false, message: 'Invalid email format' };
+    }
+    return { valid: true };
+}
+
+function showError(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    errorDiv.textContent = message;
+    errorDiv.classList.add('show');
+    setTimeout(() => {
+        errorDiv.classList.remove('show');
+    }, 3000);
 }
 
 async function startSorting() {
-    const email = document.getElementById("emailInput").value.trim().toLowerCase();
+    const emailInput = document.getElementById('emailInput');
+    const email = emailInput.value.trim().toLowerCase();
 
-    const v = validateEmail(email);
-    if (!v.valid) return showError(v.msg);
+    const validation = validateEmail(email);
+    if (!validation.valid) {
+        showError(validation.message);
+        return;
+    }
 
-    const house = getHouseFromEmail(email);
+    const assignedHouse = getHouseFromEmail(email);
 
-    document.getElementById("inputScreen").classList.remove("active");
-    document.getElementById("sortingScreen").classList.add("active");
+    document.getElementById('inputScreen').classList.remove('active');
+    document.getElementById('sortingScreen').classList.add('active');
 
-    setTimeout(() => revealHouse(house, email), 4000);
+    setTimeout(() => {
+        revealHouse(assignedHouse, email);
+    }, 4000);
 }
 
 function revealHouse(houseName, email) {
-    const data = houses[houseName];
+    const house = houses[houseName];
 
-    document.getElementById("sortingScreen").classList.remove("active");
-    document.getElementById("revealScreen").classList.add("active");
+    document.getElementById('sortingScreen').classList.remove('active');
 
-    document.getElementById("houseShield").src = data.shield;
+    const shieldImg = document.getElementById('houseShield');
+    shieldImg.src = house.shield;
+    shieldImg.alt = `House ${houseName} Shield`;
 
-    const nameEl = document.getElementById("houseName");
-    nameEl.textContent = houseName.toUpperCase();
-    nameEl.className = `house-name ${data.class}`;
+    const houseNameEl = document.getElementById('houseName');
+    houseNameEl.textContent = houseName.toUpperCase();
+    houseNameEl.className = `house-name ${house.class}`;
 
-    document.getElementById("houseValues").textContent = data.values;
-    document.getElementById("houseMotto").textContent = data.motto;
-    document.getElementById("houseNameRepeat").textContent = houseName;
+    document.getElementById('houseValues').textContent = house.values;
+    document.getElementById('houseMotto').textContent = house.motto;
+    document.getElementById('houseNameRepeat').textContent = houseName;
 
-    sendSortingData(email, houseName);
+    document.getElementById('revealScreen').classList.add('active');
+
     createConfetti();
+    sendSortingData(email, houseName);
 }
 
 async function sendSortingData(email, house) {
@@ -588,27 +639,30 @@ async function sendSortingData(email, house) {
         await fetch(APPS_SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
-            headers: { 'Content-Type':'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 action: 'sort',
-                email,
-                house,
+                email: email,
+                house: house,
                 timestamp: new Date().toISOString()
             })
         });
-    } catch(e) { console.error(e); }
+    } catch (error) {
+        console.error('Error sending data:', error);
+    }
 }
 
 function createConfetti() {
-    const colors = ['#ff4444','#44aa44','#4488ff','#ffaa00','#ff8844','#44ddff'];
-    for (let i = 0; i < 80; i++) {
+    const colors = ['#ff4444', '#44aa44', '#4488ff', '#ffaa00', '#ff8844', '#44ddff'];
+    for (let i = 0; i < 100; i++) {
         setTimeout(() => {
-            const c = document.createElement("div");
-            c.className = "confetti";
-            c.style.left = Math.random()*100 + "%";
-            c.style.background = colors[Math.floor(Math.random()*colors.length)];
-            document.body.appendChild(c);
-            setTimeout(() => c.remove(), 3000);
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDelay = Math.random() * 0.5 + 's';
+            document.body.appendChild(confetti);
+            setTimeout(() => confetti.remove(), 3000);
         }, i * 30);
     }
 }
