@@ -37,7 +37,6 @@
             text-align: center;
         }
 
-        /* Shared Card Styling */
         .card {
             width: 100%;
             max-width: 480px;
@@ -64,7 +63,6 @@
             margin-bottom: 10px;
         }
 
-        /* HOUSE GRID */
         .house-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -94,7 +92,6 @@
             transform: scale(1.05);
         }
 
-        /* CATEGORY GRID */
         .category-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -118,7 +115,6 @@
             background: rgba(0,168,255,0.15);
         }
 
-        /* SUBMIT BUTTON */
         #submitBtn {
             width: 100%;
             max-width: 480px;
@@ -157,13 +153,11 @@
     <h1>House Points</h1>
     <h2>Award 1 point for positive behaviour</h2>
 
-    <!-- NAME CARD -->
     <div class="card">
         <label>Your Name or Email</label>
         <input id="teacher" type="text" placeholder="Enter your name">
     </div>
 
-    <!-- HOUSE SELECTOR -->
     <div class="card">
         <label>Select House</label>
         <div class="house-grid">
@@ -182,7 +176,6 @@
         </div>
     </div>
 
-    <!-- CATEGORY SELECTOR -->
     <div class="card">
         <label>Select Category</label>
 
@@ -200,7 +193,6 @@
         </div>
     </div>
 
-    <!-- SUBMIT -->
     <button id="submitBtn">Award 1 Point</button>
 
     <div id="successMessage">Point Awarded Successfully!</div>
@@ -242,7 +234,7 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
 
     try {
         const res = await fetch(
-            "https://script.google.com/macros/s/AKfycbzEt7aXTIgktJqq7SB3zSAh_wH5P0ME-pNkh6RWchdhOSCYKKpFeaR0oI2c3X9GnpvW/exec",
+            "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec",
             {
                 method: "POST",
                 body: JSON.stringify(payload),
