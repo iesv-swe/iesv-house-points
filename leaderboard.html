@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>House Leaderboard</title>
+    <title>House Points Leaderboard</title>
 
     <style>
         * {
@@ -16,30 +16,57 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: url('castlewall.png') no-repeat center center fixed;
             background-size: cover;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 15px;
+            color: white;
+            padding: 20px;
         }
 
-        .container {
-            width: 100%;
-            max-width: 900px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+        h1 {
+            text-align: left;
+            font-size: 2.6rem;
+            margin-bottom: 5px;
+            font-weight: 800;
         }
 
-        .card {
-            width: 100%;
-            height: 22vh; /* forces always-fitting layout on mobile */
-            background: rgba(0, 0, 0, 0.55);
-            border-radius: 18px;
+        .subtitle {
+            margin-bottom: 25px;
+            opacity: 0.7;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 22px;
+        }
+
+        /* 🥇 FIRST PLACE SPECIAL CARD */
+        .card.first {
+            grid-column: span 1;
+            height: 280px;
+            background: rgba(0,0,0,0.55);
+            border-radius: 20px;
+            position: relative;
             display: flex;
             justify-content: space-between;
-            align-items: center; /* vertical centering */
-            padding: 10px 18px;
+            align-items: center;
+            padding: 25px;
+
+            /* GLOW EFFECT */
+            border: 3px solid #ffb300;
+            box-shadow: 0 0 30px rgba(255, 179, 0, 0.7),
+                        0 0 60px rgba(255, 179, 0, 0.4);
+        }
+
+        /* Standard cards */
+        .card {
+            height: 220px;
+            background: rgba(0,0,0,0.45);
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px;
+            position: relative;
         }
 
         .house-info {
@@ -49,29 +76,61 @@
         }
 
         .house-info img {
-            width: 70px;
+            width: 75px;
             height: auto;
         }
 
         .house-name {
-            color: white;
-            font-size: 1.8rem;
+            font-size: 1.9rem;
             font-weight: 700;
-            letter-spacing: 1px;
         }
 
+        /* 🏆 HUGE SCORE — centered vertically & horizontally */
         .score {
-            color: white;
-            font-size: 3rem;
+            font-size: 6rem;
             font-weight: 900;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 200px;
             text-align: center;
-            width: 90px;
         }
 
-        @media (max-width: 600px) {
-            .card {
-                height: 23vh;
+        /* Rank badge (1st / 2nd / 3rd / 4th) */
+        .rank {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            background: rgba(255,255,255,0.9);
+            color: black;
+            padding: 10px 18px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .rank.dark {
+            background: rgba(0,0,0,0.65);
+            color: white;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
             }
+            .card.first {
+                height: 260px;
+            }
+            .card {
+                height: 200px;
+            }
+            .score {
+                font-size: 5rem;
+            }
+        }
+
+        @media (max-width: 500px) {
             .house-info img {
                 width: 60px;
             }
@@ -79,68 +138,61 @@
                 font-size: 1.5rem;
             }
             .score {
-                font-size: 2.4rem;
+                font-size: 4rem;
             }
         }
     </style>
 
     <script>
         async function loadScores() {
-            try {
-                const response = await fetch(
-                    "https://script.google.com/macros/s/AKfycbw6-CUSTOM-URL-HERE/exec?action=houseTotals"
-                );
-                const data = await response.json();
+            const res = await fetch(
+                "https://script.google.com/macros/s/AKfycbw6-CUSTOM-URL-HERE/exec?action=houseTotals"
+            );
+            const data = await res.json();
 
-                document.getElementById("griffin-score").textContent = data.Griffin;
-                document.getElementById("hydra-score").textContent = data.Hydra;
-                document.getElementById("pheonix-score").textContent = data.Pheonix;
-                document.getElementById("dragon-score").textContent = data.Dragon;
+            let houses = [
+                { name: "Hydra",    score: data.Hydra,    img: "hydra2-removebg.png" },
+                { name: "Phoenix",  score: data.Phoenix,  img: "phoenix2-removebg.png" },
+                { name: "Dragon",   score: data.Dragon,   img: "dragon2-removebg.png" },
+                { name: "Griffin",  score: data.Griffin,  img: "griffin2-removebg.png" },
+            ];
 
-            } catch (err) {
-                console.error("Score load failed:", err);
-            }
+            // Sort houses by score
+            houses.sort((a, b) => b.score - a.score);
+
+            const grid = document.getElementById("cards");
+            grid.innerHTML = "";
+
+            houses.forEach((h, index) => {
+                const ranks = ["1st", "2nd", "3rd", "4th"];
+                const cardClass = index === 0 ? "card first" : "card";
+
+                grid.innerHTML += `
+                    <div class="${cardClass}">
+                        <div class="house-info">
+                            <img src="${h.img}">
+                            <div class="house-name">${h.name}</div>
+                        </div>
+
+                        <div class="score">${h.score}</div>
+
+                        <div class="rank ${index > 0 ? "dark" : ""}">
+                            ${ranks[index]}
+                        </div>
+                    </div>
+                `;
+            });
         }
 
         window.onload = loadScores;
     </script>
+
 </head>
 
 <body>
-    <div class="container">
+    <h1>House Points Leaderboard</h1>
+    <div class="subtitle">Live Rankings</div>
 
-        <div class="card">
-            <div class="house-info">
-                <img src="griffin2-removebg.png">
-                <div class="house-name">GRIFFIN</div>
-            </div>
-            <div class="score" id="griffin-score">0</div>
-        </div>
-
-        <div class="card">
-            <div class="house-info">
-                <img src="hydra2-removebg.png">
-                <div class="house-name">HYDRA</div>
-            </div>
-            <div class="score" id="hydra-score">0</div>
-        </div>
-
-        <div class="card">
-            <div class="house-info">
-                <img src="pheonix2-removebg.png">
-                <div class="house-name">PHEONIX</div>
-            </div>
-            <div class="score" id="pheonix-score">0</div>
-        </div>
-
-        <div class="card">
-            <div class="house-info">
-                <img src="dragon2-removebg.png">
-                <div class="house-name">DRAGON</div>
-            </div>
-            <div class="score" id="dragon-score">0</div>
-        </div>
-
-    </div>
+    <div id="cards" class="grid"></div>
 </body>
 </html>
