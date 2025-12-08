@@ -1,321 +1,687 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>House Points - Teacher Input</title>
-    <link rel="icon" type="image/x-icon" href="teacher-favicon.ico">
+  <meta charset="UTF-8">
+  <title>House Points - Teacher Input</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="teacher-favicon.ico">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #102d69 0%, #00a0df 100%);
+      padding: 16px;
+    }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: url("stone.png") center/cover no-repeat fixed;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 20px;
-            color: white;
-        }
+    .card {
+      width: 100%;
+      max-width: 460px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      padding: 20px 18px 18px;
+    }
 
-        .container {
-            width: 100%;
-            max-width: 600px;
-        }
+    .card-header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 6px;
-            font-size: 32px;
-            letter-spacing: 1px;
-            text-shadow: 0 0 8px black;
-        }
+    .card-header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #12305a;
+      margin-bottom: 4px;
+    }
 
-        .subtitle {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 15px;
-            opacity: 0.9;
-            text-shadow: 0 0 8px black;
-        }
+    .card-header p {
+      font-size: 13px;
+      color: #6b7280;
+    }
 
-        .card {
-            background: rgba(60,60,60,0.92);
-            color: white;
-            padding: 20px;
-            border-radius: 16px;
-            margin-bottom: 18px;
-            box-shadow: 0 10px 35px rgba(0,0,0,0.45);
-            backdrop-filter: blur(3px);
-        }
+    .field {
+      margin-bottom: 14px;
+    }
 
-        .card h2 {
-            font-size: 19px;
-            margin-bottom: 10px;
-        }
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 4px;
+    }
 
-        input {
-            width: 100%;
-            padding: 12px;
-            margin-top: 6px;
-            border-radius: 10px;
-            border: none;
-            font-size: 16px;
-        }
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+    }
 
-        /* ---- HOUSE 2×2 GRID ---- */
-        .house-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            margin-top: 8px;
-        }
+    input[type="text"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 1px #2563eb33;
+    }
 
-        .house-btn {
-            position: relative;
-            height: 180px;
-            border-radius: 18px;
-            background: #2b2b2b;
-            border: none;
-            cursor: pointer;
-            overflow: hidden;
-            padding: 0;
-            transition: 0.25s ease;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
 
-        .house-btn img {
-            width: 85%;
-            height: auto;
-            max-height: 140px;
-            object-fit: contain;
-            object-position: top;
-            transform: translateY(-10px);
-            z-index: 2;
-            pointer-events: none;
-        }
+    .section-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #4b5563;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
 
-        .house-btn:hover {
-            box-shadow: 0 0 20px rgba(255,140,0,0.9);
-            transform: scale(1.04);
-        }
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
 
-        .house-btn.selected {
-            box-shadow: 0 0 28px rgba(255,140,0,1);
-            transform: scale(1.06);
-        }
+    .pill {
+      flex: 1 1 calc(50% - 6px);
+      min-width: 120px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      padding: 6px 10px;
+      font-size: 13px;
+      background: #f9fafb;
+      color: #111827;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+    }
 
-        /* ---- CATEGORY BUTTONS ---- */
-        .category-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 10px;
-            margin-top: 10px;
-        }
+    .pill.small {
+      flex: 0 0 auto;
+      min-width: 0;
+      padding-inline: 10px;
+      font-size: 12px;
+    }
 
-        .category-btn {
-            padding: 12px;
-            border-radius: 12px;
-            background: #555;
-            color: white;
-            cursor: pointer;
-            transition: 0.15s;
-            font-size: 15px;
-        }
+    .pill.selected {
+      background: #2563eb;
+      color: #ffffff;
+      border-color: #1d4ed8;
+    }
 
-        .category-btn:hover {
-            background: #777;
-            transform: translateY(-1px);
-        }
+    .pill-row.single-line {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+    }
 
-        .category-btn.selected {
-            background: #00c3ff;
-            color: black;
-            font-weight: bold;
-        }
+    .pill-row.single-line::-webkit-scrollbar {
+      height: 4px;
+    }
 
-        #submitBtn {
-            width: 100%;
-            padding: 16px;
-            background: #00c3ff;
-            border: none;
-            border-radius: 14px;
-            font-size: 20px;
-            color: black;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+    .pill-row.single-line::-webkit-scrollbar-thumb {
+      background: #d1d5db;
+      border-radius: 999px;
+    }
 
-        #submitBtn:hover {
-            background: #41d9ff;
-        }
+    .student-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      background: #f9fafb;
+      cursor: pointer;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
 
-        .footer-note {
-            text-align: center;
-            margin-top: 10px;
-            font-size: 13px;
-            opacity: 0.85;
-            text-shadow: 0 0 8px black;
-        }
+    .student-toggle span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-        .status-message {
-            text-align: center;
-            margin-top: 10px;
-            font-size: 14px;
-            min-height: 20px;
-        }
+    .chevron {
+      font-size: 12px;
+      color: #6b7280;
+    }
 
-        .status-success { color: #7CFC7C; }
-        .status-error   { color: #ffb3b3; }
-    </style>
+    .student-panel {
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      padding: 8px;
+      background: #f9fafb;
+      margin-bottom: 10px;
+    }
+
+    .student-search-input {
+      width: 100%;
+      padding: 7px 9px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .student-search-input:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 1px #2563eb33;
+    }
+
+    .student-suggestions {
+      max-height: 160px;
+      overflow-y: auto;
+      margin-bottom: 6px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      display: none;
+    }
+
+    .student-suggestion {
+      padding: 6px 9px;
+      cursor: pointer;
+      font-size: 13px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .student-suggestion:last-child {
+      border-bottom: none;
+    }
+
+    .student-suggestion:hover {
+      background: #eff6ff;
+    }
+
+    .student-suggestion-main {
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .student-suggestion-sub {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .selected-students {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .student-tag {
+      border-radius: 999px;
+      background: #e5effe;
+      color: #1e3a8a;
+      padding: 3px 9px;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .student-tag-house {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #4b5563;
+    }
+
+    .student-tag-remove {
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .actions {
+      margin-top: 14px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      border-radius: 999px;
+      border: none;
+      padding: 10px 0;
+      font-size: 15px;
+      font-weight: 600;
+      background: #16a34a;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    .status {
+      margin-top: 8px;
+      font-size: 13px;
+      min-height: 18px;
+    }
+
+    .status.ok {
+      color: #16a34a;
+    }
+
+    .status.error {
+      color: #b91c1c;
+    }
+
+    .hint {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 6px;
+      text-align: center;
+    }
+  </style>
 </head>
-
 <body>
-<div class="container">
-    <h1>House Points</h1>
-    <p class="subtitle">Award 1 point for positive behaviour</p>
-
-    <!-- TEACHER INPUT -->
-    <div class="card">
-        <h2>Your Name or Email</h2>
-        <input id="teacherInput" type="text" placeholder="Enter your name or school email">
+  <div class="card">
+    <div class="card-header">
+      <h1>House Points</h1>
+      <p>Award 1 point for positive behaviour</p>
     </div>
 
-    <!-- HOUSE SELECTION -->
-    <div class="card">
-        <h2>Select House</h2>
-        <div class="house-grid">
-
-            <button class="house-btn" data-house="Phoenix">
-                <img src="phoenix2-removebg.png" alt="Phoenix">
-            </button>
-
-            <button class="house-btn" data-house="Dragon">
-                <img src="dragon2-removebg.png" alt="Dragon">
-            </button>
-
-            <button class="house-btn" data-house="Hydra">
-                <img src="hydra2-removebg.png" alt="Hydra">
-            </button>
-
-            <button class="house-btn" data-house="Griffin">
-                <img src="griffin2-removebg.png" alt="Griffin">
-            </button>
-
-        </div>
+    <!-- Teacher name -->
+    <div class="field">
+      <label for="teacherName">Your Name</label>
+      <input type="text" id="teacherName" placeholder="e.g. Mr Smith / Ms Jones">
     </div>
 
-    <!-- CATEGORY SELECTION -->
-    <div class="card">
-        <h2>Select Category</h2>
+    <!-- Student selection (optional) -->
+    <div class="field">
+      <div id="studentToggle" class="student-toggle">
+        <span>
+          <span id="studentToggleChevron" class="chevron">▶</span>
+          <span>Select students (optional)</span>
+        </span>
+        <span id="studentCountLabel" style="font-size:11px;color:#6b7280;"></span>
+      </div>
 
-        <div class="category-grid">
-            <div class="category-btn" data-category="Kindness/Helping Others">❤️ Kindness/Helping Others</div>
-            <div class="category-btn" data-category="Academic Effort/Excellence">📚 Academic Effort/Excellence</div>
-            <div class="category-btn" data-category="Teamwork/Collaboration">🤝 Teamwork/Collaboration</div>
-            <div class="category-btn" data-category="Respect">🙏 Respect</div>
-            <div class="category-btn" data-category="Leadership">⭐ Leadership</div>
-            <div class="category-btn" data-category="Creativity/Problem Solving">💡 Creativity/Problem Solving</div>
-            <div class="category-btn" data-category="Responsibility">✅ Responsibility</div>
-        </div>
+      <div id="studentPanel" class="student-panel hidden">
+        <input
+          type="text"
+          id="studentSearch"
+          class="student-search-input"
+          placeholder="Search by name or email…"
+          autocomplete="off"
+        >
+
+        <div id="studentSuggestions" class="student-suggestions"></div>
+
+        <div id="selectedStudents" class="selected-students"></div>
+      </div>
     </div>
 
-    <!-- SUBMIT -->
-    <button id="submitBtn">Award 1 Point</button>
+    <!-- House selection (hidden when students selected) -->
+    <div class="field" id="houseSection">
+      <div class="section-title">House</div>
+      <div id="housePills" class="pill-row">
+        <button type="button" class="pill" data-house="Phoenix">Phoenix</button>
+        <button type="button" class="pill" data-house="Hydra">Hydra</button>
+        <button type="button" class="pill" data-house="Griffin">Griffin</button>
+        <button type="button" class="pill" data-house="Dragon">Dragon</button>
+      </div>
+    </div>
 
-    <p class="footer-note">multiple points can be awarded upon special request</p>
-    <div id="status" class="status-message"></div>
+    <!-- Category -->
+    <div class="field">
+      <div class="section-title">Category</div>
+      <div id="categoryPills" class="pill-row">
+        <button type="button" class="pill" data-category="Kindness/Helping Others">Kindness / Helping Others</button>
+        <button type="button" class="pill" data-category="Respect">Respect</button>
+        <button type="button" class="pill" data-category="Independence">Independence</button>
+        <button type="button" class="pill" data-category="Creativity/Problem Solving">Creativity / Problem Solving</button>
+      </div>
+    </div>
 
-    <input type="hidden" id="selectedHouse">
-    <input type="hidden" id="selectedCategory">
-</div>
+    <!-- Reason (optional) -->
+    <div class="field">
+      <label for="reason">Reason (optional)</label>
+      <textarea id="reason" placeholder="Short description (optional)"></textarea>
+    </div>
 
-<script>
-const APPS_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
+    <div class="actions">
+      <button id="submitBtn" class="submit-btn">Submit Point</button>
+      <div id="status" class="status"></div>
+      <div class="hint">
+        Multiple points can be awarded upon special request.
+      </div>
+    </div>
+  </div>
 
-let currentHouse = "";
-let currentCategory = "";
+  <script>
+    const APPS_SCRIPT_URL =
+      "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
 
-/* ---- HOUSE BUTTON LOGIC ---- */
-const houseButtons = [...document.querySelectorAll(".house-btn")];
-houseButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-        houseButtons.forEach(b => b.classList.remove("selected"));
-        btn.classList.add("selected");
-        currentHouse = btn.dataset.house;
-        document.getElementById("selectedHouse").value = currentHouse;
+    const teacherNameInput = document.getElementById('teacherName');
+    const reasonInput = document.getElementById('reason');
+
+    const houseSection = document.getElementById('houseSection');
+    const housePills = document.querySelectorAll('#housePills .pill');
+    const categoryPills = document.querySelectorAll('#categoryPills .pill');
+
+    const studentToggle = document.getElementById('studentToggle');
+    const studentToggleChevron = document.getElementById('studentToggleChevron');
+    const studentPanel = document.getElementById('studentPanel');
+    const studentSearch = document.getElementById('studentSearch');
+    const studentSuggestions = document.getElementById('studentSuggestions');
+    const selectedStudentsContainer = document.getElementById('selectedStudents');
+    const studentCountLabel = document.getElementById('studentCountLabel');
+
+    const submitBtn = document.getElementById('submitBtn');
+    const statusEl = document.getElementById('status');
+
+    let allStudents = [];        // { name, email, house }
+    let selectedStudents = [];   // { name, email, house }
+
+    function setStatus(message, type) {
+      statusEl.textContent = message || '';
+      statusEl.classList.remove('ok', 'error');
+      if (!message) return;
+      if (type === 'ok') statusEl.classList.add('ok');
+      if (type === 'error') statusEl.classList.add('error');
+    }
+
+    function getSelectedHouse() {
+      const pill = document.querySelector('#housePills .pill.selected');
+      return pill ? pill.getAttribute('data-house') : null;
+    }
+
+    function getSelectedCategory() {
+      const pill = document.querySelector('#categoryPills .pill.selected');
+      return pill ? pill.getAttribute('data-category') : null;
+    }
+
+    housePills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        housePills.forEach(p => p.classList.remove('selected'));
+        pill.classList.add('selected');
+      });
     });
-});
 
-/* ---- CATEGORY BUTTON LOGIC ---- */
-const categoryButtons = [...document.querySelectorAll(".category-btn")];
-categoryButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-        categoryButtons.forEach(b => b.classList.remove("selected"));
-        btn.classList.add("selected");
-        currentCategory = btn.dataset.category;
-        document.getElementById("selectedCategory").value = currentCategory;
+    categoryPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        categoryPills.forEach(p => p.classList.remove('selected'));
+        pill.classList.add('selected');
+      });
     });
-});
 
-/* ---- STATUS ---- */
-function setStatus(msg, error = false) {
-    const el = document.getElementById("status");
-    el.textContent = msg;
-    el.classList.remove("status-success", "status-error");
-    el.classList.add(error ? "status-error" : "status-success");
-}
+    function toggleStudentPanel() {
+      const isHidden = studentPanel.classList.contains('hidden');
+      if (isHidden) {
+        studentPanel.classList.remove('hidden');
+        studentToggleChevron.textContent = '▼';
+        studentSearch.focus();
+      } else {
+        studentPanel.classList.add('hidden');
+        studentToggleChevron.textContent = '▶';
+        studentSearch.value = '';
+        studentSuggestions.style.display = 'none';
+      }
+    }
 
-/* ---- SUBMIT ---- */
-document.getElementById("submitBtn").addEventListener("click", () => {
-    const teacher = document.getElementById("teacherInput").value.trim();
+    studentToggle.addEventListener('click', toggleStudentPanel);
 
-    if (!teacher) return setStatus("Enter your name or email.", true);
-    if (!currentHouse) return setStatus("Select a house.", true);
-    if (!currentCategory) return setStatus("Select a category.", true);
+    function renderSelectedStudents() {
+      selectedStudentsContainer.innerHTML = '';
 
-    const payload = {
-        action: "points",   // ✅ Correct action for your backend
-        source: "teacher-form",
-        teacher,
-        house: currentHouse,
-        category: currentCategory,
-        points: 1
-    };
+      if (selectedStudents.length === 0) {
+        studentCountLabel.textContent = '';
+        houseSection.classList.remove('hidden');
+        return;
+      }
 
-    setStatus("Submitting…");
+      studentCountLabel.textContent = selectedStudents.length + ' selected';
 
-    fetch(APPS_SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(payload)
-    })
-    .then(r => r.json().catch(() => ({})))
-    .then(data => {
-        if (!data || data.status === "error") {
-            setStatus("✗ Error sending. Try again.", true);
+      // Hide houses when any students selected
+      houseSection.classList.add('hidden');
+      housePills.forEach(p => p.classList.remove('selected'));
+
+      selectedStudents.forEach(student => {
+        const tag = document.createElement('div');
+        tag.className = 'student-tag';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = student.name;
+
+        const houseSpan = document.createElement('span');
+        houseSpan.className = 'student-tag-house';
+        houseSpan.textContent = student.house;
+
+        const removeSpan = document.createElement('span');
+        removeSpan.className = 'student-tag-remove';
+        removeSpan.textContent = '×';
+        removeSpan.addEventListener('click', () => {
+          selectedStudents = selectedStudents.filter(s => s.email !== student.email);
+          renderSelectedStudents();
+        });
+
+        tag.appendChild(nameSpan);
+        tag.appendChild(houseSpan);
+        tag.appendChild(removeSpan);
+
+        selectedStudentsContainer.appendChild(tag);
+      });
+    }
+
+    function filterStudents(term) {
+      const lower = term.toLowerCase();
+      return allStudents.filter(s =>
+        s.name.toLowerCase().includes(lower) ||
+        s.email.toLowerCase().includes(lower)
+      ).slice(0, 20);
+    }
+
+    function hideSuggestions() {
+      studentSuggestions.style.display = 'none';
+      studentSuggestions.innerHTML = '';
+    }
+
+    function showSuggestions(list) {
+      if (!list.length) {
+        hideSuggestions();
+        return;
+      }
+
+      studentSuggestions.innerHTML = '';
+      list.forEach(student => {
+        const div = document.createElement('div');
+        div.className = 'student-suggestion';
+
+        const main = document.createElement('div');
+        main.className = 'student-suggestion-main';
+        main.textContent = `${student.name} — ${student.house}`;
+
+        const sub = document.createElement('div');
+        sub.className = 'student-suggestion-sub';
+        sub.textContent = student.email;
+
+        div.appendChild(main);
+        div.appendChild(sub);
+
+        div.addEventListener('click', () => {
+          const already = selectedStudents.some(s => s.email === student.email);
+          if (!already) {
+            selectedStudents.push(student);
+            renderSelectedStudents();
+          }
+          studentSearch.value = '';
+          hideSuggestions();
+          studentSearch.focus();
+        });
+
+        studentSuggestions.appendChild(div);
+      });
+
+      studentSuggestions.style.display = 'block';
+    }
+
+    studentSearch.addEventListener('input', () => {
+      const term = studentSearch.value.trim();
+      if (term.length < 2) {
+        hideSuggestions();
+        return;
+      }
+      const results = filterStudents(term);
+      showSuggestions(results);
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!studentPanel.contains(e.target) && e.target !== studentToggle) {
+        hideSuggestions();
+      }
+    });
+
+    async function loadStudentList() {
+      try {
+        const url = APPS_SCRIPT_URL + '?action=listStudents';
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.status === 'success' && Array.isArray(data.students)) {
+          allStudents = data.students.map(s => ({
+            name: s.name || (s.firstName + ' ' + s.lastName).trim(),
+            email: s.email,
+            house: s.house || 'Unknown'
+          })).filter(s => s.email);
         } else {
-            setStatus("✓ Point awarded!");
-            houseButtons.forEach(b => b.classList.remove("selected"));
-            categoryButtons.forEach(b => b.classList.remove("selected"));
-            currentHouse = "";
-            currentCategory = "";
-            document.getElementById("selectedHouse").value = "";
-            document.getElementById("selectedCategory").value = "";
+          console.log('Unexpected student list response', data);
         }
-    })
-    .catch(() => setStatus("✗ Network error.", true));
-});
-</script>
+      } catch (err) {
+        console.error('Failed to load students', err);
+      }
+    }
 
+    async function submitPoints() {
+      setStatus('');
+      submitBtn.disabled = true;
+
+      const teacher = teacherNameInput.value.trim();
+      if (!teacher) {
+        setStatus('Please enter your name.', 'error');
+        submitBtn.disabled = false;
+        return;
+      }
+
+      const category = getSelectedCategory();
+      if (!category) {
+        setStatus('Please choose a category.', 'error');
+        submitBtn.disabled = false;
+        return;
+      }
+
+      const reason = reasonInput.value.trim();
+      const POINTS = 1;
+
+      try {
+        // MODE A: No students selected → behave like today
+        if (selectedStudents.length === 0) {
+          const house = getSelectedHouse();
+          if (!house) {
+            setStatus('Please choose a house.', 'error');
+            submitBtn.disabled = false;
+            return;
+          }
+
+          const payload = {
+            action: 'points',
+            source: 'teacher-form',
+            teacher: teacher,
+            house: house,
+            category: category,
+            points: POINTS,
+            reason: reason
+          };
+
+          const res = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+
+          if (data.status === 'success') {
+            setStatus('Point submitted.', 'ok');
+          } else {
+            setStatus('Error: ' + (data.message || 'Unknown error'), 'error');
+          }
+        } else {
+          // MODE B: Students selected → one row per student
+          const requests = selectedStudents.map(student => {
+            const payload = {
+              action: 'points',
+              source: 'teacher-form',
+              teacher: teacher,
+              house: student.house,
+              category: category,
+              points: POINTS,
+              student: student.name,
+              reason: reason
+            };
+
+            return fetch(APPS_SCRIPT_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            }).then(r => r.json());
+          });
+
+          const results = await Promise.all(requests);
+          const anyError = results.some(r => !r || r.status !== 'success');
+
+          if (anyError) {
+            setStatus('Some submissions failed. Please check the log or try again.', 'error');
+          } else {
+            setStatus('Points submitted for ' + selectedStudents.length + ' student(s).', 'ok');
+          }
+        }
+
+        // After successful submission, reset some UI
+        reasonInput.value = '';
+        categoryPills.forEach(p => p.classList.remove('selected'));
+
+        // Clear & collapse student selector
+        selectedStudents = [];
+        renderSelectedStudents();
+        if (!studentPanel.classList.contains('hidden')) {
+          toggleStudentPanel();
+        }
+
+      } catch (err) {
+        console.error(err);
+        setStatus('Network or server error.', 'error');
+      } finally {
+        submitBtn.disabled = false;
+      }
+    }
+
+    submitBtn.addEventListener('click', submitPoints);
+
+    // Init
+    loadStudentList();
+  </script>
 </body>
 </html>
