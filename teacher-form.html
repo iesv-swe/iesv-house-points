@@ -175,6 +175,131 @@ input {
 
 .status-success { color: #7CFC7C; }
 .status-error   { color: #ffb3b3; }
+
+/* ---- STUDENT SELECTOR (NEW) ---- */
+
+.student-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(45,45,45,0.95);
+    border: 1px solid rgba(255,255,255,0.12);
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.student-toggle span.label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.student-toggle .chevron {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.student-count-label {
+    font-size: 11px;
+    opacity: 0.8;
+}
+
+.student-panel {
+    margin-top: 10px;
+    border-radius: 10px;
+    background: rgba(35,35,35,0.9);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 10px;
+}
+
+.student-search-input {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: none;
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+.student-search-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0,195,255,0.4);
+}
+
+.student-suggestions {
+    max-height: 180px;
+    overflow-y: auto;
+    border-radius: 8px;
+    background: rgba(20,20,20,0.98);
+    border: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 6px;
+    display: none;
+}
+
+.student-suggestion {
+    padding: 8px 10px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 13px;
+}
+
+.student-suggestion:last-child {
+    border-bottom: none;
+}
+
+.student-suggestion:hover {
+    background: rgba(0,195,255,0.18);
+}
+
+.student-suggestion-main {
+    font-weight: 600;
+    color: #fff;
+}
+
+.student-suggestion-sub {
+    font-size: 11px;
+    color: #d1d5db;
+}
+
+.selected-students {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.student-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    background: rgba(0,195,255,0.12);
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+.student-tag-name {
+    font-weight: 500;
+}
+
+.student-tag-house {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.9;
+}
+
+.student-tag-remove {
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.hidden {
+    display: none !important;
+}
 </style>
 </head>
 
@@ -189,8 +314,32 @@ input {
     <input id="teacherInput" type="text" placeholder="Enter your name or school email">
 </div>
 
-<!-- HOUSE SELECTION -->
+<!-- STUDENT SELECTOR (OPTIONAL, NEW) -->
 <div class="card">
+    <h2>Select Students (optional)</h2>
+    <div id="studentToggle" class="student-toggle">
+        <span class="label">
+            <span id="studentToggleChevron" class="chevron">▶</span>
+            <span>Select students by name or email</span>
+        </span>
+        <span id="studentCountLabel" class="student-count-label"></span>
+    </div>
+
+    <div id="studentPanel" class="student-panel hidden">
+        <input
+            type="text"
+            id="studentSearch"
+            class="student-search-input"
+            placeholder="Start typing a name or email…"
+            autocomplete="off"
+        >
+        <div id="studentSuggestions" class="student-suggestions"></div>
+        <div id="selectedStudents" class="selected-students"></div>
+    </div>
+</div>
+
+<!-- HOUSE SELECTION -->
+<div class="card" id="houseCard">
 <h2>Select House</h2>
 <div class="house-grid">
 
@@ -243,8 +392,14 @@ const APPS_SCRIPT_URL =
 let currentHouse = "";
 let currentCategory = "";
 
+// ---- NEW: student data ----
+let allStudents = [];       // { name, email, house }
+let selectedStudents = [];  // { name, email, house }
+
 /* ---- HOUSE BUTTON LOGIC ---- */
 const houseButtons = [...document.querySelectorAll(".house-btn")];
+const houseCard = document.getElementById("houseCard");
+
 houseButtons.forEach(btn => {
     btn.addEventListener("click", () => {
         houseButtons.forEach(b => b.classList.remove("selected"));
@@ -271,49 +426,264 @@ function setStatus(msg, error = false) {
     el.classList.add(error ? "status-error" : "status-success");
 }
 
+/* ---- STUDENT SELECTOR LOGIC (NEW) ---- */
+const studentToggle = document.getElementById("studentToggle");
+const studentToggleChevron = document.getElementById("studentToggleChevron");
+const studentCountLabel = document.getElementById("studentCountLabel");
+const studentPanel = document.getElementById("studentPanel");
+const studentSearch = document.getElementById("studentSearch");
+const studentSuggestions = document.getElementById("studentSuggestions");
+const selectedStudentsContainer = document.getElementById("selectedStudents");
+
+function toggleStudentPanel() {
+    const hidden = studentPanel.classList.contains("hidden");
+    if (hidden) {
+        studentPanel.classList.remove("hidden");
+        studentToggleChevron.textContent = "▼";
+        studentSearch.focus();
+    } else {
+        studentPanel.classList.add("hidden");
+        studentToggleChevron.textContent = "▶";
+        studentSearch.value = "";
+        hideSuggestions();
+    }
+}
+
+studentToggle.addEventListener("click", toggleStudentPanel);
+
+function renderSelectedStudents() {
+    selectedStudentsContainer.innerHTML = "";
+
+    if (selectedStudents.length === 0) {
+        studentCountLabel.textContent = "";
+        houseCard.classList.remove("hidden");
+        return;
+    }
+
+    studentCountLabel.textContent = selectedStudents.length + " selected";
+
+    // Hide houses when students are selected
+    houseCard.classList.add("hidden");
+    houseButtons.forEach(b => b.classList.remove("selected"));
+    currentHouse = "";
+
+    selectedStudents.forEach(student => {
+        const tag = document.createElement("div");
+        tag.className = "student-tag";
+
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "student-tag-name";
+        nameSpan.textContent = student.name;
+
+        const houseSpan = document.createElement("span");
+        houseSpan.className = "student-tag-house";
+        houseSpan.textContent = student.house;
+
+        const removeSpan = document.createElement("span");
+        removeSpan.className = "student-tag-remove";
+        removeSpan.textContent = "×";
+        removeSpan.addEventListener("click", () => {
+            selectedStudents = selectedStudents.filter(s => s.email !== student.email);
+            renderSelectedStudents();
+        });
+
+        tag.appendChild(nameSpan);
+        tag.appendChild(houseSpan);
+        tag.appendChild(removeSpan);
+
+        selectedStudentsContainer.appendChild(tag);
+    });
+}
+
+function hideSuggestions() {
+    studentSuggestions.style.display = "none";
+    studentSuggestions.innerHTML = "";
+}
+
+function showSuggestions(list) {
+    if (!list.length) {
+        hideSuggestions();
+        return;
+    }
+
+    studentSuggestions.innerHTML = "";
+    list.forEach(student => {
+        const div = document.createElement("div");
+        div.className = "student-suggestion";
+
+        const main = document.createElement("div");
+        main.className = "student-suggestion-main";
+        main.textContent = `${student.name} — ${student.house}`;
+
+        const sub = document.createElement("div");
+        sub.className = "student-suggestion-sub";
+        sub.textContent = student.email;
+
+        div.appendChild(main);
+        div.appendChild(sub);
+
+        div.addEventListener("click", () => {
+            const exists = selectedStudents.some(s => s.email === student.email);
+            if (!exists) {
+                selectedStudents.push(student);
+                renderSelectedStudents();
+            }
+            studentSearch.value = "";
+            hideSuggestions();
+            studentSearch.focus();
+        });
+
+        studentSuggestions.appendChild(div);
+    });
+
+    studentSuggestions.style.display = "block";
+}
+
+function filterStudents(term) {
+    const lower = term.toLowerCase();
+    return allStudents.filter(s =>
+        s.name.toLowerCase().includes(lower) ||
+        s.email.toLowerCase().includes(lower)
+    ).slice(0, 20);
+}
+
+studentSearch.addEventListener("input", () => {
+    const term = studentSearch.value.trim();
+    if (term.length < 2) {
+        hideSuggestions();
+        return;
+    }
+    const results = filterStudents(term);
+    showSuggestions(results);
+});
+
+document.addEventListener("click", (e) => {
+    if (!studentPanel.contains(e.target) && e.target !== studentToggle) {
+        hideSuggestions();
+    }
+});
+
+async function loadStudentList() {
+    try {
+        const url = APPS_SCRIPT_URL + "?action=listStudents";
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.status === "success" && Array.isArray(data.students)) {
+            allStudents = data.students.map(s => ({
+                name: s.name || ((s.firstName || "") + " " + (s.lastName || "")).trim(),
+                email: s.email,
+                house: s.house || "Unknown"
+            })).filter(s => s.email && s.name);
+        } else {
+            console.log("Unexpected student list response", data);
+        }
+    } catch (err) {
+        console.error("Failed to load students", err);
+    }
+}
+
 /* ---- SUBMIT ---- */
-document.getElementById("submitBtn").addEventListener("click", () => {
+document.getElementById("submitBtn").addEventListener("click", async () => {
 
     const teacher = document.getElementById("teacherInput").value.trim();
 
     if (!teacher) return setStatus("Enter your name or email.", true);
-    if (!currentHouse) return setStatus("Select a house.", true);
+    if (!currentCategory && selectedStudents.length === 0) {
+        // category must be selected in both modes, but this branch ensures message order
+    }
     if (!currentCategory) return setStatus("Select a category.", true);
 
-    const payload = {
-        action: "points",          // ✅ REQUIRED BY YOUR BACKEND
-        source: "teacher-form",
-        teacher,
-        house: currentHouse,
-        category: currentCategory,
-        points: 1
-    };
+    // MODE A: No students selected -> original behaviour
+    if (selectedStudents.length === 0) {
+        if (!currentHouse) return setStatus("Select a house.", true);
 
-    setStatus("Submitting…");
+        const payload = {
+            action: "points",
+            source: "teacher-form",
+            teacher,
+            house: currentHouse,
+            category: currentCategory,
+            points: 1
+        };
 
-    fetch(APPS_SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(payload)
-    })
-    .then(r => r.json().catch(() => null))
-    .then(data => {
+        setStatus("Submitting…");
 
-        if (!data || data.status === "error") {
-            return setStatus("✗ Error sending. Try again.", true);
+        try {
+            const res = await fetch(APPS_SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json().catch(() => null);
+
+            if (!data || data.status === "error") {
+                return setStatus("✗ Error sending. Try again.", true);
+            }
+
+            setStatus("✓ Point awarded!");
+
+            houseButtons.forEach(b => b.classList.remove("selected"));
+            categoryButtons.forEach(b => b.classList.remove("selected"));
+            currentHouse = "";
+            currentCategory = "";
+        } catch (err) {
+            console.error(err);
+            return setStatus("✗ Network error.", true);
         }
 
-        // SUCCESS
-        setStatus("✓ Point awarded!");
+        return;
+    }
+
+    // MODE B: Students selected -> one row per student
+    setStatus("Submitting for " + selectedStudents.length + " student(s)…");
+
+    try {
+        const requests = selectedStudents.map(student => {
+            const payload = {
+                action: "points",
+                source: "teacher-form",
+                teacher,
+                house: student.house,
+                category: currentCategory,
+                points: 1,
+                student: student.name
+            };
+
+            return fetch(APPS_SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            }).then(r => r.json().catch(() => null));
+        });
+
+        const results = await Promise.all(requests);
+        const anyError = results.some(r => !r || r.status === "error");
+
+        if (anyError) {
+            setStatus("✗ Some submissions failed. Please try again.", true);
+        } else {
+            setStatus("✓ Points awarded for " + selectedStudents.length + " student(s).");
+        }
 
         // Reset selections
-        houseButtons.forEach(b => b.classList.remove("selected"));
         categoryButtons.forEach(b => b.classList.remove("selected"));
-
-        currentHouse = "";
         currentCategory = "";
-    })
-    .catch(() => setStatus("✗ Network error.", true));
+
+        selectedStudents = [];
+        renderSelectedStudents();
+
+        // Auto-collapse student panel
+        if (!studentPanel.classList.contains("hidden")) {
+            toggleStudentPanel();
+        }
+
+    } catch (err) {
+        console.error(err);
+        setStatus("✗ Network error.", true);
+    }
 });
+
+// ---- INIT ----
+loadStudentList();
 </script>
 
 </body>
