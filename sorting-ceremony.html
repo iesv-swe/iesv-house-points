@@ -1,440 +1,618 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sorting Ceremony</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sorting Ceremony</title>
+<link rel="icon" type="image/x-icon" href="./sorting-favicon.ico">
 
-    <link rel="icon" type="image/x-icon" href="./sorting-favicon.ico">
+<style>
+/* ============================================================
+   GLOBAL + BACKGROUND
+============================================================ */
 
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            min-height: 100vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            background: radial-gradient(circle at top, #1c2a45 0%, #0a0f18 60%, #000 100%);
-            color: #e0eaff;
-            position: relative;
-        }
+body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    min-height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: radial-gradient(circle at top, #1c2a45 0%, #0a0f18 60%, #000 100%);
+    color: #e0eaff;
+    position: relative;
+}
 
-        /* Stone wall overlay */
-        body::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background-image: url('./stone.png');
-            background-size: cover;
-            opacity: 0.45;
-            mix-blend-mode: overlay;
-            pointer-events: none;
-        }
+/* Stone overlay */
+body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url('./stone.png');
+    background-size: cover;
+    opacity: 0.42;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+}
 
-        /* =========== PARTICLES =========== */
-        .particles {
-            position: absolute;
-            inset: 0;
-            overflow: hidden;
-            pointer-events: none;
-            z-index: 1;
-        }
+/* Particle field */
+.particles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
+}
 
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: rgba(120,170,255,0.8);
-            box-shadow: 0 0 12px rgba(120,170,255,1);
-            animation: floatUp 6s linear infinite;
-        }
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(120,170,255,0.85);
+    border-radius: 50%;
+    box-shadow: 0 0 12px rgba(120,170,255,1);
+    animation: floatUp 6s linear infinite;
+}
 
-        @keyframes floatUp {
-            from { transform: translateY(0); opacity: 1; }
-            to   { transform: translateY(-120vh); opacity: 0; }
-        }
+@keyframes floatUp {
+    from { transform: translateY(0); opacity: 1; }
+    to   { transform: translateY(-120vh); opacity: 0; }
+}
 
-        /* =========== HEADER =========== */
-        header {
-            text-align: center;
-            padding: 20px 10px;
-            position: relative;
-            z-index: 3;
-        }
+/* ============================================================
+   HEADER
+============================================================ */
 
-        header img {
-            height: clamp(70px, 12vw, 120px);
-            filter: drop-shadow(0 0 12px rgba(120,170,255,0.4));
-        }
+header {
+    text-align: center;
+    padding: 15px;
+    z-index: 3;
+    position: relative;
+}
 
-        h1 {
-            margin-top: 10px;
-            font-size: clamp(1.8rem, 3vw, 3rem);
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            text-shadow: 0 0 12px rgba(120,170,255,0.5);
-        }
+header img {
+    height: 95px;
+    margin-top: 10px;
+    filter: drop-shadow(0 0 12px rgba(120,170,255,0.4));
+}
 
-        .subtitle {
-            font-size: clamp(0.9rem, 1.4vw, 1.2rem);
-            opacity: 0.9;
-        }
+h1 {
+    margin-top: 8px;
+    font-size: 2.4rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-shadow: 0 0 12px rgba(120,170,255,0.5);
+}
 
-        /* =========== SIDE SHIELDS =========== */
-        .side-column {
-            position: absolute;
-            top: 10%;
-            display: flex;
-            flex-direction: column;
-            gap: clamp(20px, 6vh, 70px);
-            z-index: 2;
-        }
+.subtitle {
+    font-size: 1rem;
+    color: #c2cadf;
+    margin-top: 4px;
+}
 
-        .left-column  { left: 4vw; }
-        .right-column { right: 4vw; }
+/* ============================================================
+   SIDE HOUSE SHIELDS
+============================================================ */
 
-        .side-column img {
-            width: clamp(120px, 18vw, 220px);
-            filter: drop-shadow(0 0 20px rgba(120,170,255,0.4));
-        }
+.side-column {
+    position: absolute;
+    top: 4%;
+    display: flex;
+    flex-direction: column;
+    gap: 45px;
+    z-index: 2;
+}
 
-        @media (max-width: 900px) {
-            .left-column,
-            .right-column {
-                display: none;
-            }
-        }
+.left-column { left: 70px; }
+.right-column { right: 70px; }
 
-        /* =========== MAIN SCREEN STACK =========== */
-        .container {
-            text-align: center;
-            width: 100%;
-            margin-top: clamp(10px, 4vh, 40px);
-            z-index: 3;
-        }
+.side-column img {
+    width: 200px;
+    opacity: 0.95;
+    filter:
+        drop-shadow(0 0 18px rgba(120,170,255,0.35))
+        contrast(1.15) brightness(1.05);
+}
 
-        .screen { display: none; width: 100%; }
-        .screen.active { display: block; }
+/* ============================================================
+   MAIN CONTAINER
+============================================================ */
 
-        /* =========== INPUT SCREEN =========== */
-        #inputScreen h2 {
-            font-size: clamp(1.4rem, 2.4vw, 2rem);
-            margin-bottom: 10px;
-        }
+.container {
+    text-align: center;
+    margin-top: 20px;
+    z-index: 3;
+    position: relative;
+}
 
-        #inputScreen p {
-            font-size: clamp(0.9rem, 1.2vw, 1rem);
-            opacity: 0.85;
-            margin-bottom: 20px;
-        }
+.screen {
+    display: none;
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+}
+.screen.active { display: block; }
 
-        input[type="email"] {
-            padding: clamp(12px, 1.5vw, 18px);
-            width: clamp(260px, 50vw, 420px);
-            border-radius: 8px;
-            border: 1px solid #444;
-            background: #222;
-            color: white;
-            text-align: center;
-            font-size: clamp(0.9rem, 1.3vw, 1.1rem);
-        }
+/* ============================================================
+   INPUT SCREEN
+============================================================ */
 
-        button.discover-btn {
-            padding: clamp(12px, 1.5vw, 18px) clamp(24px, 3vw, 36px);
-            margin-top: 20px;
-            background: linear-gradient(145deg, #0f1a2a, #00050a);
-            border: 2px solid #5a77c8;
-            border-radius: 10px;
-            color: #e0eaff;
-            font-size: clamp(0.9rem, 1.3vw, 1.1rem);
-            cursor: pointer;
-            transition: 0.3s;
-        }
+#inputScreen h2 {
+    font-size: 1.9rem;
+    margin-bottom: 10px;
+}
 
-        button.discover-btn:hover {
-            box-shadow: 0 0 15px rgba(120,170,255,0.7);
-        }
+#inputScreen p {
+    font-size: 1rem;
+    color: #c2cadf;
+    margin-bottom: 22px;
+}
 
-        .error-message {
-            background: rgba(255, 68, 68, 0.9);
-            color: white;
-            padding: 10px 16px;
-            border-radius: 10px;
-            margin-top: 16px;
-            font-size: clamp(0.8rem, 1vw, 1rem);
-            display: none;
-        }
+input[type="email"] {
+    padding: 14px;
+    width: 420px;
+    max-width: 95%;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background-color: #222;
+    color: #fff;
+    text-align: center;
+    font-size: 1.05rem;
+    outline: none;
+}
 
-        .error-message.show { display: inline-block; }
+button.discover-btn {
+    padding: 14px 28px;
+    background: linear-gradient(145deg, #0f1a2a, #00050a);
+    border: 2px solid #5a77c8;
+    color: #dfe9ff;
+    cursor: pointer;
+    border-radius: 8px;
+    margin-top: 22px;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: 0.25s;
+    box-shadow: 0 0 12px rgba(120,170,255,0.3);
+}
+button.discover-btn:hover {
+    background: #16243b;
+    box-shadow: 0 0 18px rgba(120,170,255,0.7);
+}
 
-        /* =========== SORTING SCREEN =========== */
-        #sortingScreen h2 {
-            font-size: clamp(1.6rem, 2.6vw, 2.2rem);
-        }
+.error-message {
+    background: rgba(255, 68, 68, 0.9);
+    padding: 12px 18px;
+    border-radius: 10px;
+    margin-top: 18px;
+    display: none;
+}
+.error-message.show { display: inline-block; }
 
-        .sorting-icons-wrapper {
-            position: relative;
-            width: clamp(180px, 28vw, 260px);
-            height: clamp(180px, 28vw, 260px);
-            margin: 30px auto;
-        }
+/* ============================================================
+   SORTING SCREEN — C1 ANIMATION
+============================================================ */
 
-        .sorting-icons img {
-            width: clamp(70px, 10vw, 120px);
-            position: absolute;
-            top: 50%; left: 50%;
-            opacity: 0.95;
-        }
+#sortingScreen h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
 
-        .wand-spark {
-            width: clamp(10px, 1.8vw, 18px);
-            height: clamp(10px, 1.8vw, 18px);
-        }
+/* Larger ritual circle wrapper */
+.sorting-icons-wrapper {
+    position: relative;
+    width: min(380px, 70vw);
+    height: min(380px, 70vw);
+    margin: 30px auto;
+}
 
-        .sorting-text {
-            margin-top: 10px;
-            font-size: clamp(1rem, 1.5vw, 1.3rem);
-            animation: pulse 1.6s infinite;
-        }
+/* Magical glow behind shields */
+.sorting-icons-wrapper::before {
+    content: "";
+    position: absolute;
+    inset: 20%;
+    border-radius: 50%;
+    box-shadow:
+        0 0 35px rgba(255, 215, 0, 0.35),
+        0 0 55px rgba(255, 255, 255, 0.25);
+    opacity: 0.75;
+    animation: auraPulse 2.7s ease-in-out infinite;
+}
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
+@keyframes auraPulse {
+    0%,100% { transform: scale(0.9); opacity: 0.6; }
+    50%     { transform: scale(1.05); opacity: 1; }
+}
 
-        /* =========== REVEAL SCREEN =========== */
-        #revealScreen {
-            animation: fadeIn 0.8s ease;
-        }
+.sorting-icons img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 105px;
+    transform-origin: center;
+    filter: drop-shadow(0 0 15px rgba(255,255,255,0.4));
+    opacity: 0.95;
+}
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.92); }
-            to   { opacity: 1; transform: scale(1); }
-        }
+/* 🎩 The C1 Ritual Animations — elegant, smooth, dynamic */
 
-        .house-creature img {
-            width: clamp(120px, 18vw, 200px);
-            margin: 0 auto;
-        }
+/* PHOENIX */
+.icon-phoenix {
+    animation: phoenixOrbit 4.8s ease-in-out infinite;
+}
+@keyframes phoenixOrbit {
+    0%   { transform: translate(-50%, -50%) translate(-26vw, -26vw) scale(1); }
+    25%  { transform: translate(-50%, -50%) translate( 26vw, -26vw) scale(1.05); }
+    50%  { transform: translate(-50%, -50%) translate( 26vw,  26vw) scale(1.1); }
+    75%  { transform: translate(-50%, -50%) translate(-26vw,  26vw) scale(1.05); }
+    100% { transform: translate(-50%, -50%) translate(-26vw, -26vw) scale(1); }
+}
 
-        .house-name {
-            font-size: clamp(2rem, 4vw, 3rem);
-            font-weight: 900;
-            margin-top: 8px;
-            letter-spacing: 3px;
-        }
+/* DRAGON */
+.icon-dragon {
+    animation: dragonOrbit 4.8s ease-in-out infinite;
+}
+@keyframes dragonOrbit {
+    0%   { transform: translate(-50%, -50%) translate( 26vw, -26vw) scale(1); }
+    25%  { transform: translate(-50%, -50%) translate( 26vw,  26vw) scale(1.05); }
+    50%  { transform: translate(-50%, -50%) translate(-26vw,  26vw) scale(1.1); }
+    75%  { transform: translate(-50%, -50%) translate(-26vw, -26vw) scale(1.05); }
+    100% { transform: translate(-50%, -50%) translate( 26vw, -26vw) scale(1); }
+}
 
-        .house-values {
-            font-size: clamp(1rem, 1.4vw, 1.2rem);
-            margin-top: 8px;
-        }
+/* HYDRA */
+.icon-hydra {
+    animation: hydraOrbit 4.8s ease-in-out infinite;
+}
+@keyframes hydraOrbit {
+    0%   { transform: translate(-50%, -50%) translate(-26vw,  26vw) scale(1); }
+    25%  { transform: translate(-50%, -50%) translate(-26vw, -26vw) scale(1.05); }
+    50%  { transform: translate(-50%, -50%) translate( 26vw, -26vw) scale(1.1); }
+    75%  { transform: translate(-50%, -50%) translate( 26vw,  26vw) scale(1.05); }
+    100% { transform: translate(-50%, -50%) translate(-26vw,  26vw) scale(1); }
+}
 
-        .house-motto {
-            font-size: clamp(0.9rem, 1.2vw, 1.1rem);
-            margin-top: 6px;
-            opacity: 0.9;
-        }
+/* GRIFFIN */
+.icon-griffin {
+    animation: griffinOrbit 4.8s ease-in-out infinite;
+}
+@keyframes griffinOrbit {
+    0%   { transform: translate(-50%, -50%) translate( 26vw,  26vw) scale(1); }
+    25%  { transform: translate(-50%, -50%) translate(-26vw,  26vw) scale(1.05); }
+    50%  { transform: translate(-50%, -50%) translate(-26vw, -26vw) scale(1.1); }
+    75%  { transform: translate(-50%, -50%) translate( 26vw, -26vw) scale(1.05); }
+    100% { transform: translate(-50%, -50%) translate( 26vw,  26vw) scale(1); }
+}
 
-        .welcome-message {
-            margin-top: 18px;
-            padding: clamp(12px, 2vw, 20px);
-            border-radius: 12px;
-            background: rgba(16, 45, 105, 0.45);
-        }
+/* Wand spark */
+.wand-spark {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff 0%, #ffd700 45%, rgba(0,0,0,0) 70%);
+    box-shadow: 0 0 12px rgba(255,215,0,0.9);
+    animation: wandSpin 2.8s linear infinite;
+    pointer-events: none;
+    z-index: 3;
+}
 
-        .email-sent {
-            background: #44aa44;
-            padding: clamp(8px, 1.2vw, 14px) clamp(18px, 2vw, 26px);
-            margin-top: 16px;
-            border-radius: 10px;
-            font-size: clamp(0.9rem, 1.2vw, 1rem);
-            display: inline-block;
-        }
+@keyframes wandSpin {
+    0%   { transform: translate(-50%, -50%) translate(32vw, 0); }
+    25%  { transform: translate(-50%, -50%) translate(0, 32vw); }
+    50%  { transform: translate(-50%, -50%) translate(-32vw, 0); }
+    75%  { transform: translate(-50%, -50%) translate(0, -32vw); }
+    100% { transform: translate(-50%, -50%) translate(32vw, 0); }
+}
 
-        footer {
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: clamp(0.7rem, 1vw, 1rem);
-            opacity: 0.8;
-            z-index: 3;
-        }
-    </style>
+.sorting-text {
+    font-size: 1.3rem;
+    margin-top: 10px;
+    animation: pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse {
+    0%,100% { opacity: 1; }
+    50%     { opacity: 0.4; }
+}
+
+/* ============================================================
+   REVEAL SCREEN
+============================================================ */
+
+#revealScreen {
+    animation: revealFade 0.8s ease;
+}
+@keyframes revealFade {
+    from { opacity: 0; transform: scale(0.9); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+.house-creature img {
+    width: 150px;
+    margin: 0 auto;
+    filter:
+        drop-shadow(0 0 12px rgba(0,0,0,0.7))
+        drop-shadow(0 0 18px rgba(255,255,255,0.35));
+}
+
+.house-name {
+    font-size: 3rem;
+    font-weight: 900;
+    margin: 5px 0;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.house-name.phoenix { background: linear-gradient(135deg, #ff4444, #ff8844); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.house-name.dragon  { background: linear-gradient(135deg, #44aa44, #88dd44); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.house-name.hydra   { background: linear-gradient(135deg, #4488ff, #44ddff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.house-name.griffin { background: linear-gradient(135deg, #ffaa00, #ffdd44); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+
+.welcome-message {
+    background: rgba(16, 45, 105, 0.45);
+    padding: 18px;
+    border-radius: 15px;
+    margin-top: 20px;
+}
+
+.email-sent {
+    background: #44aa44;
+    padding: 10px 20px;
+    margin-top: 18px;
+    display: inline-block;
+    border-radius: 10px;
+}
+
+/* Confetti */
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    animation: confetti-fall 3s linear;
+    z-index: 4;
+}
+@keyframes confetti-fall {
+    to {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* ============================================================
+   MOBILE ADAPTATION
+============================================================ */
+
+@media (max-width: 900px) {
+    .left-column,
+    .right-column {
+        display: none;
+    }
+
+    .sorting-icons-wrapper {
+        width: 300px;
+        height: 300px;
+    }
+
+    .sorting-icons img {
+        width: 85px;
+    }
+
+    .wand-spark {
+        width: 12px;
+        height: 12px;
+    }
+
+    h1 { font-size: 1.9rem; }
+}
+
+</style>
 </head>
 
 <body>
-    <div class="particles"></div>
+<div class="particles"></div>
 
-    <header>
-        <img src="./ies-logo-removebg-preview.png">
-        <h1>Sorting Ceremony</h1>
-        <div class="subtitle">Discover your house at Internationella Engelska Skolan Västerås</div>
-    </header>
+<header>
+    <img src="./ies-logo-removebg-preview.png">
+    <h1>Sorting Ceremony</h1>
+    <div class="subtitle">Discover your house at Internationella Engelska Skolan Västerås</div>
+</header>
 
-    <!-- SIDE SHIELDS -->
-    <div class="side-column left-column">
-        <img src="./dragon2-removebg.png">
-        <img src="./griffin2-removebg.png">
+<!-- Side shields -->
+<div class="side-column left-column">
+    <img src="./dragon2-removebg.png">
+    <img src="./griffin2-removebg.png">
+</div>
+<div class="side-column right-column">
+    <img src="./hydra2-removebg.png">
+    <img src="./phoenix2-removebg.png">
+</div>
+
+<div class="container">
+
+    <!-- INPUT SCREEN -->
+    <div class="screen active" id="inputScreen">
+        <h2>Enter your school email</h2>
+        <p>Please use your IES Västerås student email to discover your house.</p>
+        <input type="email" id="emailInput" placeholder="firstname.lastname.student.vasteras@engelska.se">
+        <button class="discover-btn" onclick="startSorting()">🎩 Discover Your House</button>
+        <div class="error-message" id="errorMessage"></div>
     </div>
 
-    <div class="side-column right-column">
-        <img src="./hydra2-removebg.png">
-        <img src="./phoenix2-removebg.png">
-    </div>
+    <!-- SORTING SCREEN -->
+    <div class="screen" id="sortingScreen">
+        <h2>The Sorting Ritual</h2>
 
-    <!-- MAIN FLOW -->
-    <div class="container">
+        <div class="sorting-icons-wrapper">
+            <div class="wand-spark"></div>
 
-        <!-- INPUT SCREEN -->
-        <div class="screen active" id="inputScreen">
-            <h2>Enter your school email</h2>
-            <p>Please use your IES Västerås student email to discover your house.</p>
-
-            <input type="email" id="emailInput"
-                   placeholder="firstname.lastname.student.vasteras@engelska.se">
-
-            <br>
-
-            <button class="discover-btn" onclick="startSorting()">
-                🎩 Discover Your House
-            </button>
-
-            <div class="error-message" id="errorMessage"></div>
-        </div>
-
-        <!-- SORTING SCREEN -->
-        <div class="screen" id="sortingScreen">
-            <h2>The Sorting Ritual</h2>
-
-            <div class="sorting-icons-wrapper">
-                <div class="wand-spark"></div>
-                <div class="sorting-icons">
-                    <img src="./phoenix2-removebg.png" class="icon-phoenix">
-                    <img src="./dragon2-removebg.png"  class="icon-dragon">
-                    <img src="./hydra2-removebg.png"   class="icon-hydra">
-                    <img src="./griffin2-removebg.png" class="icon-griffin">
-                </div>
+            <div class="sorting-icons">
+                <img src="./phoenix2-removebg.png" class="icon-phoenix">
+                <img src="./dragon2-removebg.png" class="icon-dragon">
+                <img src="./hydra2-removebg.png" class="icon-hydra">
+                <img src="./griffin2-removebg.png" class="icon-griffin">
             </div>
-
-            <p class="sorting-text">The houses are deciding...</p>
         </div>
 
-        <!-- REVEAL SCREEN -->
-        <div class="screen" id="revealScreen">
+        <p class="sorting-text">The houses are deciding...</p>
+    </div>
 
+    <!-- REVEAL SCREEN -->
+    <div class="screen" id="revealScreen">
+        <div class="house-reveal">
             <div class="house-creature">
-                <img id="houseShield" src="">
+                <img id="houseShield" src="./phoenix2-removebg.png">
             </div>
-
-            <h2 id="houseName" class="house-name">HOUSE</h2>
-            <p id="houseValues" class="house-values"></p>
-            <p id="houseMotto" class="house-motto"></p>
-
-            <div class="welcome-message">
-                <p><strong>Welcome to your house!</strong></p>
-                <p>You are officially a member of <span id="houseNameRepeat"></span>.</p>
-            </div>
-
-            <div class="email-sent">✓ A certificate has been sent to your email!</div>
+            <h2 class="house-name phoenix" id="houseName">PHOENIX</h2>
+            <p class="house-values" id="houseValues"></p>
+            <p class="house-motto" id="houseMotto"></p>
         </div>
+
+        <div class="welcome-message">
+            <p><strong>Welcome to your house!</strong></p>
+            <p>You are now officially a member of <span id="houseNameRepeat">Phoenix</span>.</p>
+        </div>
+
+        <div class="email-sent">✓ A certificate has been sent to your email!</div>
     </div>
 
-    <footer>Let destiny reveal your true House.</footer>
+</div>
 
-    <script>
-        /* FETCH, HASH, ASSIGN SAME AS BEFORE */
-        const APPS_SCRIPT_URL =
-        "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
+<footer>Let destiny reveal your true House.</footer>
 
-        const houses = {
-            Phoenix: {
-                shield: './phoenix2-removebg.png',
-                values: "Resilience • Courage • Rising Again",
-                motto: '"Rise from the ashes"',
-                class: "phoenix"
-            },
-            Dragon: {
-                shield: './dragon2-removebg.png',
-                values: "Strength • Wisdom • Perseverance",
-                motto: '"Power through knowledge"',
-                class: "dragon"
-            },
-            Hydra: {
-                shield: './hydra2-removebg.png',
-                values: "Adaptability • Unity • Determination",
-                motto: '"Many heads, one heart"',
-                class: "hydra"
-            },
-            Griffin: {
-                shield: './griffin2-removebg.png',
-                values: "Leadership • Excellence • Honor",
-                motto: '"Soar above expectations"',
-                class: "griffin"
-            }
-        };
+<script>
+/* ============================================================
+   EMAIL VALIDATION + HOUSE ASSIGNMENT
+============================================================ */
 
-        function hashEmail(email) {
-            let hash = 0;
-            for (let char of email) {
-                hash = ((hash << 5) - hash) + char.charCodeAt(0);
-                hash |= 0;
-            }
-            return Math.abs(hash);
-        }
+const APPS_SCRIPT_URL =
+    'https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec';
 
-        function getHouseFromEmail(email) {
-            const names = Object.keys(houses);
-            return names[hashEmail(email) % 4];
-        }
+const houses = {
+    Phoenix: {
+        values: 'Resilience • Courage • Rising Again',
+        motto: '"Rise from the ashes"',
+        class: 'phoenix',
+        shield: './phoenix2-removebg.png'
+    },
+    Dragon: {
+        values: 'Strength • Wisdom • Perseverance',
+        motto: '"Power through knowledge"',
+        class: 'dragon',
+        shield: './dragon2-removebg.png'
+    },
+    Hydra: {
+        values: 'Adaptability • Unity • Determination',
+        motto: '"Many heads, one heart"',
+        class: 'hydra',
+        shield: './hydra2-removebg.png'
+    },
+    Griffin: {
+        values: 'Leadership • Excellence • Honor',
+        motto: '"Soar above expectations"',
+        class: 'griffin',
+        shield: './griffin2-removebg.png'
+    }
+};
 
-        function validateEmail(email) {
-            if (!email.endsWith("@engelska.se"))
-                return { valid:false, message:"Email must end with @engelska.se" };
+function hashEmail(email) {
+    let hash = 0;
+    for (let i = 0; i < email.length; i++) {
+        hash = ((hash << 5) - hash) + email.charCodeAt(i);
+        hash |= 0;
+    }
+    return Math.abs(hash);
+}
 
-            if (!email.includes(".vasteras@"))
-                return { valid:false, message:"Invalid student email format" };
+function getHouseFromEmail(email) {
+    const keys = Object.keys(houses);
+    return keys[hashEmail(email) % 4];
+}
 
-            return { valid:true };
-        }
+function showError(msg) {
+    const e = document.getElementById("errorMessage");
+    e.textContent = msg;
+    e.classList.add("show");
+    setTimeout(() => e.classList.remove("show"), 3000);
+}
 
-        function showError(msg) {
-            const box = document.getElementById("errorMessage");
-            box.textContent = msg;
-            box.classList.add("show");
-            setTimeout(() => box.classList.remove("show"), 3000);
-        }
+function validateEmail(email) {
+    if (!email.endsWith('@engelska.se'))
+        return { valid:false, msg:"Email must end with @engelska.se" };
+    if (!email.includes('.vasteras@'))
+        return { valid:false, msg:"Invalid email format" };
+    return { valid:true };
+}
 
-        async function startSorting() {
-            const email = document.getElementById("emailInput").value.trim().toLowerCase();
+async function startSorting() {
+    const email = document.getElementById("emailInput").value.trim().toLowerCase();
 
-            const check = validateEmail(email);
-            if (!check.valid) return showError(check.message);
+    const v = validateEmail(email);
+    if (!v.valid) return showError(v.msg);
 
-            const house = getHouseFromEmail(email);
+    const house = getHouseFromEmail(email);
 
-            document.getElementById("inputScreen").classList.remove("active");
-            document.getElementById("sortingScreen").classList.add("active");
+    document.getElementById("inputScreen").classList.remove("active");
+    document.getElementById("sortingScreen").classList.add("active");
 
-            setTimeout(() => revealHouse(house, email), 4000);
-        }
+    setTimeout(() => revealHouse(house, email), 4000);
+}
 
-        function revealHouse(name, email) {
-            const info = houses[name];
+function revealHouse(houseName, email) {
+    const data = houses[houseName];
 
-            document.getElementById("sortingScreen").classList.remove("active");
+    document.getElementById("sortingScreen").classList.remove("active");
+    document.getElementById("revealScreen").classList.add("active");
 
-            document.getElementById("houseShield").src = info.shield;
-            document.getElementById("houseName").textContent = name;
-            document.getElementById("houseValues").textContent = info.values;
-            document.getElementById("houseMotto").textContent = info.motto;
-            document.getElementById("houseNameRepeat").textContent = name;
+    document.getElementById("houseShield").src = data.shield;
 
-            document.getElementById("revealScreen").classList.add("active");
-        }
-    </script>
+    const nameEl = document.getElementById("houseName");
+    nameEl.textContent = houseName.toUpperCase();
+    nameEl.className = `house-name ${data.class}`;
+
+    document.getElementById("houseValues").textContent = data.values;
+    document.getElementById("houseMotto").textContent = data.motto;
+    document.getElementById("houseNameRepeat").textContent = houseName;
+
+    sendSortingData(email, houseName);
+    createConfetti();
+}
+
+async function sendSortingData(email, house) {
+    try {
+        await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type':'application/json' },
+            body: JSON.stringify({
+                action: 'sort',
+                email,
+                house,
+                timestamp: new Date().toISOString()
+            })
+        });
+    } catch(e) { console.error(e); }
+}
+
+function createConfetti() {
+    const colors = ['#ff4444','#44aa44','#4488ff','#ffaa00','#ff8844','#44ddff'];
+    for (let i = 0; i < 80; i++) {
+        setTimeout(() => {
+            const c = document.createElement("div");
+            c.className = "confetti";
+            c.style.left = Math.random()*100 + "%";
+            c.style.background = colors[Math.floor(Math.random()*colors.length)];
+            document.body.appendChild(c);
+            setTimeout(() => c.remove(), 3000);
+        }, i * 30);
+    }
+}
+</script>
 
 </body>
 </html>
