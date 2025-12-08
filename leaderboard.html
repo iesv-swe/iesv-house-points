@@ -140,7 +140,7 @@
         }
     }
 
-    /* WINNER TRANSITION — subtle house-coloured pulse ring (plays once) */
+    /* Winner transition pulse */
     .house-card.winner-transition::before {
         content:"";
         position:absolute;
@@ -149,7 +149,7 @@
         opacity:0;
         pointer-events:none;
         animation:winnerPulse 1.4s ease-out forwards;
-        z-index:-1; /* behind card content, above background */
+        z-index:-1;
     }
 
     .house-card.winner-transition.winner-phoenix::before {
@@ -186,24 +186,16 @@
         100% { transform:scale(1.15); opacity:0.0; }
     }
 
-    /* Internal floating embers (for winner card, always running) */
-    @keyframes emberFloat {
-        0%   { transform:translateY(0) scale(1); opacity:0.6; }
-        50%  { transform:translateY(-14px) scale(1.4); opacity:1; }
-        100% { transform:translateY(0) scale(1); opacity:0.6; }
-    }
-
     /* Card header */
     .card-header {
         display:flex;
         align-items:center;
-        height:80px;
         gap:16px;
+        height:90px;
         position:relative;
         z-index:2;
     }
 
-    /* Carved stone medallion (B type) */
     .crest-wrap {
         width:90px;
         height:90px;
@@ -229,7 +221,6 @@
         text-shadow:0 3px 10px black;
     }
 
-    /* Rank badge */
     .rank-badge {
         margin-left:auto;
         width:54px;
@@ -242,44 +233,31 @@
         font-size:18px;
         font-weight:700;
         border:2px solid rgba(255,255,255,0.18);
-        position:relative;
-        z-index:2;
     }
 
     .rank-badge.gold { background:linear-gradient(135deg,#ffd700,#ffae00); color:#000; }
     .rank-badge.silver { background:linear-gradient(135deg,#d4d4d4,#f7f7f7); color:#000; }
     .rank-badge.bronze { background:linear-gradient(135deg,#cd7f32,#e2a46e); color:#000; }
 
-    /* Score area */
+    /* Centered number area */
     .points-area {
         flex:1;
         display:flex;
-        flex-direction:column;
-        justify-content:center;
         align-items:center;
+        justify-content:center;
         text-align:center;
-        position:relative;
-        z-index:2;
+        height:100%;
     }
 
-    .points-label {
-        font-size:13px;
-        text-transform:uppercase;
-        letter-spacing:1px;
-        color:#bbb;
-        margin-bottom:6px;
-    }
-
-    /* MASSIVE score text */
     .points {
         font-size:clamp(80px, 14vw, 200px);
         font-weight:900;
         color:white;
         line-height:1;
         text-shadow:0 6px 22px rgba(0,0,0,0.9);
+        margin-top:-20px; /* optical adjustment for perfect centering */
     }
 
-    /* Winner number animation */
     .points.winner-points {
         color:#ffdd77;
         text-shadow:
@@ -292,12 +270,9 @@
 
     @keyframes winnerNumber {
         0%,100% { opacity:1; transform:scale(1); }
-        45% { opacity:0.92; transform:scale(1.03); }
         50% { opacity:1; transform:scale(1.05); }
-        55% { opacity:0.93; transform:scale(1.02); }
     }
 
-    /* Footer */
     .last-updated {
         text-align:center;
         opacity:0.85;
@@ -373,11 +348,10 @@ function renderLeaderboard(houses) {
         const isWinner = x.rank === 1;
         const winnerClass = isWinner ? "winner" : "";
         
-        // Decide if we should play the transition pulse (only when winner changes)
         let transitionClass = "";
         if (isWinner && lastWinnerHouse && lastWinnerHouse !== newWinnerHouse) {
-            const houseKey = x.house.toLowerCase(); // phoenix, dragon, hydra, griffin
-            transitionClass = `winner-transition winner-${houseKey}`;
+            const hk = x.house.toLowerCase();
+            transitionClass = `winner-transition winner-${hk}`;
         }
 
         const card = document.createElement("div");
@@ -397,34 +371,15 @@ function renderLeaderboard(houses) {
             </div>
 
             <div class="points-area">
-                <div class="points-label">House Score</div>
                 <div class="points ${isWinner ? "winner-points" : ""}">
                     ${roundScore(x.houseScore)}
                 </div>
             </div>
         `;
 
-        // Always-on internal embers for the winner card
-        if (isWinner) {
-            for (let i = 0; i < 12; i++) {
-                const ember = document.createElement("div");
-                ember.style.position = "absolute";
-                ember.style.width = "6px";
-                ember.style.height = "6px";
-                ember.style.borderRadius = "50%";
-                ember.style.background = "rgba(255,140,0,0.9)";
-                ember.style.left = Math.random()*90 + "%";
-                ember.style.top = (60 + Math.random()*40) + "%";
-                ember.style.filter = "blur(1px)";
-                ember.style.animation = `emberFloat ${3 + Math.random()*3}s infinite ease-in-out`;
-                card.appendChild(ember);
-            }
-        }
-
         board.appendChild(card);
     });
 
-    // Update winner tracker AFTER render so transitions only fire on actual changes
     lastWinnerHouse = newWinnerHouse;
 }
 
