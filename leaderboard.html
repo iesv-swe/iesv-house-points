@@ -97,6 +97,7 @@
         display:flex;
         flex-direction:column;
         align-items:center;
+        justify-content:flex-start;
         cursor:pointer;
         overflow:hidden;
         transition:0.3s ease;
@@ -111,8 +112,7 @@
 
     /* Winner card */
     .winner-card {
-        height:300px;
-        justify-content:center;
+        min-height:280px;
     }
 
     /* Winner Glow */
@@ -193,12 +193,16 @@
 
     /* Scores */
     .points {
-        font-size:clamp(90px, 16vw, 200px);
+        font-size:clamp(80px, 14vw, 190px);
         font-weight:900;
         line-height:1;
         margin-top:auto;
-        margin-bottom:auto;
+        margin-bottom:10px;
         text-shadow:0 6px 22px rgba(0,0,0,0.9);
+    }
+
+    .winner-card .points {
+        margin-bottom:auto;  /* centres winner score between crest and bottom */
     }
 
     .winner-points {
