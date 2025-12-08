@@ -17,80 +17,121 @@
         background: url("stone.png") center/cover no-repeat fixed;
         min-height: 100vh;
         padding: 20px;
-        color: white;
         display: flex;
         flex-direction: column;
         align-items: center;
-    }
-
-    h1 {
-        margin-top: 10px;
-        margin-bottom: 20px;
-        font-size: 26px;
-        text-shadow: 0 0 6px black;
+        color: white;
         text-align: center;
     }
 
-    .search-box {
-        width: 100%;
-        max-width: 420px;
-        background: rgba(0,0,0,0.55);
-        padding: 15px;
-        border-radius: 12px;
-        box-shadow: 0 0 12px rgba(0,0,0,0.6);
+    /* HERO TITLE */
+    h1 {
+        font-size: clamp(26px, 4vw, 48px);
+        margin-top: 20px;
+        margin-bottom: 20px;
+        text-shadow: 0 0 10px black;
     }
 
+    /* MAIN WRAPPER */
+    .finder-container {
+        width: min(900px, 90%);
+        background: rgba(0,0,0,0.55);
+        padding: 30px;
+        border-radius: 22px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.7);
+        backdrop-filter: blur(3px);
+    }
+
+    /* SEARCH BOX */
     input {
         width: 100%;
-        padding: 14px;
-        font-size: 18px;
-        border-radius: 10px;
+        padding: 16px;
+        font-size: clamp(18px, 2.4vw, 26px);
+        border-radius: 12px;
         border: none;
         outline: none;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
     }
 
     #status {
-        text-align: center;
-        margin-top: 4px;
-        font-size: 14px;
-        opacity: 0.8;
+        margin-top: 5px;
+        font-size: clamp(14px, 1.6vw, 18px);
+        opacity: 0.85;
+        min-height: 24px;
     }
 
+    /* AUTO-SUGGEST DROPDOWN (STYLE B) */
+    .suggestions {
+        width: 100%;
+        background: rgba(0,0,0,0.85);
+        border-radius: 10px;
+        margin-top: 6px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.6);
+        display: none;
+        max-height: 240px;
+        overflow-y: auto;
+    }
+
+    .suggestion-item {
+        padding: 12px 16px;
+        font-size: clamp(16px, 2vw, 22px);
+        cursor: pointer;
+        text-align: left;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .suggestion-item:hover {
+        background: rgba(255,255,255,0.08);
+    }
+
+    /* RESULT AREA */
     #result {
-        margin-top: 18px;
-        text-align: center;
-        font-size: 20px;
-        font-weight: bold;
-        min-height: 140px;
+        margin-top: 30px;
+        min-height: 320px;
+        position: relative;
     }
 
-    .shield {
-        width: 140px;
-        height: auto;
-        margin: 10px auto;
-        display: block;
+    /* HOUSE-COLOURED GLOW */
+    #houseGlow {
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        width: 320px;
+        height: 320px;
+        border-radius: 50%;
+        filter: blur(38px);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        z-index: 0;
+    }
+
+    /* SHIELD IMAGE */
+    #shield {
+        width: clamp(140px, 30vw, 260px);
         opacity: 0;
         transform: scale(0.8);
-        transition: 0.25s ease;
+        transition: 0.35s ease;
+        z-index: 2;
+        position: relative;
     }
 
-    .shield.show {
+    #shield.show {
         opacity: 1;
-        transform: scale(1.0);
-        filter: drop-shadow(0 0 12px rgba(255,255,255,0.6));
+        transform: scale(1);
+        filter: drop-shadow(0 0 16px rgba(255,255,255,0.9));
     }
 
     #nameDisplay {
-        margin-top: 12px;
-        font-size: 22px;
-        text-shadow: 0 0 6px black;
+        margin-top: 14px;
+        font-size: clamp(24px, 3vw, 40px);
+        text-shadow: 0 0 8px black;
     }
 
     #houseDisplay {
-        margin-top: 6px;
-        font-size: 26px;
-        text-shadow: 0 0 10px black;
+        margin-top: 4px;
+        font-size: clamp(28px, 3.4vw, 48px);
+        text-shadow: 0 0 12px black;
+        font-weight: bold;
     }
 </style>
 
@@ -99,92 +140,146 @@
 
 <h1>🔍 Check a Student's House</h1>
 
-<div class="search-box">
+<div class="finder-container">
+
+    <!-- SEARCH INPUT -->
     <input type="text" id="searchInput" placeholder="Start typing a student's name...">
     <div id="status">Loading roster...</div>
-</div>
 
-<div id="result">
-    <img id="shield" class="shield" src="">
-    <div id="nameDisplay"></div>
-    <div id="houseDisplay"></div>
+    <!-- AUTO-SUGGEST LIST -->
+    <div id="suggestions" class="suggestions"></div>
+
+    <!-- RESULT DISPLAY -->
+    <div id="result">
+        <div id="houseGlow"></div>
+        <img id="shield" src="">
+        <div id="nameDisplay"></div>
+        <div id="houseDisplay"></div>
+    </div>
+
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
+const SCRIPT_URL =
+ "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
 
-let allStudents = [];
+let students = [];
 let loaded = false;
 
-async function loadStudents() {
-    const status = document.getElementById("status");
-
-    try {
-        status.textContent = "Loading roster...";
-
-        const res = await fetch(SCRIPT_URL + "?action=houseLookup");
-        const data = await res.json();
-
-        if (data.status !== "ok") {
-            status.textContent = "Error loading roster.";
-            return;
-        }
-
-        allStudents = data.students;
-        loaded = true;
-        status.textContent = "Ready.";
-    } 
-    catch (err) {
-        status.textContent = "Server unreachable.";
-        console.error(err);
-    }
-}
-
-loadStudents();
-
 const input = document.getElementById("searchInput");
-const shieldImg = document.getElementById("shield");
+const statusEl = document.getElementById("status");
+const suggestionsEl = document.getElementById("suggestions");
+
+const shield = document.getElementById("shield");
 const nameDisplay = document.getElementById("nameDisplay");
 const houseDisplay = document.getElementById("houseDisplay");
+const glow = document.getElementById("houseGlow");
 
 const houseShields = {
-    "Dragon": "dragon2-removebg.png",
-    "Griffin": "griffin2-removebg.png",
-    "Phoenix": "phoenix2-removebg.png",
-    "Hydra": "hydra2-removebg.png"
+    Phoenix: "phoenix2-removebg.png",
+    Dragon: "dragon2-removebg.png",
+    Hydra:  "hydra2-removebg.png",
+    Griffin:"griffin2-removebg.png"
 };
 
+const houseColors = {
+    Phoenix: "rgba(255,120,20,0.55)",
+    Dragon:  "rgba(50,200,80,0.55)",
+    Hydra:   "rgba(60,150,255,0.55)",
+    Griffin: "rgba(255,210,80,0.55)"
+};
+
+/* LOAD ROSTER */
+async function loadRoster() {
+    try {
+        statusEl.textContent = "Loading roster...";
+        const res = await fetch(SCRIPT_URL + "?action=houseLookup");
+        const json = await res.json();
+
+        students = json.students || [];
+        loaded = true;
+        statusEl.textContent = "Ready.";
+    } catch (e) {
+        statusEl.textContent = "Error loading.";
+        console.error(e);
+    }
+}
+loadRoster();
+
+/* SHOW STUDENT RESULT */
+function showStudent(s) {
+    if (!s) return;
+
+    nameDisplay.textContent = s.fullName;
+    houseDisplay.textContent = "House " + s.house;
+
+    shield.src = houseShields[s.house] || "";
+    shield.classList.add("show");
+
+    // Glow colour
+    glow.style.background = houseColors[s.house] || "transparent";
+    glow.style.opacity = 1;
+}
+
+/* FILTER STUDENTS */
+function getMatches(query) {
+    return students.filter(s =>
+        (s.fullName || "").toLowerCase().includes(query)
+    );
+}
+
+/* RENDER SUGGESTIONS */
+function renderSuggestions(list) {
+    suggestionsEl.innerHTML = "";
+    if (!list.length) {
+        suggestionsEl.style.display = "none";
+        return;
+    }
+
+    list.slice(0, 8).forEach(s => {
+        const item = document.createElement("div");
+        item.className = "suggestion-item";
+        item.textContent = s.fullName;
+        item.onclick = () => {
+            input.value = s.fullName;
+            suggestionsEl.style.display = "none";
+            showStudent(s);
+        };
+        suggestionsEl.appendChild(item);
+    });
+
+    suggestionsEl.style.display = "block";
+}
+
+/* INPUT HANDLING */
 input.addEventListener("input", () => {
     if (!loaded) return;
 
     const q = input.value.trim().toLowerCase();
-
-    if (q.length < 2) {
+    if (q.length < 1) {
+        suggestionsEl.style.display = "none";
+        shield.classList.remove("show");
+        glow.style.opacity = 0;
         nameDisplay.textContent = "";
         houseDisplay.textContent = "";
-        shieldImg.classList.remove("show");
         return;
     }
 
-    const match = allStudents.find(s =>
-        (s.fullName || "").toLowerCase().includes(q)
-    );
+    const matches = getMatches(q);
+    renderSuggestions(matches);
+});
 
-    if (!match) {
-        nameDisplay.textContent = "No match";
-        houseDisplay.textContent = "";
-        shieldImg.classList.remove("show");
-        return;
-    }
-
-    nameDisplay.textContent = match.fullName;
-    houseDisplay.textContent = match.house ? "House " + match.house : "";
-
-    if (match.house && houseShields[match.house]) {
-        shieldImg.src = houseShields[match.house];
-        shieldImg.classList.add("show");
-    } else {
-        shieldImg.classList.remove("show");
+/* PRESS ENTER → choose top suggestion */
+input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        const q = input.value.trim().toLowerCase();
+        const matches = getMatches(q);
+        if (matches.length > 0) {
+            input.value = matches[0].fullName;
+            suggestionsEl.style.display = "none";
+            showStudent(matches[0]);
+        }
     }
 });
 </script>
