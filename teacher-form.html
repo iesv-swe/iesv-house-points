@@ -1,258 +1,321 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>House Points – Teacher Input</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>House Points - Teacher Input</title>
+<link rel="icon" type="image/x-icon" href="teacher-favicon.ico">
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
 
-        body {
-            background: url("stone.png") center/cover no-repeat fixed;
-            font-family: Arial, sans-serif;
-            color: white;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+body {
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+background: url("stone.png") center/cover no-repeat fixed;
+min-height: 100vh;
+display: flex;
+justify-content: center;
+align-items: flex-start;
+padding: 20px;
+color: white;
+}
 
-        h1 {
-            margin-top: 10px;
-            font-size: 2rem;
-            text-align: center;
-            font-weight: 700;
-        }
+.container {
+width: 100%;
+max-width: 600px;
+}
 
-        h2 {
-            margin-top: 4px;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-            opacity: 0.8;
-            text-align: center;
-        }
+h1 {
+text-align: center;
+margin-bottom: 6px;
+font-size: 32px;
+letter-spacing: 1px;
+text-shadow: 0 0 8px black;
+}
 
-        .card {
-            width: 100%;
-            max-width: 480px;
-            background: rgba(30, 30, 30, 0.75);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            backdrop-filter: blur(4px);
-        }
+.subtitle {
+text-align: center;
+margin-bottom: 20px;
+font-size: 15px;
+opacity: 0.9;
+text-shadow: 0 0 8px black;
+}
 
-        label {
-            font-weight: 600;
-            display: block;
-            margin-bottom: 6px;
-            color: #eee;
-        }
+.card {
+background: rgba(60,60,60,0.92);
+color: white;
+padding: 20px;
+border-radius: 16px;
+margin-bottom: 18px;
+            box-shadow: 0 0 14px rgba(0,0,0,0.35);
+            box-shadow: 0 10px 35px rgba(0,0,0,0.45);
+backdrop-filter: blur(3px);
+}
 
-        input {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            font-size: 1rem;
-            margin-bottom: 10px;
-        }
+.card h2 {
+font-size: 19px;
+margin-bottom: 10px;
+}
 
-        .house-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 14px;
-        }
+input {
+width: 100%;
+padding: 12px;
+margin-top: 6px;
+border-radius: 10px;
+border: none;
+font-size: 16px;
+}
 
-        .house-btn {
-            background: rgba(255, 255, 255, 0.07);
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: 0.15s;
-            border: 2px solid transparent;
-        }
+/* ---- HOUSE 2×2 GRID ---- */
+.house-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 14px;
+margin-top: 8px;
+}
 
-        .house-btn img {
-            width: 90px;
-            pointer-events: none;
-        }
+.house-btn {
+position: relative;
+height: 180px;
+border-radius: 18px;
+background: #2b2b2b;
+border: none;
+cursor: pointer;
+overflow: hidden;
+padding: 0;
+transition: 0.25s ease;
+display: flex;
+justify-content: center;
+align-items: center;
+}
 
-        .house-btn.selected {
-            border: 2px solid #00a8ff;
-            background: rgba(0, 168, 255, 0.15);
-            transform: scale(1.05);
-        }
+.house-btn img {
+width: 85%;
+height: auto;
+max-height: 140px;
+object-fit: contain;
+object-position: top;
+transform: translateY(-10px);
+z-index: 2;
+pointer-events: none;
+}
 
-        .category-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
+.house-btn:hover {
+box-shadow: 0 0 20px rgba(255,140,0,0.9);
+transform: scale(1.04);
+}
 
-        .cat-btn {
-            padding: 12px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            color: white;
-            text-align: center;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: 0.15s;
-            border: 2px solid transparent;
-        }
+.house-btn.selected {
+box-shadow: 0 0 28px rgba(255,140,0,1);
+transform: scale(1.06);
+}
 
-        .cat-btn.selected {
-            border-color: #00a8ff;
-            background: rgba(0,168,255,0.15);
-        }
+/* ---- CATEGORY BUTTONS ---- */
+.category-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+gap: 10px;
+margin-top: 10px;
+}
 
-        #submitBtn {
-            width: 100%;
-            max-width: 480px;
-            background: linear-gradient(to bottom, #00baff, #007ad6);
-            padding: 16px;
-            text-align: center;
-            border-radius: 12px;
-            margin-top: 10px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            border: none;
-            color: white;
-        }
+.category-btn {
+padding: 12px;
+border-radius: 12px;
+background: #555;
+color: white;
+cursor: pointer;
+transition: 0.15s;
+font-size: 15px;
+}
 
-        #submitBtn:hover {
-            filter: brightness(1.1);
-        }
+.category-btn:hover {
+background: #777;
+transform: translateY(-1px);
+}
 
-        #successMessage {
-            display: none;
-            margin-top: 10px;
-            padding: 12px;
-            background: #c8f7c5;
-            color: #1b5e20;
-            border-left: 5px solid #27ae60;
-            border-radius: 8px;
-            width: 100%;
-            max-width: 480px;
-        }
-    </style>
+.category-btn.selected {
+background: #00c3ff;
+color: black;
+font-weight: bold;
+}
+
+#submitBtn {
+width: 100%;
+padding: 16px;
+background: #00c3ff;
+border: none;
+border-radius: 14px;
+font-size: 20px;
+color: black;
+font-weight: bold;
+cursor: pointer;
+transition: 0.2s;
+}
+
+#submitBtn:hover {
+background: #41d9ff;
+}
+
+.footer-note {
+text-align: center;
+margin-top: 10px;
+font-size: 13px;
+opacity: 0.85;
+text-shadow: 0 0 8px black;
+}
+
+.status-message {
+text-align: center;
+margin-top: 10px;
+font-size: 14px;
+min-height: 20px;
+}
+
+.status-success { color: #7CFC7C; }
+.status-error   { color: #ffb3b3; }
+</style>
 </head>
 
 <body>
+<div class="container">
+<h1>House Points</h1>
+<p class="subtitle">Award 1 point for positive behaviour</p>
 
-    <h1>House Points</h1>
-    <h2>Award 1 point for positive behaviour</h2>
+<!-- TEACHER INPUT -->
+<div class="card">
+<h2>Your Name or Email</h2>
+<input id="teacherInput" type="text" placeholder="Enter your name or school email">
+</div>
 
-    <div class="card">
-        <label>Your Name or Email</label>
-        <input id="teacher" type="text" placeholder="Enter your name">
-    </div>
+<!-- HOUSE SELECTION -->
+<div class="card">
+<h2>Select House</h2>
+<div class="house-grid">
 
-    <div class="card">
-        <label>Select House</label>
-        <div class="house-grid">
-            <div class="house-btn" data-house="Phoenix">
-                <img src="phoenix2-removebg.png">
-            </div>
-            <div class="house-btn" data-house="Dragon">
-                <img src="dragon2-removebg.png">
-            </div>
-            <div class="house-btn" data-house="Hydra">
-                <img src="hydra2-removebg.png">
-            </div>
-            <div class="house-btn" data-house="Griffin">
-                <img src="griffin2-removebg.png">
-            </div>
-        </div>
-    </div>
+<button class="house-btn" data-house="Phoenix">
+<img src="phoenix2-removebg.png" alt="Phoenix">
+</button>
 
-    <div class="card">
-        <label>Select Category</label>
+<button class="house-btn" data-house="Dragon">
+<img src="dragon2-removebg.png" alt="Dragon">
+</button>
 
-        <div class="category-grid">
-            <div class="cat-btn" data-cat="Kindness/Helping Others">❤️ Kindness/Helping Others</div>
-            <div class="cat-btn" data-cat="Academic Effort/Excellence">🧑‍🏫 Academic Effort/Excellence</div>
+<button class="house-btn" data-house="Hydra">
+<img src="hydra2-removebg.png" alt="Hydra">
+</button>
 
-            <div class="cat-btn" data-cat="Teamwork/Collaboration">💛 Teamwork/Collaboration</div>
-            <div class="cat-btn" data-cat="Respect">⚠️ Respect</div>
+<button class="house-btn" data-house="Griffin">
+<img src="griffin2-removebg.png" alt="Griffin">
+</button>
 
-            <div class="cat-btn" data-cat="Leadership">🟧 Leadership</div>
-            <div class="cat-btn" data-cat="Creativity/Problem Solving">🧠 Creativity/Problem Solving</div>
+</div>
+</div>
 
-            <div class="cat-btn" data-cat="Responsibility">💚 Responsibility</div>
-        </div>
-    </div>
+<!-- CATEGORY SELECTION -->
+<div class="card">
+<h2>Select Category</h2>
 
-    <button id="submitBtn">Award 1 Point</button>
+<div class="category-grid">
+<div class="category-btn" data-category="Kindness/Helping Others">❤️ Kindness/Helping Others</div>
+<div class="category-btn" data-category="Academic Effort/Excellence">📚 Academic Effort/Excellence</div>
+<div class="category-btn" data-category="Teamwork/Collaboration">🤝 Teamwork/Collaboration</div>
+<div class="category-btn" data-category="Respect">🙏 Respect</div>
+<div class="category-btn" data-category="Leadership">⭐ Leadership</div>
+<div class="category-btn" data-category="Creativity/Problem Solving">💡 Creativity/Problem Solving</div>
+<div class="category-btn" data-category="Responsibility">✅ Responsibility</div>
+</div>
+</div>
 
-    <div id="successMessage">Point Awarded Successfully!</div>
+<!-- SUBMIT -->
+<button id="submitBtn">Award 1 Point</button>
+
+<p class="footer-note">multiple points can be awarded upon special request</p>
+<div id="status" class="status-message"></div>
+
+<input type="hidden" id="selectedHouse">
+<input type="hidden" id="selectedCategory">
+</div>
 
 <script>
-let selectedHouse = null;
-let selectedCategory = null;
+const APPS_SCRIPT_URL =
+"https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
 
-document.querySelectorAll('.house-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.house-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        selectedHouse = btn.dataset.house;
-    });
+let currentHouse = "";
+let currentCategory = "";
+
+/* ---- HOUSE BUTTON LOGIC ---- */
+const houseButtons = [...document.querySelectorAll(".house-btn")];
+houseButtons.forEach(btn => {
+btn.addEventListener("click", () => {
+houseButtons.forEach(b => b.classList.remove("selected"));
+btn.classList.add("selected");
+currentHouse = btn.dataset.house;
+document.getElementById("selectedHouse").value = currentHouse;
+});
 });
 
-document.querySelectorAll('.cat-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        selectedCategory = btn.dataset.cat;
-    });
+/* ---- CATEGORY BUTTON LOGIC ---- */
+const categoryButtons = [...document.querySelectorAll(".category-btn")];
+categoryButtons.forEach(btn => {
+btn.addEventListener("click", () => {
+categoryButtons.forEach(b => b.classList.remove("selected"));
+btn.classList.add("selected");
+currentCategory = btn.dataset.category;
+document.getElementById("selectedCategory").value = currentCategory;
+});
 });
 
-document.getElementById("submitBtn").addEventListener("click", async () => {
-    const teacher = document.getElementById("teacher").value.trim();
+/* ---- STATUS ---- */
+function setStatus(msg, error = false) {
+const el = document.getElementById("status");
+el.textContent = msg;
+el.classList.remove("status-success", "status-error");
+el.classList.add(error ? "status-error" : "status-success");
+}
 
-    if (!teacher || !selectedHouse || !selectedCategory) {
-        alert("Please fill in your name, select a house, and select a category.");
-        return;
-    }
+/* ---- SUBMIT ---- */
+document.getElementById("submitBtn").addEventListener("click", () => {
+const teacher = document.getElementById("teacherInput").value.trim();
 
-    const payload = {
-        action: "awardPoint",
-        teacher,
-        category: selectedCategory,
-        house: selectedHouse
-    };
+if (!teacher) return setStatus("Enter your name or email.", true);
+if (!currentHouse) return setStatus("Select a house.", true);
+if (!currentCategory) return setStatus("Select a category.", true);
 
-    try {
-        const res = await fetch(
-            "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec",
-            {
-                method: "POST",
-                body: JSON.stringify(payload),
-            }
-        );
+const payload = {
+        action: "awardPoints",   // ✅ REQUIRED BY YOUR BACKEND
+source: "teacher-form",
+teacher,
+house: currentHouse,
+category: currentCategory,
+points: 1
+};
 
-        const data = await res.json();
+setStatus("Submitting…");
 
-        if (data.status === "success") {
-            const msg = document.getElementById("successMessage");
-            msg.style.display = "block";
-            setTimeout(() => msg.style.display = "none", 3000);
-        } else {
-            alert("Error: " + data.message);
-        }
-    } catch (e) {
-        alert("Network error.");
-    }
+fetch(APPS_SCRIPT_URL, {
+method: "POST",
+body: JSON.stringify(payload)
+})
+.then(r => r.json().catch(() => ({})))
+.then(data => {
+        if (data.status === "error") {
+        if (!data || data.status === "error") {
+setStatus("✗ Error sending. Try again.", true);
+} else {
+setStatus("✓ Point awarded!");
+houseButtons.forEach(b => b.classList.remove("selected"));
+categoryButtons.forEach(b => b.classList.remove("selected"));
+currentHouse = "";
+currentCategory = "";
+document.getElementById("selectedHouse").value = "";
+document.getElementById("selectedCategory").value = "";
+}
+})
+.catch(() => setStatus("✗ Network error.", true));
 });
 </script>
 
