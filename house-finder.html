@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>House Finder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #000 url("stone.png") center center / cover no-repeat fixed;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      padding: 16px;
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 22px;
+      border-radius: 14px;
+      width: 95%;
+      max-width: 420px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.7);
+    }
+
+    .title {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #bbbbbb;
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      color: #ddd;
+    }
+
+    .search-wrapper {
+      position: relative;
+    }
+
+    #studentSearch {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #555;
+      background: rgba(15,15,15,0.95);
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    #studentSearch:focus {
+      border-color: #f0d15b;
+      box-shadow: 0 0 0 1px #f0d15b;
+    }
+
+    #suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      display: none;
+      background: rgba(20,20,20,0.98);
+      border: 1px solid #444;
+      border-top: none;
+      max-height: 200px;
+      overflow-y: auto;
+      border-radius: 0 0 10px 10px;
+      z-index: 30;
+    }
+
+    .suggestion-item {
+      padding: 8px 10px;
+      cursor: pointer;
+      border-bottom: 1px solid #333;
+    }
+
+    .suggestion-item:hover {
+      background: #3a3a3a;
+    }
+
+    .status {
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: #cccccc;
+      min-height: 12px;
+    }
+
+    .result-card {
+      margin-top: 18px;
+      padding-top: 14px;
+      display: none;
+      border-top: 1px solid #555;
+    }
+
+    .house-title {
+      text-align: center;
+      font-size: 1.3rem;
+      margin-bottom: 4px;
+    }
+
+    .house-meta {
+      text-align: center;
+      color: #bbbbbb;
+      font-size: 0.85rem;
+      margin-bottom: 14px;
+    }
+
+    .house-logo-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .house-logo {
+      width: 130px;
+      max-width: 50vw;
+      filter: drop-shadow(0 0 12px rgba(0,0,0,0.8));
+    }
+
+    .house-logo.pop {
+      animation: pop 0.3s ease-out;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.7); opacity: 0.5; }
+      60% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+
+</head>
+<body>
+
+  <div class="container">
+
+    <div class="title">House Finder</div>
+    <div class="subtitle">Start typing a name to see their house.</div>
+
+    <label for="studentSearch">Student / Staff Name</label>
+    <div class="search-wrapper">
+      <input id="studentSearch" type="text" autocomplete="off" placeholder="e.g. John Smith">
+      <div id="suggestions"></div>
+    </div>
+
+    <div id="status" class="status"></div>
+
+    <div id="resultCard" class="result-card">
+      <div id="houseTitle" class="house-title"></div>
+      <div id="houseMeta" class="house-meta"></div>
+      <div class="house-logo-wrapper">
+        <img id="houseLogo" class="house-logo" src="" alt="House Logo">
+      </div>
+    </div>
+
+  </div>
+
+
+  <script>
+    // ---------------------------------------------------
+    // CONFIG
+    // ---------------------------------------------------
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
+
+    const HOUSES = {
+      "Dragon":  { name: "Dragon House",  logo: "dragon2-removebg.png" },
+      "Griffin": { name: "Griffin House", logo: "griffin2-removebg.png" },
+      "Phoenix": { name: "Phoenix House", logo: "phoenix2-removebg.png" },
+      "Hydra":   { name: "Hydra House",   logo: "hydra2-removebg.png" }
+    };
+
+    let allStudents = [];
+    let loaded = false;
+
+    const input = document.getElementById("studentSearch");
+    const suggestions = document.getElementById("suggestions");
+    const statusBox = document.getElementById("status");
+    const resultCard = document.getElementById("resultCard");
+    const houseTitle = document.getElementById("houseTitle");
+    const houseMeta = document.getElementById("houseMeta");
+    const houseLogo = document.getElementById("houseLogo");
+
+    // ---------------------------------------------------
+    // Load students
+    // ---------------------------------------------------
+    async function loadStudents() {
+      statusBox.textContent = "Loading roster...";
+
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "houseLookup" })
+        });
+
+        const data = await res.json();
+
+        if (data.status !== "ok") {
+          statusBox.textContent = "Error loading roster.";
+          return;
+        }
+
+        allStudents = data.students;
+        loaded = true;
+        statusBox.textContent = "Ready.";
+      } 
+      catch (err) {
+        statusBox.textContent = "Server unreachable.";
+      }
+    }
+
+    loadStudents();
+
+    function normalise(str) {
+      return (str || "").toLowerCase();
+    }
+
+    // ---------------------------------------------------
+    // Search suggestions
+    // ---------------------------------------------------
+    input.addEventListener("input", () => {
+      const q = normalise(input.value);
+
+      if (!loaded || !q) {
+        suggestions.style.display = "none";
+        statusBox.textContent = loaded ? "" : "Loading...";
+        resultCard.style.display = "none";
+        return;
+      }
+
+      const matches = allStudents.filter(s => {
+        return normalise(s.fullName).includes(q)
+            || normalise(s.firstName).includes(q)
+            || normalise(s.lastName).includes(q);
+      }).slice(0, 10);
+
+      if (!matches.length) {
+        suggestions.style.display = "none";
+        statusBox.textContent = "No matches";
+        return;
+      }
+
+      suggestions.innerHTML = "";
+      matches.forEach(s => {
+        const item = document.createElement("div");
+        item.className = "suggestion-item";
+        item.textContent = `${s.fullName} — ${s.house}`;
+        item.onclick = () => selectStudent(s);
+        suggestions.appendChild(item);
+      });
+
+      suggestions.style.display = "block";
+      statusBox.textContent = matches.length + " matches";
+    });
+
+    // ---------------------------------------------------
+    // Select a student
+    // ---------------------------------------------------
+    function selectStudent(s) {
+      input.value = s.fullName;
+      suggestions.style.display = "none";
+      showHouse(s);
+    }
+
+    // ---------------------------------------------------
+    // Display house + animation
+    // ---------------------------------------------------
+    function showHouse(s) {
+      const cfg = HOUSES[s.house];
+
+      if (!cfg) {
+        statusBox.textContent = "House not found.";
+        resultCard.style.display = "none";
+        return;
+      }
+
+      houseTitle.textContent = cfg.name;
+      houseMeta.textContent = `${s.type || ""} — ${s.email || ""}`;
+
+      houseLogo.classList.remove("pop");
+      void houseLogo.offsetWidth;
+      houseLogo.src = cfg.logo;
+      houseLogo.classList.add("pop");
+
+      resultCard.style.display = "block";
+      statusBox.textContent = "";
+    }
+
+    // ---------------------------------------------------
+    // Press Enter → select if 1 match
+    // ---------------------------------------------------
+    input.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return;
+
+      const q = normalise(input.value);
+      if (!q) return;
+
+      const matches = allStudents.filter(s =>
+        normalise(s.fullName).includes(q)
+      );
+
+      if (matches.length === 1) {
+        selectStudent(matches[0]);
+      }
+    });
+  </script>
+
+</body>
+</html>
