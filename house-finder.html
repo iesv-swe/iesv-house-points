@@ -121,6 +121,11 @@
         filter: drop-shadow(0 0 16px rgba(255,255,255,0.9));
     }
 
+    /* ENSURE TEXT IS CENTERED */
+    #nameDisplay, #houseDisplay {
+        text-align: center;
+    }
+
     #nameDisplay {
         margin-top: 14px;
         font-size: clamp(24px, 3vw, 40px);
@@ -216,7 +221,6 @@ function showStudent(s) {
     shield.src = houseShields[s.house] || "";
     shield.classList.add("show");
 
-    // Glow colour
     glow.style.background = houseColors[s.house] || "transparent";
     glow.style.opacity = 1;
 }
@@ -228,15 +232,16 @@ function getMatches(query) {
     );
 }
 
-/* RENDER SUGGESTIONS */
+/* RENDER SUGGESTIONS — LIMIT TO 5 */
 function renderSuggestions(list) {
     suggestionsEl.innerHTML = "";
+
     if (!list.length) {
         suggestionsEl.style.display = "none";
         return;
     }
 
-    list.slice(0, 8).forEach(s => {
+    list.slice(0, 5).forEach(s => {
         const item = document.createElement("div");
         item.className = "suggestion-item";
         item.textContent = s.fullName;
@@ -269,7 +274,7 @@ input.addEventListener("input", () => {
     renderSuggestions(matches);
 });
 
-/* PRESS ENTER → choose top suggestion */
+/* ENTER → choose first suggestion */
 input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
         e.preventDefault();
