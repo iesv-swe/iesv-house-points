@@ -1,6 +1,274 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Points – Teacher Input</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: url("stone.png") center/cover no-repeat fixed;
+            font-family: Arial, sans-serif;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin-top: 10px;
+            font-size: 2rem;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        h2 {
+            margin-top: 4px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            text-align: center;
+        }
+
+        /* Shared Card Styling */
+        .card {
+            width: 100%;
+            max-width: 480px;
+            background: rgba(30, 30, 30, 0.75);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+            color: #eee;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        /* HOUSE GRID */
+        .house-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+
+        .house-btn {
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.15s;
+            border: 2px solid transparent;
+        }
+
+        .house-btn img {
+            width: 90px;
+            pointer-events: none;
+        }
+
+        .house-btn.selected {
+            border: 2px solid #00a8ff;
+            background: rgba(0, 168, 255, 0.15);
+            transform: scale(1.05);
+        }
+
+        /* CATEGORY GRID */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .cat-btn {
+            padding: 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.15s;
+            border: 2px solid transparent;
+        }
+
+        .cat-btn.selected {
+            border-color: #00a8ff;
+            background: rgba(0,168,255,0.15);
+        }
+
+        /* SUBMIT BUTTON */
+        #submitBtn {
+            width: 100%;
+            max-width: 480px;
+            background: linear-gradient(to bottom, #00baff, #007ad6);
+            padding: 16px;
+            text-align: center;
+            border-radius: 12px;
+            margin-top: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            color: white;
+        }
+
+        #submitBtn:hover {
+            filter: brightness(1.1);
+        }
+
+        #successMessage {
+            display: none;
+            margin-top: 10px;
+            padding: 12px;
+            background: #c8f7c5;
+            color: #1b5e20;
+            border-left: 5px solid #27ae60;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 480px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>House Points</h1>
+    <h2>Award 1 point for positive behaviour</h2>
+
+    <!-- NAME CARD -->
+    <div class="card">
+        <label>Your Name or Email</label>
+        <input id="teacher" type="text" placeholder="Enter your name">
+    </div>
+
+    <!-- HOUSE SELECTOR -->
+    <div class="card">
+        <label>Select House</label>
+        <div class="house-grid">
+            <div class="house-btn" data-house="Phoenix">
+                <img src="phoenix2-removebg.png">
+            </div>
+            <div class="house-btn" data-house="Dragon">
+                <img src="dragon2-removebg.png">
+            </div>
+            <div class="house-btn" data-house="Hydra">
+                <img src="hydra2-removebg.png">
+            </div>
+            <div class="house-btn" data-house="Griffin">
+                <img src="griffin2-removebg.png">
+            </div>
+        </div>
+    </div>
+
+    <!-- CATEGORY SELECTOR -->
+    <div class="card">
+        <label>Select Category</label>
+
+        <div class="category-grid">
+            <div class="cat-btn" data-cat="Kindness/Helping Others">❤️ Kindness/Helping Others</div>
+            <div class="cat-btn" data-cat="Academic Effort/Excellence">🧑‍🏫 Academic Effort/Excellence</div>
+
+            <div class="cat-btn" data-cat="Teamwork/Collaboration">💛 Teamwork/Collaboration</div>
+            <div class="cat-btn" data-cat="Respect">⚠️ Respect</div>
+
+            <div class="cat-btn" data-cat="Leadership">🟧 Leadership</div>
+            <div class="cat-btn" data-cat="Creativity/Problem Solving">🧠 Creativity/Problem Solving</div>
+
+            <div class="cat-btn" data-cat="Responsibility">💚 Responsibility</div>
+        </div>
+    </div>
+
+    <!-- SUBMIT -->
+    <button id="submitBtn">Award 1 Point</button>
+
+    <div id="successMessage">Point Awarded Successfully!</div>
+
+<script>
+let selectedHouse = null;
+let selectedCategory = null;
+
+document.querySelectorAll('.house-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.house-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedHouse = btn.dataset.house;
+    });
+});
+
+document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedCategory = btn.dataset.cat;
+    });
+});
+
+document.getElementById("submitBtn").addEventListener("click", async () => {
+    const teacher = document.getElementById("teacher").value.trim();
+
+    if (!teacher || !selectedHouse || !selectedCategory) {
+        alert("Please fill in your name, select a house, and select a category.");
+        return;
+    }
+
+    const payload = {
+        action: "awardPoint",
+        teacher,
+        category: selectedCategory,
+        house: selectedHouse
+    };
+
+    try {
+        const res = await fetch(
+            "https://script.google.com/macros/s/AKfycbzEt7aXTIgktJqq7SB3zSAh_wH5P0ME-pNkh6RWchdhOSCYKKpFeaR0oI2c3X9GnpvW/exec",
+            {
+                method: "POST",
+                body: JSON.stringify(payload),
+            }
+        );
+
+        const data = await res.json();
+
+        if (data.status === "success") {
+            const msg = document.getElementById("successMessage");
+            msg.style.display = "block";
+            setTimeout(() => msg.style.display = "none", 3000);
+        } else {
+            alert("Error: " + data.message);
+        }
+    } catch (e) {
+        alert("Network error.");
+    }
+});
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
   <meta charset="UTF-8">
   <title>House Points - Teacher Input</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
