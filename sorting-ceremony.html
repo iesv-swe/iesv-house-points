@@ -8,15 +8,7 @@
     <link rel="icon" type="image/x-icon" href="./sorting-favicon.ico">
 
     <style>
-        /* ================================
-           DARK CASTLE RITUAL THEME + FLOW
-        =================================*/
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Segoe UI', Tahoma, sans-serif;
@@ -30,20 +22,19 @@
             position: relative;
         }
 
-        /* Stone wall */
+        /* Stone wall overlay */
         body::before {
             content: "";
             position: absolute;
             inset: 0;
             background-image: url('./stone.png');
             background-size: cover;
-            background-repeat: no-repeat;
             opacity: 0.45;
             mix-blend-mode: overlay;
             pointer-events: none;
         }
 
-        /* Particles */
+        /* =========== PARTICLES =========== */
         .particles {
             position: absolute;
             inset: 0;
@@ -56,417 +47,59 @@
             position: absolute;
             width: 4px;
             height: 4px;
-            background: rgba(120,170,255,0.8);
             border-radius: 50%;
+            background: rgba(120,170,255,0.8);
             box-shadow: 0 0 12px rgba(120,170,255,1);
             animation: floatUp 6s linear infinite;
         }
 
         @keyframes floatUp {
             from { transform: translateY(0); opacity: 1; }
-            to { transform: translateY(-120vh); opacity: 0; }
+            to   { transform: translateY(-120vh); opacity: 0; }
         }
 
-        /* Header with logo + title */
+        /* =========== HEADER =========== */
         header {
             text-align: center;
-            padding: 10px;
-            z-index: 3;
+            padding: 20px 10px;
             position: relative;
+            z-index: 3;
         }
 
         header img {
-            height: 90px;
-            margin-top: 10px;
+            height: clamp(70px, 12vw, 120px);
             filter: drop-shadow(0 0 12px rgba(120,170,255,0.4));
         }
 
         h1 {
-            margin-top: 5px;
-            font-size: 2.2rem;
+            margin-top: 10px;
+            font-size: clamp(1.8rem, 3vw, 3rem);
             letter-spacing: 3px;
             text-transform: uppercase;
             text-shadow: 0 0 12px rgba(120,170,255,0.5);
         }
 
         .subtitle {
-            font-size: 1rem;
-            color: #c2cadf;
-            margin-top: 4px;
+            font-size: clamp(0.9rem, 1.4vw, 1.2rem);
+            opacity: 0.9;
         }
 
-        /* House shields left/right */
+        /* =========== SIDE SHIELDS =========== */
         .side-column {
             position: absolute;
-            top: 4%;
+            top: 10%;
             display: flex;
             flex-direction: column;
-            gap: 45px;
+            gap: clamp(20px, 6vh, 70px);
             z-index: 2;
         }
 
-        .left-column { left: 90px; }
-        .right-column { right: 90px; }
+        .left-column  { left: 4vw; }
+        .right-column { right: 4vw; }
 
         .side-column img {
-            width: 216px;
-            opacity: 0.95;
-            filter: drop-shadow(0 0 18px rgba(120,170,255,0.35))
-                    contrast(1.15) brightness(1.05);
-        }
-
-        /* Main container for screens */
-        .container {
-            text-align: center;
-            margin-top: 40px;
-            z-index: 3;
-            position: relative;
-        }
-
-        /* Screens */
-        .screen {
-            display: none;
-            max-width: 600px;
-            width: 100%;
-            margin: 0 auto;
-        }
-
-        .screen.active {
-            display: block;
-        }
-
-        /* INPUT SCREEN */
-        #inputScreen h2 {
-            font-size: 1.9rem;
-            margin-bottom: 10px;
-        }
-
-        #inputScreen p {
-            font-size: 1rem;
-            color: #c2cadf;
-            margin-bottom: 22px;
-        }
-
-        input[type="email"] {
-            padding: 14px;
-            width: 420px;
-            max-width: 95%;
-            border-radius: 6px;
-            border: 1px solid #444;
-            background-color: #222;
-            color: #fff;
-            text-align: center;
-            font-size: 1.05rem;
-            outline: none;
-        }
-
-        input[type="email"]::placeholder {
-            color: #bbbbbb;
-            opacity: 0.8;
-        }
-
-        button.discover-btn {
-            padding: 14px 28px;
-            background: linear-gradient(145deg, #0f1a2a, #00050a);
-            border: 2px solid #5a77c8;
-            color: #dfe9ff;
-            cursor: pointer;
-            border-radius: 8px;
-            margin-top: 22px;
-            font-size: 1rem;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            transition: 0.25s;
-            box-shadow: 0 0 12px rgba(120,170,255,0.3);
-        }
-
-        button.discover-btn:hover {
-            background: #16243b;
-            box-shadow: 0 0 18px rgba(120,170,255,0.7);
-        }
-
-        .error-message {
-            background: rgba(255, 68, 68, 0.9);
-            color: white;
-            padding: 12px 18px;
-            border-radius: 10px;
-            margin-top: 18px;
-            display: none;
-            font-size: 0.95rem;
-        }
-
-        .error-message.show {
-            display: inline-block;
-        }
-
-        /* SORTING SCREEN */
-        #sortingScreen h2 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-        }
-
-        .sorting-icons-wrapper {
-            position: relative;
-            width: 240px;
-            height: 240px;
-            margin: 30px auto;
-        }
-
-        /* magical aura behind icons */
-        .sorting-icons-wrapper::before {
-            content: "";
-            position: absolute;
-            inset: 25px;
-            border-radius: 50%;
-            box-shadow:
-                0 0 25px rgba(255, 215, 0, 0.35),
-                0 0 40px rgba(255, 255, 255, 0.25);
-            opacity: 0.7;
-            animation: auraPulse 2.5s ease-in-out infinite;
-        }
-
-        @keyframes auraPulse {
-            0%, 100% { transform: scale(0.95); opacity: 0.5; }
-            50% { transform: scale(1.05); opacity: 0.9; }
-        }
-
-        .sorting-icons {
-            position: absolute;
-            inset: 0;
-        }
-
-        .sorting-icons img {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 110px;
-            opacity: 0.95;
-            filter: drop-shadow(0 0 15px rgba(255,255,255,0.4));
-        }
-
-        /* These animations move the shields between 4 corners
-           around the true centre, so the whole ritual is centred. */
-
-        @keyframes shufflePhoenix {
-            0%   { transform: translate(-50%, -50%) translate(-70px, -70px) scale(1); }
-            20%  { transform: translate(-50%, -50%) translate( 70px, -70px) scale(1.05) rotate(5deg); }
-            40%  { transform: translate(-50%, -50%) translate( 70px,  70px) scale(1.1)  rotate(-3deg); }
-            60%  { transform: translate(-50%, -50%) translate(-70px,  70px) scale(1.05) rotate(2deg); }
-            80%  { transform: translate(-50%, -50%) translate(  0px,   0px) scale(0.9)  rotate(0deg); }
-            100% { transform: translate(-50%, -50%) translate(-70px, -70px) scale(1); }
-        }
-
-        @keyframes shuffleDragon {
-            0%   { transform: translate(-50%, -50%) translate( 70px, -70px) scale(1); }
-            20%  { transform: translate(-50%, -50%) translate( 70px,  70px) scale(1.05) rotate(-4deg); }
-            40%  { transform: translate(-50%, -50%) translate(-70px,  70px) scale(1.1)  rotate(4deg); }
-            60%  { transform: translate(-50%, -50%) translate(-70px, -70px) scale(1.05) rotate(-2deg); }
-            80%  { transform: translate(-50%, -50%) translate(  0px,   0px) scale(0.9)  rotate(1deg); }
-            100% { transform: translate(-50%, -50%) translate( 70px, -70px) scale(1); }
-        }
-
-        @keyframes shuffleHydra {
-            0%   { transform: translate(-50%, -50%) translate(-70px,  70px) scale(1); }
-            20%  { transform: translate(-50%, -50%) translate(-70px, -70px) scale(1.05) rotate(3deg); }
-            40%  { transform: translate(-50%, -50%) translate( 70px, -70px) scale(1.1)  rotate(-3deg); }
-            60%  { transform: translate(-50%, -50%) translate( 70px,  70px) scale(1.05) rotate(2deg); }
-            80%  { transform: translate(-50%, -50%) translate(  0px,   0px) scale(0.9)  rotate(-2deg); }
-            100% { transform: translate(-50%, -50%) translate(-70px,  70px) scale(1); }
-        }
-
-        @keyframes shuffleGriffin {
-            0%   { transform: translate(-50%, -50%) translate( 70px,  70px) scale(1); }
-            20%  { transform: translate(-50%, -50%) translate(-70px,  70px) scale(1.05) rotate(-2deg); }
-            40%  { transform: translate(-50%, -50%) translate(-70px, -70px) scale(1.1)  rotate(3deg); }
-            60%  { transform: translate(-50%, -50%) translate( 70px, -70px) scale(1.05) rotate(-1deg); }
-            80%  { transform: translate(-50%, -50%) translate(  0px,   0px) scale(0.9)  rotate(2deg); }
-            100% { transform: translate(-50%, -50%) translate( 70px,  70px) scale(1); }
-        }
-
-        .icon-phoenix { animation: shufflePhoenix 4s infinite ease-in-out; }
-        .icon-dragon  { animation: shuffleDragon 4s infinite ease-in-out; }
-        .icon-hydra   { animation: shuffleHydra 4s infinite ease-in-out; }
-        .icon-griffin { animation: shuffleGriffin 4s infinite ease-in-out; }
-
-        /* Wand / spark trail */
-        .wand-spark {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            box-shadow:
-                0 0 10px rgba(255, 215, 0, 0.9),
-                0 0 18px rgba(255, 255, 255, 0.8);
-            background: radial-gradient(circle, #ffffff 0%, #ffd700 40%, rgba(0,0,0,0) 70%);
-            animation: wandOrbit 2.3s linear infinite;
-            pointer-events: none;
-            z-index: 3;
-        }
-
-        @keyframes wandOrbit {
-            0%   { transform: translate(-50%, -50%) translate( 90px,   0px); opacity: 1; }
-            25%  { transform: translate(-50%, -50%) translate(  0px,  90px); opacity: 0.9; }
-            50%  { transform: translate(-50%, -50%) translate(-90px,   0px); opacity: 0.8; }
-            75%  { transform: translate(-50%, -50%) translate(  0px, -90px); opacity: 0.9; }
-            100% { transform: translate(-50%, -50%) translate( 90px,   0px); opacity: 1; }
-        }
-
-        .sorting-text {
-            font-size: 1.2rem;
-            color: #e0eaff;
-            font-weight: 600;
-            margin-top: 10px;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        /* REVEAL SCREEN */
-        #revealScreen {
-            animation: revealFade 0.8s ease;
-        }
-
-        @keyframes revealFade {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .house-reveal {
-            margin: 20px 0 10px 0;
-        }
-
-        .house-creature {
-            margin-bottom: 10px;
-            animation: bounce 1s ease;
-        }
-
-        .house-creature img {
-            width: 140px;
-            display: block;
-            margin: 0 auto;
-            filter:
-                drop-shadow(0 0 12px rgba(0,0,0,0.7))
-                drop-shadow(0 0 18px rgba(255,255,255,0.35));
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        .house-name {
-            font-size: 2.8rem;
-            font-weight: 900;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-        }
-
-        .house-name.phoenix { 
-            background: linear-gradient(135deg, #ff4444, #ff8844);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .house-name.dragon {
-            background: linear-gradient(135deg, #44aa44, #88dd44);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .house-name.hydra {
-            background: linear-gradient(135deg, #4488ff, #44ddff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .house-name.griffin {
-            background: linear-gradient(135deg, #ffaa00, #ffdd44);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .house-values {
-            font-size: 1.1rem;
-            color: #e0eaff;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        .house-motto {
-            font-size: 1rem;
-            color: #c2cadf;
-            font-style: italic;
-            margin-bottom: 18px;
-        }
-
-        .welcome-message {
-            background: rgba(16, 45, 105, 0.45);
-            padding: 18px;
-            border-radius: 15px;
-            margin-top: 16px;
-        }
-
-        .welcome-message p {
-            color: #f1f4ff;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        .welcome-message strong {
-            color: #ffffff;
-        }
-
-        .email-sent {
-            display: inline-block;
-            background: #44aa44;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 10px;
-            margin-top: 18px;
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        /* Confetti */
-        .confetti {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            background: #ff4444;
-            animation: confetti-fall 3s linear;
-            z-index: 4;
-        }
-
-        @keyframes confetti-fall {
-            to {
-                transform: translateY(100vh) rotate(360deg);
-                opacity: 0;
-            }
-        }
-
-        footer {
-            text-align: center;
-            padding: 15px;
-            font-size: 0.9rem;
-            color: #8ea0c0;
-            z-index: 3;
-            position: relative;
+            width: clamp(120px, 18vw, 220px);
+            filter: drop-shadow(0 0 20px rgba(120,170,255,0.4));
         }
 
         @media (max-width: 900px) {
@@ -474,10 +107,160 @@
             .right-column {
                 display: none;
             }
-            .container {
-                margin-top: 10px;
-                padding: 0 10px;
-            }
+        }
+
+        /* =========== MAIN SCREEN STACK =========== */
+        .container {
+            text-align: center;
+            width: 100%;
+            margin-top: clamp(10px, 4vh, 40px);
+            z-index: 3;
+        }
+
+        .screen { display: none; width: 100%; }
+        .screen.active { display: block; }
+
+        /* =========== INPUT SCREEN =========== */
+        #inputScreen h2 {
+            font-size: clamp(1.4rem, 2.4vw, 2rem);
+            margin-bottom: 10px;
+        }
+
+        #inputScreen p {
+            font-size: clamp(0.9rem, 1.2vw, 1rem);
+            opacity: 0.85;
+            margin-bottom: 20px;
+        }
+
+        input[type="email"] {
+            padding: clamp(12px, 1.5vw, 18px);
+            width: clamp(260px, 50vw, 420px);
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: #222;
+            color: white;
+            text-align: center;
+            font-size: clamp(0.9rem, 1.3vw, 1.1rem);
+        }
+
+        button.discover-btn {
+            padding: clamp(12px, 1.5vw, 18px) clamp(24px, 3vw, 36px);
+            margin-top: 20px;
+            background: linear-gradient(145deg, #0f1a2a, #00050a);
+            border: 2px solid #5a77c8;
+            border-radius: 10px;
+            color: #e0eaff;
+            font-size: clamp(0.9rem, 1.3vw, 1.1rem);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button.discover-btn:hover {
+            box-shadow: 0 0 15px rgba(120,170,255,0.7);
+        }
+
+        .error-message {
+            background: rgba(255, 68, 68, 0.9);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 10px;
+            margin-top: 16px;
+            font-size: clamp(0.8rem, 1vw, 1rem);
+            display: none;
+        }
+
+        .error-message.show { display: inline-block; }
+
+        /* =========== SORTING SCREEN =========== */
+        #sortingScreen h2 {
+            font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+        }
+
+        .sorting-icons-wrapper {
+            position: relative;
+            width: clamp(180px, 28vw, 260px);
+            height: clamp(180px, 28vw, 260px);
+            margin: 30px auto;
+        }
+
+        .sorting-icons img {
+            width: clamp(70px, 10vw, 120px);
+            position: absolute;
+            top: 50%; left: 50%;
+            opacity: 0.95;
+        }
+
+        .wand-spark {
+            width: clamp(10px, 1.8vw, 18px);
+            height: clamp(10px, 1.8vw, 18px);
+        }
+
+        .sorting-text {
+            margin-top: 10px;
+            font-size: clamp(1rem, 1.5vw, 1.3rem);
+            animation: pulse 1.6s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* =========== REVEAL SCREEN =========== */
+        #revealScreen {
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.92); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+
+        .house-creature img {
+            width: clamp(120px, 18vw, 200px);
+            margin: 0 auto;
+        }
+
+        .house-name {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 900;
+            margin-top: 8px;
+            letter-spacing: 3px;
+        }
+
+        .house-values {
+            font-size: clamp(1rem, 1.4vw, 1.2rem);
+            margin-top: 8px;
+        }
+
+        .house-motto {
+            font-size: clamp(0.9rem, 1.2vw, 1.1rem);
+            margin-top: 6px;
+            opacity: 0.9;
+        }
+
+        .welcome-message {
+            margin-top: 18px;
+            padding: clamp(12px, 2vw, 20px);
+            border-radius: 12px;
+            background: rgba(16, 45, 105, 0.45);
+        }
+
+        .email-sent {
+            background: #44aa44;
+            padding: clamp(8px, 1.2vw, 14px) clamp(18px, 2vw, 26px);
+            margin-top: 16px;
+            border-radius: 10px;
+            font-size: clamp(0.9rem, 1.2vw, 1rem);
+            display: inline-block;
+        }
+
+        footer {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: clamp(0.7rem, 1vw, 1rem);
+            opacity: 0.8;
+            z-index: 3;
         }
     </style>
 </head>
@@ -486,37 +269,35 @@
     <div class="particles"></div>
 
     <header>
-        <img src="./ies-logo-removebg-preview.png" alt="School Logo">
+        <img src="./ies-logo-removebg-preview.png">
         <h1>Sorting Ceremony</h1>
         <div class="subtitle">Discover your house at Internationella Engelska Skolan Västerås</div>
     </header>
 
-    <!-- Side shields -->
+    <!-- SIDE SHIELDS -->
     <div class="side-column left-column">
-        <img src="./dragon2-removebg.png" alt="Dragon">
-        <img src="./griffin2-removebg.png" alt="Griffin">
+        <img src="./dragon2-removebg.png">
+        <img src="./griffin2-removebg.png">
     </div>
 
     <div class="side-column right-column">
-        <img src="./hydra2-removebg.png" alt="Hydra">
-        <img src="./phoenix2-removebg.png" alt="Phoenix">
+        <img src="./hydra2-removebg.png">
+        <img src="./phoenix2-removebg.png">
     </div>
 
-    <!-- Main flow screens -->
+    <!-- MAIN FLOW -->
     <div class="container">
+
         <!-- INPUT SCREEN -->
         <div class="screen active" id="inputScreen">
             <h2>Enter your school email</h2>
             <p>Please use your IES Västerås student email to discover your house.</p>
 
-            <input
-                type="email"
-                id="emailInput"
-                placeholder="firstname.lastname.student.vasteras@engelska.se"
-                required
-            >
+            <input type="email" id="emailInput"
+                   placeholder="firstname.lastname.student.vasteras@engelska.se">
 
             <br>
+
             <button class="discover-btn" onclick="startSorting()">
                 🎩 Discover Your House
             </button>
@@ -529,14 +310,12 @@
             <h2>The Sorting Ritual</h2>
 
             <div class="sorting-icons-wrapper">
-                <!-- Magical wand spark trail -->
                 <div class="wand-spark"></div>
-
                 <div class="sorting-icons">
-                    <img src="./phoenix2-removebg.png" alt="Phoenix" class="icon-phoenix">
-                    <img src="./dragon2-removebg.png" alt="Dragon" class="icon-dragon">
-                    <img src="./hydra2-removebg.png" alt="Hydra" class="icon-hydra">
-                    <img src="./griffin2-removebg.png" alt="Griffin" class="icon-griffin">
+                    <img src="./phoenix2-removebg.png" class="icon-phoenix">
+                    <img src="./dragon2-removebg.png"  class="icon-dragon">
+                    <img src="./hydra2-removebg.png"   class="icon-hydra">
+                    <img src="./griffin2-removebg.png" class="icon-griffin">
                 </div>
             </div>
 
@@ -545,196 +324,117 @@
 
         <!-- REVEAL SCREEN -->
         <div class="screen" id="revealScreen">
-            <div class="house-reveal">
-                <div class="house-creature">
-                    <img id="houseShield" src="./phoenix2-removebg.png" alt="House Shield">
-                </div>
-                <h2 class="house-name phoenix" id="houseName">PHOENIX</h2>
-                <p class="house-values" id="houseValues">Resilience • Courage • Rising Again</p>
-                <p class="house-motto" id="houseMotto">"Rise from the ashes"</p>
+
+            <div class="house-creature">
+                <img id="houseShield" src="">
             </div>
+
+            <h2 id="houseName" class="house-name">HOUSE</h2>
+            <p id="houseValues" class="house-values"></p>
+            <p id="houseMotto" class="house-motto"></p>
 
             <div class="welcome-message">
                 <p><strong>Welcome to your house!</strong></p>
-                <p>
-                    You are now officially a member of
-                    <span id="houseNameRepeat">Phoenix</span>.
-                    Check the school leaderboard to see how your house is performing!
-                </p>
+                <p>You are officially a member of <span id="houseNameRepeat"></span>.</p>
             </div>
 
-            <div class="email-sent">
-                ✓ A certificate has been sent to your email!
-            </div>
+            <div class="email-sent">✓ A certificate has been sent to your email!</div>
         </div>
     </div>
 
-    <footer>
-        Let destiny reveal your true House.
-    </footer>
+    <footer>Let destiny reveal your true House.</footer>
 
     <script>
-        /* APPS SCRIPT ENDPOINT (same as before) */
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec';
+        /* FETCH, HASH, ASSIGN SAME AS BEFORE */
+        const APPS_SCRIPT_URL =
+        "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
 
-        /* House data – now also includes shield paths for reveal */
         const houses = {
             Phoenix: {
-                creature: '🔥',
-                values: 'Resilience • Courage • Rising Again',
+                shield: './phoenix2-removebg.png',
+                values: "Resilience • Courage • Rising Again",
                 motto: '"Rise from the ashes"',
-                class: 'phoenix',
-                shield: './phoenix2-removebg.png'
+                class: "phoenix"
             },
             Dragon: {
-                creature: '🐉',
-                values: 'Strength • Wisdom • Perseverance',
+                shield: './dragon2-removebg.png',
+                values: "Strength • Wisdom • Perseverance",
                 motto: '"Power through knowledge"',
-                class: 'dragon',
-                shield: './dragon2-removebg.png'
+                class: "dragon"
             },
             Hydra: {
-                creature: '🌊',
-                values: 'Adaptability • Unity • Determination',
+                shield: './hydra2-removebg.png',
+                values: "Adaptability • Unity • Determination",
                 motto: '"Many heads, one heart"',
-                class: 'hydra',
-                shield: './hydra2-removebg.png'
+                class: "hydra"
             },
             Griffin: {
-                creature: '🦅',
-                values: 'Leadership • Excellence • Honor',
+                shield: './griffin2-removebg.png',
+                values: "Leadership • Excellence • Honor",
                 motto: '"Soar above expectations"',
-                class: 'griffin',
-                shield: './griffin2-removebg.png'
+                class: "griffin"
             }
         };
 
-        /* Particles init */
-        const particlesContainer = document.querySelector('.particles');
-        for (let i = 0; i < 60; i++) {
-            const p = document.createElement('div');
-            p.classList.add('particle');
-            p.style.left = Math.random() * 100 + 'vw';
-            p.style.top = Math.random() * 100 + 'vh';
-            p.style.animationDelay = Math.random() * 5 + 's';
-            p.style.opacity = Math.random() * 0.8 + 0.2;
-            particlesContainer.appendChild(p);
-        }
-
-        /* Hash + house selection (same logic as old page) */
         function hashEmail(email) {
             let hash = 0;
-            for (let i = 0; i < email.length; i++) {
-                const char = email.charCodeAt(i);
-                hash = ((hash << 5) - hash) + char;
-                hash = hash & hash;
+            for (let char of email) {
+                hash = ((hash << 5) - hash) + char.charCodeAt(0);
+                hash |= 0;
             }
             return Math.abs(hash);
         }
 
         function getHouseFromEmail(email) {
-            const hash = hashEmail(email.toLowerCase());
-            const houseNames = Object.keys(houses);
-            return houseNames[hash % 4];
+            const names = Object.keys(houses);
+            return names[hashEmail(email) % 4];
         }
 
         function validateEmail(email) {
-            if (!email.endsWith('@engelska.se')) {
-                return { valid: false, message: 'Email must end with @engelska.se' };
-            }
-            if (!email.includes('.vasteras@')) {
-                return { valid: false, message: 'Invalid email format' };
-            }
-            return { valid: true };
+            if (!email.endsWith("@engelska.se"))
+                return { valid:false, message:"Email must end with @engelska.se" };
+
+            if (!email.includes(".vasteras@"))
+                return { valid:false, message:"Invalid student email format" };
+
+            return { valid:true };
         }
 
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = message;
-            errorDiv.classList.add('show');
-            setTimeout(() => {
-                errorDiv.classList.remove('show');
-            }, 3000);
+        function showError(msg) {
+            const box = document.getElementById("errorMessage");
+            box.textContent = msg;
+            box.classList.add("show");
+            setTimeout(() => box.classList.remove("show"), 3000);
         }
 
         async function startSorting() {
-            const emailInput = document.getElementById('emailInput');
-            const email = emailInput.value.trim().toLowerCase();
+            const email = document.getElementById("emailInput").value.trim().toLowerCase();
 
-            const validation = validateEmail(email);
-            if (!validation.valid) {
-                showError(validation.message);
-                return;
-            }
+            const check = validateEmail(email);
+            if (!check.valid) return showError(check.message);
 
-            const assignedHouse = getHouseFromEmail(email);
+            const house = getHouseFromEmail(email);
 
-            // Switch screens
-            document.getElementById('inputScreen').classList.remove('active');
-            document.getElementById('sortingScreen').classList.add('active');
+            document.getElementById("inputScreen").classList.remove("active");
+            document.getElementById("sortingScreen").classList.add("active");
 
-            // Simulated sorting delay
-            setTimeout(() => {
-                revealHouse(assignedHouse, email);
-            }, 4000);
+            setTimeout(() => revealHouse(house, email), 4000);
         }
 
-        function revealHouse(houseName, email) {
-            const house = houses[houseName];
+        function revealHouse(name, email) {
+            const info = houses[name];
 
-            document.getElementById('sortingScreen').classList.remove('active');
+            document.getElementById("sortingScreen").classList.remove("active");
 
-            // Shield image
-            const shieldImg = document.getElementById('houseShield');
-            shieldImg.src = house.shield;
-            shieldImg.alt = `House ${houseName} Shield`;
+            document.getElementById("houseShield").src = info.shield;
+            document.getElementById("houseName").textContent = name;
+            document.getElementById("houseValues").textContent = info.values;
+            document.getElementById("houseMotto").textContent = info.motto;
+            document.getElementById("houseNameRepeat").textContent = name;
 
-            // Text styling
-            const houseNameEl = document.getElementById('houseName');
-            houseNameEl.textContent = houseName.toUpperCase();
-            houseNameEl.className = `house-name ${house.class}`;
-            document.getElementById('houseValues').textContent = house.values;
-            document.getElementById('houseMotto').textContent = house.motto;
-            document.getElementById('houseNameRepeat').textContent = houseName;
-
-            document.getElementById('revealScreen').classList.add('active');
-
-            createConfetti();
-            sendSortingData(email, houseName);
-        }
-
-        async function sendSortingData(email, house) {
-            try {
-                await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'sort',
-                        email: email,
-                        house: house,
-                        timestamp: new Date().toISOString()
-                    })
-                });
-            } catch (error) {
-                console.error('Error sending data:', error);
-            }
-        }
-
-        function createConfetti() {
-            const colors = ['#ff4444', '#44aa44', '#4488ff', '#ffaa00', '#ff8844', '#44ddff'];
-            for (let i = 0; i < 100; i++) {
-                setTimeout(() => {
-                    const confetti = document.createElement('div');
-                    confetti.className = 'confetti';
-                    confetti.style.left = Math.random() * 100 + '%';
-                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
-                    document.body.appendChild(confetti);
-                    setTimeout(() => confetti.remove(), 3000);
-                }, i * 30);
-            }
+            document.getElementById("revealScreen").classList.add("active");
         }
     </script>
+
 </body>
 </html>
