@@ -14,239 +14,219 @@
         background:url('stone.png') repeat;
         background-size:600px;
         min-height:100vh;
-        display:flex;
-        flex-direction:column;
         padding:20px;
         color:white;
-        overflow:auto;          /* allow scroll instead of cutting content */
-        position:relative;
+        overflow:hidden;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+    }
+
+    /* Particles */
+    .particles {
+        position:fixed;
+        inset:0;
+        pointer-events:none;
+        z-index:0;
+    }
+
+    .particle {
+        position:absolute;
+        width:4px; height:4px;
+        background:rgba(255,140,0,0.85);
+        border-radius:50%;
+        animation:float 8s infinite ease-in-out;
+    }
+
+    @keyframes float {
+        0% {transform:translateY(0);opacity:0;}
+        10%{opacity:1;}
+        100%{transform:translateY(-120vh);opacity:0;}
     }
 
     /* Header */
     .header {
         display:flex;
         align-items:center;
-        gap:16px;
-        margin-bottom:16px;
-        text-shadow:0 3px 10px black;
-        z-index:2;
+        gap:clamp(10px, 3vw, 30px);
+        margin-bottom:clamp(10px, 3vw, 20px);
+        text-align:center;
+        z-index:5;
+        width:100%;
+        justify-content:center;
+        text-shadow:0 4px 12px black;
     }
 
     .logo {
-        width:72px;
+        width:clamp(50px, 8vw, 90px);
         filter:brightness(0) invert(1);
-        flex-shrink:0;
     }
 
     h1 {
-        font-size:2.2rem;
+        font-size:clamp(26px, 4vw, 46px);
         font-weight:800;
         margin-bottom:2px;
     }
 
     .subtitle {
-        font-size:0.95rem;
+        font-size:clamp(12px, 2vw, 18px);
         opacity:0.9;
-        margin-top:-2px;
     }
 
-    /* Main responsive grid */
+    /* 2×2 grid - fully dynamic */
     .leaderboard {
         display:grid;
-        grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
-        gap:18px;
+        grid-template-columns:repeat(2, 1fr);
+        gap:clamp(10px, 2vw, 26px);
         width:100%;
-        max-width:1400px;
-        margin:0 auto;
-        z-index:1;
+        max-width:1300px;
+        flex:1;
+        align-content:center;
     }
 
-    /* Base card */
+    /* House card */
     .house-card {
         position:relative;
         background:rgba(0,0,0,0.55);
-        border-radius:20px;
-        padding:14px 16px 18px;
-        box-shadow:0 8px 26px rgba(0,0,0,0.65);
+        border-radius:clamp(14px, 2vw, 26px);
+        padding:clamp(12px, 2vw, 26px);
+        box-shadow:0 8px 28px rgba(0,0,0,0.65);
         border:2px solid rgba(255,255,255,0.06);
         backdrop-filter:blur(6px);
         display:flex;
         flex-direction:column;
         cursor:pointer;
         overflow:hidden;
-        transition:transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        transition:0.3s ease;
+        z-index:1;
     }
 
     .house-card:hover {
-        transform:translateY(-3px);
+        transform:translateY(-4px);
         box-shadow:0 14px 38px rgba(0,0,0,0.75);
-        border-color:rgba(255,255,255,0.18);
     }
 
-    /* Winner spans full row on wider screens */
+    /* Winner glow */
     .house-card.winner {
-        grid-column:1 / -1;
         border:3px solid rgba(255,170,40,1);
-        transform:scale(1.01);
         box-shadow:
-            0 0 20px rgba(255,150,0,0.85),
-            0 0 40px rgba(255,120,0,0.7),
-            inset 0 0 16px rgba(255,120,0,0.35);
+            0 0 22px rgba(255,150,0,0.9),
+            0 0 44px rgba(255,120,0,0.7),
+            inset 0 0 18px rgba(255,120,0,0.4);
         animation:winnerGlow 3.5s ease-in-out infinite;
     }
 
     @keyframes winnerGlow {
-        0%,100% {
+        0% {
             box-shadow:
-                0 0 20px rgba(255,150,0,0.8),
-                0 0 40px rgba(255,120,0,0.6),
-                inset 0 0 16px rgba(255,120,0,0.35);
+                0 0 22px rgba(255,150,0,0.9),
+                0 0 44px rgba(255,120,0,0.7),
+                inset 0 0 18px rgba(255,120,0,0.4);
         }
         50% {
             box-shadow:
-                0 0 32px rgba(255,190,0,1),
-                0 0 64px rgba(255,150,0,0.9),
-                inset 0 0 24px rgba(255,140,0,0.55);
+                0 0 32px rgba(255,180,0,1),
+                0 0 72px rgba(255,150,0,0.9),
+                inset 0 0 28px rgba(255,140,0,0.6);
+        }
+        100% {
+            box-shadow:
+                0 0 22px rgba(255,150,0,0.9),
+                0 0 44px rgba(255,120,0,0.7),
+                inset 0 0 18px rgba(255,120,0,0.4);
         }
     }
 
-    /* Card header (crest + name + rank) */
+    /* Card header — centered house name, crest & badge spaced cleanly */
     .card-header {
         display:flex;
         align-items:center;
-        gap:12px;
-        margin-bottom:6px;
+        justify-content:center;
+        gap:clamp(10px, 2vw, 28px);
+        margin-bottom:clamp(12px, 2vw, 20px);
     }
 
     .crest-wrap {
-        flex-shrink:0;
-        width:clamp(52px, 8vw, 78px);
-        aspect-ratio:1 / 1;
+        width:clamp(55px, 10vw, 105px);
+        height:clamp(55px, 10vw, 105px);
         border-radius:50%;
-        background:radial-gradient(circle at 30% 20%, rgba(255,255,255,0.18), rgba(0,0,0,0.9));
+        background:url('stone-medallion-B.png') center/cover no-repeat;
         display:flex;
         align-items:center;
         justify-content:center;
+        flex-shrink:0;
         box-shadow:
-            inset 0 0 10px rgba(0,0,0,0.8),
-            0 0 8px rgba(0,0,0,0.6);
+            inset 0 0 14px rgba(0,0,0,0.9),
+            inset 0 0 26px rgba(0,0,0,0.7);
     }
 
     .crest-wrap img {
         width:75%;
-        height:75%;
-        object-fit:contain;
-        filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8));
-    }
-
-    .title-block {
-        flex:1;
-        display:flex;
-        flex-direction:column;
-        justify-content:center;
-        min-width:0;
+        filter:drop-shadow(0 2px 4px black);
     }
 
     .house-name {
-        font-size:clamp(1.2rem, 2vw, 1.5rem);
-        font-weight:800;
-        letter-spacing:0.03em;
-        text-shadow:0 2px 8px rgba(0,0,0,0.8);
+        font-size:clamp(20px, 3vw, 34px);
+        font-weight:900;
         white-space:nowrap;
-        overflow:hidden;
-        text-overflow:ellipsis;
-    }
-
-    .rank-badge {
-        width:clamp(42px, 6vw, 52px);
-        height:clamp(42px, 6vw, 52px);
-        border-radius:50%;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        font-size:0.9rem;
-        font-weight:700;
-        margin-left:8px;
-        box-shadow:0 4px 10px rgba(0,0,0,0.6);
-        border:2px solid rgba(255,255,255,0.25);
+        text-align:center;
         flex-shrink:0;
     }
 
-    .rank-gold {
-        background:linear-gradient(135deg,#ffd700,#ffb700);
-        color:#1b1300;
-    }
-    .rank-silver {
-        background:linear-gradient(135deg,#d5d5d5,#f7f7f7);
-        color:#141414;
-    }
-    .rank-bronze {
-        background:linear-gradient(135deg,#cd7f32,#e8a96e);
-        color:#2a1300;
-    }
-    .rank-normal {
-        background:rgba(0,0,0,0.6);
-        color:#f3f3f3;
+    .rank-badge {
+        width:clamp(44px, 7vw, 74px);
+        height:clamp(44px, 7vw, 74px);
+        border-radius:50%;
+        font-size:clamp(14px, 2vw, 26px);
+        font-weight:700;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        flex-shrink:0;
+        border:2px solid rgba(255,255,255,0.18);
     }
 
-    /* Score area */
+    .gold   { background:linear-gradient(135deg,#ffd700,#ffae00); color:black; }
+    .silver { background:linear-gradient(135deg,#d4d4d4,#f7f7f7); color:black; }
+    .bronze { background:linear-gradient(135deg,#cd7f32,#e2a46e); color:black; }
+
     .points-area {
         flex:1;
         display:flex;
         align-items:center;
         justify-content:center;
-        padding:6px 4px 4px;
     }
 
     .points {
-        font-size:clamp(2.8rem, 7vw, 5.2rem);
+        font-size:clamp(70px, 15vw, 210px);
         font-weight:900;
         line-height:1;
-        text-shadow:0 5px 18px rgba(0,0,0,0.9);
+        text-shadow:0 8px 26px rgba(0,0,0,0.9);
     }
 
-    .winner .points {
+    .points.winner-points {
         color:#ffdd77;
         text-shadow:
-            0 0 10px rgba(255,200,50,1),
-            0 0 22px rgba(255,160,0,1),
-            0 0 40px rgba(255,110,0,0.9);
+            0 0 12px rgba(255,200,50,1),
+            0 0 26px rgba(255,160,0,1),
+            0 0 44px rgba(255,120,0,1),
+            0 0 60px rgba(255,90,0,1);
     }
 
     .last-updated {
-        text-align:center;
+        font-size:clamp(10px, 1.4vw, 14px);
         opacity:0.85;
-        font-size:0.75rem;
-        margin-top:10px;
-        text-shadow:0 2px 6px rgba(0,0,0,0.7);
-    }
-
-    /* Responsive tweaks */
-    @media (max-width:900px) {
-        .leaderboard {
-            grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
-        }
-        .house-card {
-            padding:12px 12px 16px;
-        }
-    }
-
-    @media (max-width:600px) {
-        body { padding:14px; }
-        .header { flex-direction:row; align-items:center; }
-        h1 { font-size:1.6rem; }
-        .subtitle { font-size:0.85rem; }
-        .leaderboard { gap:14px; }
-        .card-header { gap:10px; }
-        .points { font-size:clamp(2.4rem, 10vw, 4rem); }
+        margin-top:8px;
+        text-align:center;
     }
 </style>
 </head>
 <body>
 
+<div class="particles" id="particles"></div>
+
 <div class="header">
-    <img src="https://raw.githubusercontent.com/iesv-swe/IESV-Now-and-Next/main/logo.png"
-         alt="IESV Logo" class="logo">
+    <img src="https://raw.githubusercontent.com/iesv-swe/IESV-Now-and-Next/main/logo.png" class="logo">
     <div>
         <h1>House Points Leaderboard</h1>
         <p class="subtitle">Live Rankings</p>
@@ -262,61 +242,40 @@ const API =
  "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec?action=houseTotals";
 
 const shields = {
-    Phoenix: "phoenix2-removebg.png",
-    Dragon:  "dragon2-removebg.png",
-    Hydra:   "hydra2-removebg.png",
-    Griffin: "griffin2-removebg.png"
+    Phoenix:"phoenix2-removebg.png",
+    Dragon :"dragon2-removebg.png",
+    Hydra  :"hydra2-removebg.png",
+    Griffin:"griffin2-removebg.png"
 };
 
-function roundScore(n) {
-    const num = parseFloat(n);
-    if (Number.isNaN(num)) return 0;
-    return Math.round(num);
-}
+function roundScore(n){ return Math.round(parseFloat(n)); }
 
 async function loadLeaderboard() {
     try {
         const res = await fetch(API);
         const json = await res.json();
-        if (!json || json.status !== "success" || !json.data || !json.data.houses) {
-            throw new Error("Unexpected API response");
-        }
+        if (json.status !== "success") throw new Error();
 
-        const houses = json.data.houses
-            .slice()
-            .sort((a,b) => a.rank - b.rank);
-
+        const houses = json.data.houses.slice().sort((a,b)=>a.rank-b.rank);
         renderLeaderboard(houses);
 
         document.getElementById("lastUpdated").textContent =
             "Last updated: " + new Date().toLocaleString();
-    } catch (err) {
+
+    } catch(err) {
         console.error(err);
-        document.getElementById("lastUpdated").textContent =
-            "Error loading data.";
+        document.getElementById("lastUpdated").textContent = "Error loading data.";
     }
 }
 
-function renderLeaderboard(houses) {
+function renderLeaderboard(houses){
     const board = document.getElementById("leaderboard");
     board.innerHTML = "";
 
-    if (!houses || houses.length === 0) return;
-
-    houses.forEach((h, idx) => {
-        const isWinner = idx === 0;
-        const rank = h.rank;
-        const score = roundScore(h.houseScore);
-
-        const rankOrdinal =
-            rank === 1 ? "1st" :
-            rank === 2 ? "2nd" :
-            rank === 3 ? "3rd" : `${rank}th`;
-
-        const rankClass =
-            rank === 1 ? "rank-gold" :
-            rank === 2 ? "rank-silver" :
-            rank === 3 ? "rank-bronze" : "rank-normal";
+    houses.forEach(h => {
+        const ordinal = h.rank===1?"1st":h.rank===2?"2nd":h.rank===3?"3rd":"4th";
+        const rankClass = h.rank===1?"gold":h.rank===2?"silver":h.rank===3?"bronze":"";
+        const isWinner = h.rank===1;
 
         const card = document.createElement("div");
         card.className = "house-card" + (isWinner ? " winner" : "");
@@ -326,17 +285,20 @@ function renderLeaderboard(houses) {
         card.innerHTML = `
             <div class="card-header">
                 <div class="crest-wrap">
-                    <img src="${shields[h.house] || ""}" alt="${h.house}">
+                    <img src="${shields[h.house]}" alt="${h.house}">
                 </div>
-                <div class="title-block">
-                    <div class="house-name">${h.house}</div>
-                </div>
+
+                <div class="house-name">${h.house}</div>
+
                 <div class="rank-badge ${rankClass}">
-                    ${rankOrdinal}
+                    ${ordinal}
                 </div>
             </div>
+
             <div class="points-area">
-                <div class="points">${score}</div>
+                <div class="points ${isWinner ? "winner-points" : ""}">
+                    ${roundScore(h.houseScore)}
+                </div>
             </div>
         `;
 
@@ -344,8 +306,21 @@ function renderLeaderboard(houses) {
     });
 }
 
+function createParticles(){
+    const container = document.getElementById("particles");
+    for(let i=0;i<28;i++){
+        const p=document.createElement("div");
+        p.className="particle";
+        p.style.left=Math.random()*100+"%";
+        p.style.animationDelay=(Math.random()*5)+"s";
+        p.style.animationDuration=(7+Math.random()*6)+"s";
+        container.appendChild(p);
+    }
+}
+
+createParticles();
 loadLeaderboard();
-setInterval(loadLeaderboard, 30000);
+setInterval(loadLeaderboard,30000);
 </script>
 
 </body>
