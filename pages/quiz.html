@@ -518,9 +518,9 @@ document.getElementById('startBtn').addEventListener('click', async () => {
         return;
     }
 
-    if (!email.includes('.student.')) {
-        showStatus('emailStatus', 'Only students can take the quiz', 'error');
-        return;
+    // Allow any valid email for testing, but warn if not a student email
+    if (!email.includes('engelska.se') && !email.includes('student')) {
+        console.warn('Non-school email detected:', email);
     }
 
     studentEmail = email;
@@ -543,8 +543,10 @@ document.getElementById('startBtn').addEventListener('click', async () => {
 async function checkEligibility() {
     try {
         const url = `${API_URL}?action=checkQuizEligibility&email=${encodeURIComponent(studentEmail)}`;
+        console.log('Checking eligibility:', url);
         const response = await fetch(url);
         const data = await response.json();
+        console.log('Eligibility response:', data);
 
         if (data.status === 'success') {
             document.getElementById('attemptsLeft').textContent = data.attemptsRemaining;
@@ -554,7 +556,11 @@ async function checkEligibility() {
             return { allowed: false, message: data.message || 'Unable to start quiz' };
         }
     } catch (error) {
-        return { allowed: false, message: 'Network error. Please try again.' };
+        console.error('Eligibility check error:', error);
+        return {
+            allowed: false,
+            message: 'Quiz system not yet configured. Please contact your administrator to set up the quiz backend (see QUIZ_SETUP_GUIDE.md).'
+        };
     }
 }
 
@@ -567,8 +573,10 @@ async function loadQuestion() {
 
     try {
         const url = `${API_URL}?action=getQuizQuestion&email=${encodeURIComponent(studentEmail)}&sessionId=${sessionId}`;
+        console.log('Loading question:', url);
         const response = await fetch(url);
         const data = await response.json();
+        console.log('Question response:', data);
 
         if (data.status === 'success') {
             currentQuestion = data.question;
@@ -578,10 +586,25 @@ async function loadQuestion() {
         } else {
             showStatus('quizStatus', data.message || 'Failed to load question', 'error');
             document.getElementById('questionLoading').classList.add('hidden');
+            // Add back button to return to email screen
+            setTimeout(() => {
+                if (confirm('Failed to load question. Return to start?')) {
+                    showScreen('email');
+                    document.getElementById('startBtn').disabled = false;
+                }
+            }, 2000);
         }
     } catch (error) {
-        showStatus('quizStatus', 'Network error. Please try again.', 'error');
+        console.error('Question load error:', error);
         document.getElementById('questionLoading').classList.add('hidden');
+        showStatus('quizStatus', 'Quiz backend not configured. Please see QUIZ_SETUP_GUIDE.md', 'error');
+        // Add back button
+        setTimeout(() => {
+            if (confirm('Quiz system not ready. Return to start?')) {
+                showScreen('email');
+                document.getElementById('startBtn').disabled = false;
+            }
+        }, 2000);
     }
 }
 
