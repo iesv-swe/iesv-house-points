@@ -307,7 +307,7 @@
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
-                
+
                 <div class="setting-description">
                     When enabled, all house points reset to zero on the 1st of each month. Previous season results are saved to history.
                 </div>
@@ -322,6 +322,47 @@
 
                 <div class="warning-box">
                     <p><strong>⚠️ Important:</strong> This is a permanent system change. Points will automatically reset at 23:59 on the last day of each month. All data is preserved in Season History.</p>
+                </div>
+            </div>
+
+            <!-- QUIZ SETTINGS CARD -->
+            <div class="setting-card">
+                <div class="setting-header">
+                    <span class="setting-title">🧠 Quiz System Settings</span>
+                </div>
+
+                <div class="setting-description">
+                    Configure quiz behavior, limits, and scoring. These settings affect all students and update in real-time.
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #102d69;">Max Daily Attempts</label>
+                        <input type="number" id="maxAttempts" min="1" max="50" style="width: 100%; padding: 10px; border: 2px solid #dbdad8; border-radius: 8px; font-size: 16px;">
+                        <small style="color: #666;">Maximum questions a student can answer per day</small>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #102d69;">Cooldown Minutes</label>
+                        <input type="number" id="cooldownMinutes" min="0" max="60" style="width: 100%; padding: 10px; border: 2px solid #dbdad8; border-radius: 8px; font-size: 16px;">
+                        <small style="color: #666;">Wait time between quiz attempts (0 = no cooldown)</small>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #102d69;">Question Time Limit (seconds)</label>
+                        <input type="number" id="timeLimit" min="15" max="300" style="width: 100%; padding: 10px; border: 2px solid #dbdad8; border-radius: 8px; font-size: 16px;">
+                        <small style="color: #666;">Seconds allowed to answer each question</small>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #102d69;">Points Per Correct Answer</label>
+                        <input type="number" id="pointsPerCorrect" min="1" max="10" style="width: 100%; padding: 10px; border: 2px solid #dbdad8; border-radius: 8px; font-size: 16px;">
+                        <small style="color: #666;">House points awarded for each correct answer</small>
+                    </div>
+
+                    <button onclick="saveQuizSettings()" style="width: 100%; padding: 14px; background: #102d69; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s;">
+                        Save Quiz Settings
+                    </button>
                 </div>
             </div>
 
@@ -351,16 +392,69 @@
                 // Fetch current reset status from Sheet
                 const response = await fetch(`${APPS_SCRIPT_URL}?action=getResetStatus`);
                 const data = await response.json();
-                
+
                 const isEnabled = data.resetEnabled === true;
                 document.getElementById('resetToggle').checked = isEnabled;
                 updateUI(isEnabled);
-                
+
                 if (isEnabled) {
                     updateCountdown();
                 }
+
+                // Load quiz settings
+                loadQuizSettings();
             } catch (error) {
                 console.error('Error loading settings:', error);
+            }
+        }
+
+        async function loadQuizSettings() {
+            try {
+                const response = await fetch(`${APPS_SCRIPT_URL}?action=getQuizSettings`);
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    document.getElementById('maxAttempts').value = data.settings.maxDailyAttempts || 5;
+                    document.getElementById('cooldownMinutes').value = data.settings.cooldownMinutes || 5;
+                    document.getElementById('timeLimit').value = data.settings.questionTimeLimit || 60;
+                    document.getElementById('pointsPerCorrect').value = data.settings.pointsPerCorrect || 1;
+                }
+            } catch (error) {
+                console.error('Error loading quiz settings:', error);
+            }
+        }
+
+        async function saveQuizSettings() {
+            const maxAttempts = parseInt(document.getElementById('maxAttempts').value);
+            const cooldownMinutes = parseInt(document.getElementById('cooldownMinutes').value);
+            const timeLimit = parseInt(document.getElementById('timeLimit').value);
+            const pointsPerCorrect = parseInt(document.getElementById('pointsPerCorrect').value);
+
+            if (!maxAttempts || !timeLimit || !pointsPerCorrect) {
+                showMessage('Please fill in all required fields', 'error');
+                return;
+            }
+
+            try {
+                await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'updateQuizSettings',
+                        settings: {
+                            maxDailyAttempts: maxAttempts,
+                            cooldownMinutes: cooldownMinutes,
+                            questionTimeLimit: timeLimit,
+                            pointsPerCorrect: pointsPerCorrect
+                        }
+                    })
+                });
+
+                showMessage('✓ Quiz settings saved successfully! Changes take effect immediately.', 'success');
+            } catch (error) {
+                console.error('Error saving quiz settings:', error);
+                showMessage('Error saving quiz settings', 'error');
             }
         }
 

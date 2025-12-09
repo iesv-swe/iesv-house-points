@@ -247,6 +247,15 @@
             <!-- MEMBERS -->
             <div class="members-box">
                 <h2>House Members</h2>
+
+                <!-- Email verification for viewing members -->
+                <div id="emailAuth" style="display: none;">
+                    <p style="margin-bottom: 15px; opacity: 0.8;">To view house members, please verify your staff email:</p>
+                    <input type="email" id="staffEmail" placeholder="firstname.lastname.vasteras@engelska.se" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 10px; font-size: 16px;">
+                    <button onclick="verifyStaffEmail()" style="width: 100%; padding: 12px; background: #102d69; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Verify Email</button>
+                    <div id="authError" style="display: none; margin-top: 10px; padding: 10px; background: #ffebee; border-radius: 5px; color: #c62828; font-size: 14px;"></div>
+                </div>
+
                 <div id="membersList">Loading...</div>
             </div>
 
@@ -363,20 +372,77 @@ async function loadRecent() {
     `).join("");
 }
 
+let membersData = [];
+let isStaffAuthenticated = false;
+
 async function loadMembers() {
     const res = await fetch(`${API}?action=listStudents`);
     const json = await res.json();
 
-    const members = json.students
+    membersData = json.students
         .filter(s => s.house.toLowerCase() === houseName)
         .map(s => `${s.firstName} ${s.lastName}`)
         .sort();
 
-    const box = document.getElementById("membersList");
-    box.innerHTML = members.length
-        ? members.map(m => `<div class="member-item">• ${m}</div>`).join("")
-        : "<p>No members yet.</p>";
+    // Check if user needs to authenticate
+    const storedEmail = localStorage.getItem('staffEmail');
+    if (storedEmail && !storedEmail.includes('.student.')) {
+        isStaffAuthenticated = true;
+        displayMembers();
+    } else {
+        // Show authentication prompt
+        document.getElementById('emailAuth').style.display = 'block';
+        document.getElementById('membersList').innerHTML = '';
+    }
 }
+
+function verifyStaffEmail() {
+    const email = document.getElementById('staffEmail').value.trim().toLowerCase();
+    const errorDiv = document.getElementById('authError');
+
+    if (!email || !email.includes('@engelska.se')) {
+        errorDiv.textContent = '❌ Please enter a valid @engelska.se email address';
+        errorDiv.style.display = 'block';
+        return;
+    }
+
+    if (email.includes('.student.')) {
+        errorDiv.textContent = '❌ Student accounts cannot view house member lists. This feature is staff-only for privacy protection.';
+        errorDiv.style.display = 'block';
+        return;
+    }
+
+    // Valid staff email
+    localStorage.setItem('staffEmail', email);
+    isStaffAuthenticated = true;
+    document.getElementById('emailAuth').style.display = 'none';
+    errorDiv.style.display = 'none';
+    displayMembers();
+}
+
+function displayMembers() {
+    const box = document.getElementById('membersList');
+
+    if (isStaffAuthenticated) {
+        box.innerHTML = membersData.length
+            ? membersData.map(m => `<div class="member-item">• ${m}</div>`).join("")
+            : "<p>No members yet.</p>";
+    } else {
+        box.innerHTML = '<p style="opacity: 0.7;">🔒 Member names are protected. Staff verification required.</p>';
+    }
+}
+
+// Allow Enter key for email verification
+document.addEventListener('DOMContentLoaded', () => {
+    const emailInput = document.getElementById('staffEmail');
+    if (emailInput) {
+        emailInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                verifyStaffEmail();
+            }
+        });
+    }
+});
 </script>
 
 </body>

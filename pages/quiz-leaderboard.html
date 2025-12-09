@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Leaderboard - IESV House Points</title>
+<link rel="icon" type="image/x-icon" href="../assets/icons/console-favicon.ico">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-image: url("../assets/images/backgrounds/stone.png");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    padding: 20px;
+    color: white;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.header h1 {
+    font-size: 48px;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+    margin-bottom: 10px;
+}
+
+.header .subtitle {
+    font-size: 18px;
+    opacity: 0.9;
+}
+
+.back-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: rgba(255,255,255,0.9);
+    color: #333;
+    padding: 12px 24px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: 0.3s;
+}
+
+.back-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+
+.tabs {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.tab-btn {
+    padding: 12px 30px;
+    background: rgba(60, 60, 60, 0.9);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.tab-btn:hover {
+    background: rgba(80, 80, 80, 0.9);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.tab-btn.active {
+    background: linear-gradient(135deg, #00c3ff, #0080ff);
+    border-color: #00c3ff;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.card {
+    background: rgba(60, 60, 60, 0.95);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 20px;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.house-row {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background: rgba(45, 45, 45, 0.95);
+    border-radius: 15px;
+    margin-bottom: 15px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    transition: 0.3s;
+}
+
+.house-row:hover {
+    transform: translateX(5px);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.house-rank {
+    font-size: 32px;
+    font-weight: bold;
+    width: 60px;
+    text-align: center;
+}
+
+.rank-1 { color: gold; }
+.rank-2 { color: silver; }
+.rank-3 { color: #cd7f32; }
+.rank-4 { color: #888; }
+
+.house-logo {
+    width: 60px;
+    height: 60px;
+    margin: 0 20px;
+}
+
+.house-info {
+    flex: 1;
+}
+
+.house-name {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.phoenix .house-name { color: #ff4444; }
+.dragon .house-name { color: #44aa44; }
+.hydra .house-name { color: #4488ff; }
+.griffin .house-name { color: #ffaa00; }
+
+.house-stats {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.house-score {
+    font-size: 36px;
+    font-weight: bold;
+    color: #00c3ff;
+    margin-left: 20px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-box {
+    background: rgba(45, 45, 45, 0.95);
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 42px;
+    font-weight: bold;
+    color: #00c3ff;
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    font-size: 14px;
+    opacity: 0.8;
+    text-transform: uppercase;
+}
+
+.student-list {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.student-row {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: rgba(45, 45, 45, 0.95);
+    border-radius: 12px;
+    margin-bottom: 10px;
+}
+
+.student-rank {
+    font-size: 20px;
+    font-weight: bold;
+    width: 40px;
+    text-align: center;
+    color: #00c3ff;
+}
+
+.student-info {
+    flex: 1;
+    padding: 0 15px;
+}
+
+.student-name {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+
+.student-house {
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+.student-stats {
+    text-align: right;
+}
+
+.student-correct {
+    font-size: 24px;
+    font-weight: bold;
+    color: #4caf50;
+}
+
+.student-total {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.auth-box {
+    background: rgba(45, 45, 45, 0.95);
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.auth-box input {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 16px;
+    margin: 15px 0;
+}
+
+.auth-box input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.auth-box button {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #00c3ff, #0080ff);
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.auth-box button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 195, 255, 0.4);
+}
+
+.error-message {
+    background: rgba(244, 67, 54, 0.2);
+    border: 1px solid #f44336;
+    color: #ffcdd2;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+    .header h1 { font-size: 32px; }
+    .house-row { flex-wrap: wrap; }
+    .house-score { margin-left: 0; margin-top: 10px; width: 100%; text-align: center; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+
+<body>
+<a class="back-button" href="leaderboard.html">← Back</a>
+
+<div class="container">
+    <div class="header">
+        <h1>🏆 Quiz Leaderboard</h1>
+        <p class="subtitle">Top quiz performers by house</p>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('houses')">House Rankings</button>
+        <button class="tab-btn" onclick="showTab('students')">Individual Stats (Staff)</button>
+    </div>
+
+    <!-- HOUSE RANKINGS TAB -->
+    <div id="housesTab" class="tab-content active">
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-value" id="totalQuestions">-</div>
+                <div class="stat-label">Total Questions</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="totalCorrect">-</div>
+                <div class="stat-label">Correct Answers</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="avgAccuracy">-</div>
+                <div class="stat-label">Avg Accuracy</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-bottom: 25px;">📊 House Performance</h2>
+            <div id="houseRankings">Loading...</div>
+        </div>
+    </div>
+
+    <!-- INDIVIDUAL STATS TAB (STAFF ONLY) -->
+    <div id="studentsTab" class="tab-content">
+        <div id="staffAuth" class="card">
+            <div class="auth-box">
+                <h2 style="margin-bottom: 15px;">🔒 Staff Verification Required</h2>
+                <p style="opacity: 0.8; margin-bottom: 20px;">Individual quiz statistics are protected. Please verify your staff email to view.</p>
+                <input type="email" id="staffEmail" placeholder="firstname.lastname.vasteras@engelska.se">
+                <button onclick="verifyStaff()">Verify & View Stats</button>
+                <div id="authError" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div id="studentStats" class="card" style="display: none;">
+            <h2 style="margin-bottom: 25px;">👨‍🎓 Individual Performance</h2>
+            <div class="student-list" id="studentList">Loading...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
+
+const houses = {
+    Phoenix: { emoji: "🔥", color: "#ff4444", logo: "../assets/images/houses/phoenix2.png" },
+    Dragon: { emoji: "🐉", color: "#44aa44", logo: "../assets/images/houses/dragon2.png" },
+    Hydra: { emoji: "🌊", color: "#4488ff", logo: "../assets/images/houses/hydra2.png" },
+    Griffin: { emoji: "🦅", color: "#ffaa00", logo: "../assets/images/houses/griffin2.png" }
+};
+
+function showTab(tabName) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+    event.target.classList.add('active');
+    document.getElementById(tabName + 'Tab').classList.add('active');
+
+    if (tabName === 'students') {
+        checkStaffAuth();
+    }
+}
+
+async function loadHouseRankings() {
+    try {
+        const response = await fetch(`${API_URL}?action=getQuizLeaderboard`);
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            displayHouseRankings(data.houses);
+            displayGlobalStats(data.globalStats);
+        }
+    } catch (error) {
+        console.error('Error loading quiz leaderboard:', error);
+        document.getElementById('houseRankings').innerHTML = '<p style="text-align:center; opacity:0.7;">Quiz leaderboard not yet configured.</p>';
+    }
+}
+
+function displayGlobalStats(stats) {
+    document.getElementById('totalQuestions').textContent = stats.totalQuestions || 0;
+    document.getElementById('totalCorrect').textContent = stats.totalCorrect || 0;
+    document.getElementById('avgAccuracy').textContent = stats.avgAccuracy ? stats.avgAccuracy + '%' : '0%';
+}
+
+function displayHouseRankings(housesData) {
+    const container = document.getElementById('houseRankings');
+
+    if (!housesData || housesData.length === 0) {
+        container.innerHTML = '<p style="text-align:center; opacity:0.7;">No quiz data yet. Start answering questions!</p>';
+        return;
+    }
+
+    container.innerHTML = housesData.map((house, index) => {
+        const houseInfo = houses[house.house] || {};
+        const rank = index + 1;
+
+        return `
+            <div class="house-row ${house.house.toLowerCase()}">
+                <div class="house-rank rank-${rank}">${rank}</div>
+                <img src="${houseInfo.logo}" class="house-logo" alt="${house.house}">
+                <div class="house-info">
+                    <div class="house-name">${houseInfo.emoji} ${house.house}</div>
+                    <div class="house-stats">
+                        ${house.correctAnswers} correct • ${house.totalAttempts} attempts • ${house.accuracy}% accuracy
+                    </div>
+                </div>
+                <div class="house-score">${house.totalPoints}</div>
+            </div>
+        `;
+    }).join('');
+}
+
+function checkStaffAuth() {
+    const staffEmail = localStorage.getItem('quizStaffEmail');
+    if (staffEmail && !staffEmail.includes('.student.')) {
+        document.getElementById('staffAuth').style.display = 'none';
+        document.getElementById('studentStats').style.display = 'block';
+        loadStudentStats();
+    } else {
+        document.getElementById('staffAuth').style.display = 'block';
+        document.getElementById('studentStats').style.display = 'none';
+    }
+}
+
+function verifyStaff() {
+    const email = document.getElementById('staffEmail').value.trim().toLowerCase();
+    const errorDiv = document.getElementById('authError');
+
+    if (!email || !email.includes('@engelska.se')) {
+        errorDiv.textContent = '❌ Please enter a valid @engelska.se email';
+        errorDiv.className = 'error-message';
+        errorDiv.style.display = 'block';
+        return;
+    }
+
+    if (email.includes('.student.')) {
+        errorDiv.textContent = '❌ Student emails cannot access individual statistics. This data is staff-only for privacy protection.';
+        errorDiv.className = 'error-message';
+        errorDiv.style.display = 'block';
+        return;
+    }
+
+    // Valid staff email
+    localStorage.setItem('quizStaffEmail', email);
+    document.getElementById('staffAuth').style.display = 'none';
+    document.getElementById('studentStats').style.display = 'block';
+    loadStudentStats();
+}
+
+async function loadStudentStats() {
+    try {
+        const response = await fetch(`${API_URL}?action=getQuizStudentStats`);
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            displayStudentStats(data.students);
+        }
+    } catch (error) {
+        console.error('Error loading student stats:', error);
+        document.getElementById('studentList').innerHTML = '<p style="text-align:center; opacity:0.7;">Unable to load student statistics.</p>';
+    }
+}
+
+function displayStudentStats(students) {
+    const container = document.getElementById('studentList');
+
+    if (!students || students.length === 0) {
+        container.innerHTML = '<p style="text-align:center; opacity:0.7;">No student quiz data yet.</p>';
+        return;
+    }
+
+    container.innerHTML = students.map((student, index) => {
+        const houseInfo = houses[student.house] || {};
+
+        return `
+            <div class="student-row">
+                <div class="student-rank">#${index + 1}</div>
+                <div class="student-info">
+                    <div class="student-name">${student.name}</div>
+                    <div class="student-house">${houseInfo.emoji} ${student.house} • ${student.accuracy}% accuracy</div>
+                </div>
+                <div class="student-stats">
+                    <div class="student-correct">${student.correctAnswers}</div>
+                    <div class="student-total">of ${student.totalAttempts}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Load house rankings on page load
+loadHouseRankings();
+
+// Allow Enter key for staff verification
+document.getElementById('staffEmail').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        verifyStaff();
+    }
+});
+</script>
+
+</body>
+</html>

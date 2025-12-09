@@ -104,25 +104,133 @@ function archiveCurrentSeason() {
   return seasonNumber;
 }
 
+// Archive quiz statistics for the season
+function archiveQuizStats() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet();
+  const quizLog = sheet.getSheetByName('Quiz Log');
+  let quizHistorySheet = sheet.getSheetByName('Quiz Season History');
+
+  // Create Quiz Season History tab if it doesn't exist
+  if (!quizHistorySheet) {
+    quizHistorySheet = sheet.insertSheet('Quiz Season History');
+    quizHistorySheet.getRange('A1:J1').setValues([[
+      'Season #', 'End Date', 'House', 'Total Attempts', 'Correct Answers',
+      'Accuracy %', 'Total Points', 'Top Student', 'Top Student Correct', 'Top Student House'
+    ]]);
+    quizHistorySheet.getRange('A1:J1').setFontWeight('bold');
+  }
+
+  if (!quizLog || quizLog.getLastRow() <= 1) {
+    Logger.log('No quiz data to archive');
+    return;
+  }
+
+  // Get all quiz log data
+  const quizData = quizLog.getRange(2, 1, quizLog.getLastRow() - 1, quizLog.getLastColumn()).getValues();
+
+  // Get season number from Season History
+  const historySheet = sheet.getSheetByName('Season History');
+  const seasonNumber = historySheet ? historySheet.getLastRow() : 1;
+  const endDate = new Date();
+
+  // Calculate stats by house
+  const houseStats = {};
+  const studentStats = {};
+
+  quizData.forEach(row => {
+    const email = row[1];
+    const isCorrect = row[6];
+    const points = row[7];
+
+    // Get student's house from Student Roster
+    const rosterSheet = sheet.getSheetByName('Student Roster');
+    if (rosterSheet) {
+      const rosterData = rosterSheet.getDataRange().getValues();
+      for (let i = 1; i < rosterData.length; i++) {
+        if (rosterData[i][2] === email) {
+          const house = rosterData[i][3];
+          const studentName = `${rosterData[i][0]} ${rosterData[i][1]}`;
+
+          // House stats
+          if (!houseStats[house]) {
+            houseStats[house] = { attempts: 0, correct: 0, points: 0 };
+          }
+          houseStats[house].attempts++;
+          if (isCorrect) houseStats[house].correct++;
+          houseStats[house].points += points;
+
+          // Student stats
+          if (!studentStats[email]) {
+            studentStats[email] = { name: studentName, house: house, correct: 0, attempts: 0 };
+          }
+          studentStats[email].attempts++;
+          if (isCorrect) studentStats[email].correct++;
+
+          break;
+        }
+      }
+    }
+  });
+
+  // Find top student
+  let topStudent = { name: '-', correct: 0, house: '-' };
+  Object.values(studentStats).forEach(student => {
+    if (student.correct > topStudent.correct) {
+      topStudent = student;
+    }
+  });
+
+  // Archive each house's stats
+  Object.entries(houseStats).forEach(([house, stats]) => {
+    const accuracy = stats.attempts > 0 ? Math.round((stats.correct / stats.attempts) * 100) : 0;
+
+    quizHistorySheet.appendRow([
+      seasonNumber,
+      Utilities.formatDate(endDate, Session.getScriptTimeZone(), 'yyyy-MM-dd'),
+      house,
+      stats.attempts,
+      stats.correct,
+      accuracy,
+      stats.points,
+      topStudent.name,
+      topStudent.correct,
+      topStudent.house
+    ]);
+  });
+
+  Logger.log('Quiz stats archived for season ' + seasonNumber);
+}
+
 // Reset all house points to zero
 function resetAllPoints() {
   const sheet = SpreadsheetApp.getActiveSpreadsheet();
   const pointsLog = sheet.getSheetByName('Points Log');
-  
+
   // Archive current season first
   archiveCurrentSeason();
-  
+
+  // Archive quiz statistics
+  archiveQuizStats();
+
   // Clear all points (keep headers)
   const lastRow = pointsLog.getLastRow();
   if (lastRow > 1) {
     pointsLog.getRange(2, 1, lastRow - 1, pointsLog.getLastColumn()).clearContent();
   }
-  
+
+  // Clear quiz log (keep headers)
+  const quizLog = sheet.getSheetByName('Quiz Log');
+  if (quizLog && quizLog.getLastRow() > 1) {
+    const quizLastRow = quizLog.getLastRow();
+    quizLog.getRange(2, 1, quizLastRow - 1, quizLog.getLastColumn()).clearContent();
+    Logger.log('Quiz log reset');
+  }
+
   // Update last reset date in Settings
   const settingsSheet = sheet.getSheetByName('Settings');
   settingsSheet.getRange('B2').setValue(new Date());
-  
-  Logger.log('All points reset to zero');
+
+  Logger.log('All points and quiz stats reset to zero');
 }
 
 // Check if reset should happen (run this daily via trigger)
