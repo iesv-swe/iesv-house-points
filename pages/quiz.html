@@ -61,7 +61,6 @@ body {
 
 /* Email Input Screen */
 .email-screen {
-    display: block;
 }
 
 .email-screen input {
@@ -99,7 +98,6 @@ body {
 
 /* Quiz Screen */
 .quiz-screen {
-    display: none;
 }
 
 .stats-bar {
@@ -225,7 +223,6 @@ body {
 
 /* Result Screen */
 .result-screen {
-    display: none;
     text-align: center;
 }
 
@@ -403,7 +400,7 @@ body {
         </div>
 
         <!-- QUIZ SCREEN -->
-        <div id="quizScreen" class="quiz-screen">
+        <div id="quizScreen" class="quiz-screen hidden">
             <div class="stats-bar">
                 <div class="stat-item">
                     <div class="stat-label">Time Left</div>
@@ -440,7 +437,7 @@ body {
         </div>
 
         <!-- RESULT SCREEN -->
-        <div id="resultScreen" class="result-screen">
+        <div id="resultScreen" class="result-screen hidden">
             <div class="result-icon" id="resultIcon"></div>
             <h2 class="result-title" id="resultTitle"></h2>
             <p class="result-subtitle" id="resultSubtitle"></p>
