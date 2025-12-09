@@ -261,6 +261,16 @@ body {
     margin: 0 auto;
 }
 
+.auth-box label {
+    display: block;
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 5px;
+    margin-top: 15px;
+    color: #00c3ff;
+}
+
 .auth-box input {
     width: 100%;
     padding: 14px;
@@ -269,7 +279,7 @@ body {
     background: rgba(255, 255, 255, 0.1);
     color: white;
     font-size: 16px;
-    margin: 15px 0;
+    margin-bottom: 10px;
 }
 
 .auth-box input::placeholder {
@@ -287,6 +297,7 @@ body {
     color: white;
     cursor: pointer;
     transition: 0.3s;
+    margin-top: 10px;
 }
 
 .auth-box button:hover {
@@ -300,7 +311,8 @@ body {
     color: #ffcdd2;
     padding: 12px;
     border-radius: 8px;
-    margin-top: 10px;
+    margin-top: 15px;
+    display: none;
 }
 
 @media (max-width: 768px) {
@@ -354,10 +366,17 @@ body {
         <div id="staffAuth" class="card">
             <div class="auth-box">
                 <h2 style="margin-bottom: 15px;">🔒 Staff Verification Required</h2>
-                <p style="opacity: 0.8; margin-bottom: 20px;">Individual quiz statistics are protected. Please verify your staff email to view.</p>
+                <p style="opacity: 0.8; margin-bottom: 5px;">Individual quiz statistics are protected. Please verify your staff credentials:</p>
+
+                <label for="staffPassword">Password</label>
+                <input type="password" id="staffPassword" placeholder="Enter staff password">
+
+                <label for="staffEmail">Staff Email</label>
                 <input type="email" id="staffEmail" placeholder="firstname.lastname.vasteras@engelska.se">
+
                 <button onclick="verifyStaff()">Verify & View Stats</button>
-                <div id="authError" style="display: none;"></div>
+
+                <div id="authError" class="error-message"></div>
             </div>
         </div>
 
@@ -370,6 +389,7 @@ body {
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
+const STAFF_PASSWORD = "135vasteras";
 
 const houses = {
     Phoenix: { emoji: "🔥", color: "#ff4444", logo: "../assets/images/houses/phoenix2.png" },
@@ -440,8 +460,10 @@ function displayHouseRankings(housesData) {
 }
 
 function checkStaffAuth() {
-    const staffEmail = localStorage.getItem('quizStaffEmail');
-    if (staffEmail && !staffEmail.includes('.student.')) {
+    const storedPassword = sessionStorage.getItem('quizStaffPassword');
+    const storedEmail = sessionStorage.getItem('quizStaffEmail');
+
+    if (storedPassword === STAFF_PASSWORD && storedEmail && !storedEmail.includes('.student.')) {
         document.getElementById('staffAuth').style.display = 'none';
         document.getElementById('studentStats').style.display = 'block';
         loadStudentStats();
@@ -452,27 +474,38 @@ function checkStaffAuth() {
 }
 
 function verifyStaff() {
+    const password = document.getElementById('staffPassword').value;
     const email = document.getElementById('staffEmail').value.trim().toLowerCase();
     const errorDiv = document.getElementById('authError');
 
-    if (!email || !email.includes('@engelska.se')) {
-        errorDiv.textContent = '❌ Please enter a valid @engelska.se email';
-        errorDiv.className = 'error-message';
+    // Check password first
+    if (password !== STAFF_PASSWORD) {
+        errorDiv.textContent = '❌ Incorrect password';
         errorDiv.style.display = 'block';
         return;
     }
 
+    // Check email format
+    if (!email || !email.includes('@engelska.se')) {
+        errorDiv.textContent = '❌ Please enter a valid @engelska.se email address';
+        errorDiv.style.display = 'block';
+        return;
+    }
+
+    // Check if student email
     if (email.includes('.student.')) {
         errorDiv.textContent = '❌ Student emails cannot access individual statistics. This data is staff-only for privacy protection.';
-        errorDiv.className = 'error-message';
         errorDiv.style.display = 'block';
         return;
     }
 
-    // Valid staff email
-    localStorage.setItem('quizStaffEmail', email);
+    // Valid credentials - store in session storage
+    sessionStorage.setItem('quizStaffPassword', password);
+    sessionStorage.setItem('quizStaffEmail', email);
+
     document.getElementById('staffAuth').style.display = 'none';
     document.getElementById('studentStats').style.display = 'block';
+    errorDiv.style.display = 'none';
     loadStudentStats();
 }
 
@@ -520,10 +553,25 @@ function displayStudentStats(students) {
 // Load house rankings on page load
 loadHouseRankings();
 
-// Allow Enter key for staff verification
-document.getElementById('staffEmail').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        verifyStaff();
+// Allow Enter key for both password and email fields
+document.addEventListener('DOMContentLoaded', () => {
+    const passwordInput = document.getElementById('staffPassword');
+    const emailInput = document.getElementById('staffEmail');
+
+    if (passwordInput) {
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                verifyStaff();
+            }
+        });
+    }
+
+    if (emailInput) {
+        emailInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                verifyStaff();
+            }
+        });
     }
 });
 </script>
