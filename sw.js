@@ -1,8 +1,19 @@
-const CACHE_NAME = 'iesv-house-points-v1';
+const CACHE_NAME = 'iesv-house-points-v2';
 const urlsToCache = [
-  '/pages/teacher-mobile.html',
+  '/',
+  '/index.html',
   '/manifest.json',
-  '/assets/icons/teacher-favicon.ico'
+  '/pages/console.html',
+  '/pages/teacher-mobile.html',
+  '/pages/teacher-form.html',
+  '/pages/leaderboard.html',
+  '/pages/quiz.html',
+  '/pages/sorting-ceremony.html',
+  '/pages/house-finder.html',
+  '/pages/house-display.html',
+  '/assets/icons/console-favicon.ico',
+  '/assets/icons/teacher-favicon.ico',
+  '/assets/images/backgrounds/stone.png'
 ];
 
 self.addEventListener('install', event => {
