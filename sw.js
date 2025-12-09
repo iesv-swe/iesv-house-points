@@ -1,8 +1,8 @@
 const CACHE_NAME = 'iesv-house-points-v1';
 const urlsToCache = [
-  '/teacher-mobile.html',
+  '/pages/teacher-mobile.html',
   '/manifest.json',
-  '/teacher-favicon.ico'
+  '/assets/icons/teacher-favicon.ico'
 ];
 
 self.addEventListener('install', event => {

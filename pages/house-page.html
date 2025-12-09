@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>House Page - IESV House Points</title>
-    <link rel="icon" type="image/x-icon" href="house-favicon.ico">
+    <link rel="icon" type="image/x-icon" href="../assets/icons/console-favicon.ico">
 
     <style>
         * {
@@ -18,7 +18,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
             padding: 20px;
-            background-image: url('stone.png');
+            background-image: url('../assets/images/backgrounds/stone.png');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -257,10 +257,10 @@
 const API = "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
 
 const houses = {
-    phoenix: { name:"Phoenix", emoji:"🔥", color:"#ff4444", logo:"phoenix2.png", motto:'"Rise from the ashes"' },
-    dragon:  { name:"Dragon",  emoji:"🐉", color:"#44aa44", logo:"dragon2.png",  motto:'"Power through knowledge"' },
-    hydra:   { name:"Hydra",   emoji:"🌊", color:"#4488ff", logo:"hydra2.png",   motto:'"Many heads, one heart"' },
-    griffin: { name:"Griffin", emoji:"🦅", color:"#ffaa00", logo:"griffin2.png", motto:'"Soar above expectations"' }
+    phoenix: { name:"Phoenix", emoji:"🔥", color:"#ff4444", logo:"../assets/images/houses/phoenix2.png", motto:'"Rise from the ashes"' },
+    dragon:  { name:"Dragon",  emoji:"🐉", color:"#44aa44", logo:"../assets/images/houses/dragon2.png",  motto:'"Power through knowledge"' },
+    hydra:   { name:"Hydra",   emoji:"🌊", color:"#4488ff", logo:"../assets/images/houses/hydra2.png",   motto:'"Many heads, one heart"' },
+    griffin: { name:"Griffin", emoji:"🦅", color:"#ffaa00", logo:"../assets/images/houses/griffin2.png", motto:'"Soar above expectations"' }
 };
 
 const url = new URLSearchParams(window.location.search);
