@@ -308,8 +308,10 @@ body {
     padding: 15px;
     border-radius: 10px;
     margin-top: 15px;
-    text-align: center;
+    text-align: left;
     font-size: 14px;
+    white-space: pre-line;
+    line-height: 1.6;
 }
 
 .status-error {
@@ -578,33 +580,51 @@ async function loadQuestion() {
         const data = await response.json();
         console.log('Question response:', data);
 
-        if (data.status === 'success') {
+        if (data.status === 'success' && data.question) {
             currentQuestion = data.question;
             questionStartTime = Date.now();
             displayQuestion(data.question);
             startTimer(data.timeLimit || 60);
         } else {
-            showStatus('quizStatus', data.message || 'Failed to load question', 'error');
+            // Show the error in the quiz screen
             document.getElementById('questionLoading').classList.add('hidden');
-            // Add back button to return to email screen
-            setTimeout(() => {
-                if (confirm('Failed to load question. Return to start?')) {
-                    showScreen('email');
-                    document.getElementById('startBtn').disabled = false;
-                }
-            }, 2000);
+
+            const errorMsg = data.message || 'Failed to load question. Possible issues:\n' +
+                '• Quiz Questions sheet may not exist\n' +
+                '• No active questions in the sheet\n' +
+                '• Backend not fully configured\n\n' +
+                'See QUIZ_SETUP_GUIDE.md for setup instructions.';
+
+            showStatus('quizStatus', errorMsg, 'error');
+
+            // Add a visible back button
+            const backBtn = document.createElement('button');
+            backBtn.className = 'btn-secondary';
+            backBtn.textContent = '← Back to Start';
+            backBtn.style.marginTop = '15px';
+            backBtn.onclick = () => {
+                showScreen('email');
+                document.getElementById('startBtn').disabled = false;
+                backBtn.remove();
+            };
+            document.getElementById('quizStatus').parentNode.appendChild(backBtn);
         }
     } catch (error) {
         console.error('Question load error:', error);
         document.getElementById('questionLoading').classList.add('hidden');
-        showStatus('quizStatus', 'Quiz backend not configured. Please see QUIZ_SETUP_GUIDE.md', 'error');
-        // Add back button
-        setTimeout(() => {
-            if (confirm('Quiz system not ready. Return to start?')) {
-                showScreen('email');
-                document.getElementById('startBtn').disabled = false;
-            }
-        }, 2000);
+        showStatus('quizStatus', 'Network error or quiz backend not configured. Please see QUIZ_SETUP_GUIDE.md', 'error');
+
+        // Add a visible back button
+        const backBtn = document.createElement('button');
+        backBtn.className = 'btn-secondary';
+        backBtn.textContent = '← Back to Start';
+        backBtn.style.marginTop = '15px';
+        backBtn.onclick = () => {
+            showScreen('email');
+            document.getElementById('startBtn').disabled = false;
+            backBtn.remove();
+        };
+        document.getElementById('quizStatus').parentNode.appendChild(backBtn);
     }
 }
 
