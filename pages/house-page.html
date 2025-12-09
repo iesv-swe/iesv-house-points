@@ -189,6 +189,55 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
+        /* Staff authentication styles */
+        .auth-section {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .auth-section input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .auth-section button {
+            width: 100%;
+            padding: 12px;
+            background: #102d69;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .auth-section button:hover {
+            background: #00a0df;
+        }
+
+        .error-message {
+            margin-top: 10px;
+            padding: 10px;
+            background: #ffebee;
+            border-radius: 5px;
+            color: #c62828;
+            font-size: 14px;
+            display: none;
+        }
+
+        .locked-message {
+            text-align: center;
+            padding: 20px;
+            opacity: 0.7;
+        }
+
         @media(max-width:800px) {
             .content-grid { grid-template-columns: 1fr; }
             .stats-grid { grid-template-columns: 1fr 1fr; }
@@ -248,12 +297,22 @@
             <div class="members-box">
                 <h2>House Members</h2>
 
-                <!-- Email verification for viewing members -->
+                <!-- Staff authentication for viewing members -->
                 <div id="emailAuth" style="display: none;">
-                    <p style="margin-bottom: 15px; opacity: 0.8;">To view house members, please verify your staff email:</p>
-                    <input type="email" id="staffEmail" placeholder="firstname.lastname.vasteras@engelska.se" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 10px; font-size: 16px;">
-                    <button onclick="verifyStaffEmail()" style="width: 100%; padding: 12px; background: #102d69; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Verify Email</button>
-                    <div id="authError" style="display: none; margin-top: 10px; padding: 10px; background: #ffebee; border-radius: 5px; color: #c62828; font-size: 14px;"></div>
+                    <div class="auth-section">
+                        <p style="margin-bottom: 15px; opacity: 0.8; text-align: center;"><strong>🔒 Staff Verification Required</strong></p>
+                        <p style="margin-bottom: 15px; font-size: 14px; opacity: 0.7;">To view house member names, please verify your staff credentials:</p>
+
+                        <label style="font-weight: 600; font-size: 14px; margin-bottom: 5px; display: block;">Password</label>
+                        <input type="password" id="staffPassword" placeholder="Enter staff password">
+
+                        <label style="font-weight: 600; font-size: 14px; margin-bottom: 5px; display: block;">Staff Email</label>
+                        <input type="email" id="staffEmail" placeholder="firstname.lastname.vasteras@engelska.se">
+
+                        <button onclick="verifyStaffAccess()">Verify & View Members</button>
+
+                        <div id="authError" class="error-message"></div>
+                    </div>
                 </div>
 
                 <div id="membersList">Loading...</div>
@@ -264,6 +323,7 @@
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
+const STAFF_PASSWORD = "135vasteras";
 
 const houses = {
     phoenix: { name:"Phoenix", emoji:"🔥", color:"#ff4444", logo:"../assets/images/houses/phoenix2.png", motto:'"Rise from the ashes"' },
@@ -274,6 +334,9 @@ const houses = {
 
 const url = new URLSearchParams(window.location.search);
 const houseName = url.get("house");
+
+let membersData = [];
+let isStaffAuthenticated = false;
 
 if (!houseName || !houses[houseName]) {
     document.getElementById("loading").innerHTML = "Invalid house.";
@@ -372,9 +435,6 @@ async function loadRecent() {
     `).join("");
 }
 
-let membersData = [];
-let isStaffAuthenticated = false;
-
 async function loadMembers() {
     const res = await fetch(`${API}?action=listStudents`);
     const json = await res.json();
@@ -384,9 +444,11 @@ async function loadMembers() {
         .map(s => `${s.firstName} ${s.lastName}`)
         .sort();
 
-    // Check if user needs to authenticate
-    const storedEmail = localStorage.getItem('staffEmail');
-    if (storedEmail && !storedEmail.includes('.student.')) {
+    // Check if user is already authenticated
+    const storedPassword = sessionStorage.getItem('staffPassword');
+    const storedEmail = sessionStorage.getItem('staffEmail');
+
+    if (storedPassword === STAFF_PASSWORD && storedEmail && !storedEmail.includes('.student.')) {
         isStaffAuthenticated = true;
         displayMembers();
     } else {
@@ -396,25 +458,37 @@ async function loadMembers() {
     }
 }
 
-function verifyStaffEmail() {
+function verifyStaffAccess() {
+    const password = document.getElementById('staffPassword').value;
     const email = document.getElementById('staffEmail').value.trim().toLowerCase();
     const errorDiv = document.getElementById('authError');
 
+    // Check password
+    if (password !== STAFF_PASSWORD) {
+        errorDiv.textContent = '❌ Incorrect password';
+        errorDiv.style.display = 'block';
+        return;
+    }
+
+    // Check email format
     if (!email || !email.includes('@engelska.se')) {
         errorDiv.textContent = '❌ Please enter a valid @engelska.se email address';
         errorDiv.style.display = 'block';
         return;
     }
 
+    // Check if student email
     if (email.includes('.student.')) {
         errorDiv.textContent = '❌ Student accounts cannot view house member lists. This feature is staff-only for privacy protection.';
         errorDiv.style.display = 'block';
         return;
     }
 
-    // Valid staff email
-    localStorage.setItem('staffEmail', email);
+    // Valid credentials - store in session storage
+    sessionStorage.setItem('staffPassword', password);
+    sessionStorage.setItem('staffEmail', email);
     isStaffAuthenticated = true;
+
     document.getElementById('emailAuth').style.display = 'none';
     errorDiv.style.display = 'none';
     displayMembers();
@@ -428,17 +502,27 @@ function displayMembers() {
             ? membersData.map(m => `<div class="member-item">• ${m}</div>`).join("")
             : "<p>No members yet.</p>";
     } else {
-        box.innerHTML = '<p style="opacity: 0.7;">🔒 Member names are protected. Staff verification required.</p>';
+        box.innerHTML = '<div class="locked-message">🔒 Member names are protected.<br>Staff verification required to view.</div>';
     }
 }
 
-// Allow Enter key for email verification
+// Allow Enter key for password field
 document.addEventListener('DOMContentLoaded', () => {
+    const passwordInput = document.getElementById('staffPassword');
     const emailInput = document.getElementById('staffEmail');
+
+    if (passwordInput) {
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                verifyStaffAccess();
+            }
+        });
+    }
+
     if (emailInput) {
         emailInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                verifyStaffEmail();
+                verifyStaffAccess();
             }
         });
     }
