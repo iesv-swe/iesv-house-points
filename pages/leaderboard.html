@@ -95,15 +95,9 @@
         backdrop-filter:blur(6px);
         display:flex;
         flex-direction:column;
-        cursor:pointer;
         overflow:hidden;
         transition:0.3s ease;
         z-index:1;
-    }
-
-    .house-card:hover {
-        transform:translateY(-4px);
-        box-shadow:0 14px 38px rgba(0,0,0,0.75);
     }
 
     /* Winner glow */
@@ -150,7 +144,6 @@
         width:clamp(55px, 10vw, 105px);
         height:clamp(55px, 10vw, 105px);
         border-radius:50%;
-        /* background:url('stone-medallion-B.png') center/cover no-repeat; */ /* File doesn't exist */
         background: rgba(0,0,0,0.3);
         display:flex;
         align-items:center;
@@ -280,8 +273,6 @@ function renderLeaderboard(houses){
 
         const card = document.createElement("div");
         card.className = "house-card" + (isWinner ? " winner" : "");
-        card.onclick = () =>
-            window.location.href = `house-page.html?house=${h.house.toLowerCase()}`;
 
         card.innerHTML = `
             <div class="card-header">
