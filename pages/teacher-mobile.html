@@ -152,6 +152,135 @@
         color: #ffb3b3;
     }
 
+    /* --- STUDENT SELECTOR (NEW) --- */
+    .student-toggle {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: rgba(45,45,45,0.95);
+        border: 1px solid rgba(255,255,255,0.12);
+        cursor: pointer;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .student-toggle span.label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .student-toggle .chevron {
+        font-size: 12px;
+        opacity: 0.8;
+    }
+
+    .student-count-label {
+        font-size: 11px;
+        opacity: 0.8;
+        color: #00c3ff;
+        font-weight: 600;
+    }
+
+    .student-panel {
+        margin-top: 4px;
+        border-radius: 10px;
+        background: rgba(35,35,35,0.9);
+        border: 1px solid rgba(255,255,255,0.12);
+        padding: 10px;
+    }
+
+    .student-search-input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: none;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .student-search-input:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(0,195,255,0.5);
+    }
+
+    .student-suggestions {
+        max-height: 200px;
+        overflow-y: auto;
+        border-radius: 8px;
+        background: rgba(20,20,20,0.98);
+        border: 1px solid rgba(255,255,255,0.1);
+        margin-bottom: 8px;
+        display: none;
+    }
+
+    .student-suggestion {
+        padding: 10px;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        font-size: 13px;
+    }
+
+    .student-suggestion:last-child {
+        border-bottom: none;
+    }
+
+    .student-suggestion:hover {
+        background: rgba(0,195,255,0.2);
+    }
+
+    .student-suggestion-main {
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 2px;
+    }
+
+    .student-suggestion-sub {
+        font-size: 11px;
+        color: #d1d5db;
+    }
+
+    .selected-students {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 6px;
+    }
+
+    .student-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        background: rgba(0,195,255,0.15);
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .student-tag-name {
+        font-weight: 600;
+    }
+
+    .student-tag-house {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        opacity: 0.9;
+    }
+
+    .student-tag-remove {
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 14px;
+        margin-left: 2px;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
 </style>
 </head>
 
@@ -164,8 +293,32 @@
         <input id="teacherInput" type="text" placeholder="Enter your name or school email">
     </div>
 
-    <!-- HOUSES -->
+    <!-- STUDENT SELECTOR (NEW) -->
     <div class="card">
+        <h2>Select Students (optional)</h2>
+        <div id="studentToggle" class="student-toggle">
+            <span class="label">
+                <span id="studentToggleChevron" class="chevron">▶</span>
+                <span>Search by name or email</span>
+            </span>
+            <span id="studentCountLabel" class="student-count-label"></span>
+        </div>
+
+        <div id="studentPanel" class="student-panel hidden">
+            <input
+                type="text"
+                id="studentSearch"
+                class="student-search-input"
+                placeholder="Type name or email..."
+                autocomplete="off"
+            >
+            <div id="studentSuggestions" class="student-suggestions"></div>
+            <div id="selectedStudents" class="selected-students"></div>
+        </div>
+    </div>
+
+    <!-- HOUSES -->
+    <div class="card" id="houseCard">
         <h2>Select House</h2>
         <div class="house-grid">
             <button class="house-btn" data-house="Phoenix">
@@ -214,10 +367,17 @@ const APPS_SCRIPT_URL =
 let currentHouse = "";
 let currentReason = "";
 
+// NEW: student data
+let allStudents = [];
+let selectedStudents = [];
+
 /* --- HOUSE SELECTION --- */
-document.querySelectorAll(".house-btn").forEach(btn => {
+const houseButtons = document.querySelectorAll(".house-btn");
+const houseCard = document.getElementById("houseCard");
+
+houseButtons.forEach(btn => {
     btn.addEventListener("click", () => {
-        document.querySelectorAll(".house-btn").forEach(b => b.classList.remove("selected"));
+        houseButtons.forEach(b => b.classList.remove("selected"));
         btn.classList.add("selected");
         currentHouse = btn.dataset.house;
     });
@@ -238,49 +398,260 @@ function setStatus(text, error = false) {
     el.classList.toggle("status-error", error);
 }
 
+/* --- STUDENT SELECTOR LOGIC (NEW) --- */
+const studentToggle = document.getElementById("studentToggle");
+const studentToggleChevron = document.getElementById("studentToggleChevron");
+const studentCountLabel = document.getElementById("studentCountLabel");
+const studentPanel = document.getElementById("studentPanel");
+const studentSearch = document.getElementById("studentSearch");
+const studentSuggestions = document.getElementById("studentSuggestions");
+const selectedStudentsContainer = document.getElementById("selectedStudents");
+
+function toggleStudentPanel() {
+    const hidden = studentPanel.classList.contains("hidden");
+    if (hidden) {
+        studentPanel.classList.remove("hidden");
+        studentToggleChevron.textContent = "▼";
+        studentSearch.focus();
+    } else {
+        studentPanel.classList.add("hidden");
+        studentToggleChevron.textContent = "▶";
+        studentSearch.value = "";
+        hideSuggestions();
+    }
+}
+
+studentToggle.addEventListener("click", toggleStudentPanel);
+
+function renderSelectedStudents() {
+    selectedStudentsContainer.innerHTML = "";
+
+    if (selectedStudents.length === 0) {
+        studentCountLabel.textContent = "";
+        houseCard.classList.remove("hidden");
+        return;
+    }
+
+    studentCountLabel.textContent = selectedStudents.length + " selected";
+
+    // Hide house selector when students are selected
+    houseCard.classList.add("hidden");
+    houseButtons.forEach(b => b.classList.remove("selected"));
+    currentHouse = "";
+
+    selectedStudents.forEach(student => {
+        const tag = document.createElement("div");
+        tag.className = "student-tag";
+
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "student-tag-name";
+        nameSpan.textContent = student.name;
+
+        const houseSpan = document.createElement("span");
+        houseSpan.className = "student-tag-house";
+        houseSpan.textContent = student.house;
+
+        const removeSpan = document.createElement("span");
+        removeSpan.className = "student-tag-remove";
+        removeSpan.textContent = "×";
+        removeSpan.addEventListener("click", () => {
+            selectedStudents = selectedStudents.filter(s => s.email !== student.email);
+            renderSelectedStudents();
+        });
+
+        tag.appendChild(nameSpan);
+        tag.appendChild(houseSpan);
+        tag.appendChild(removeSpan);
+
+        selectedStudentsContainer.appendChild(tag);
+    });
+}
+
+function hideSuggestions() {
+    studentSuggestions.style.display = "none";
+    studentSuggestions.innerHTML = "";
+}
+
+function showSuggestions(list) {
+    if (!list.length) {
+        hideSuggestions();
+        return;
+    }
+
+    studentSuggestions.innerHTML = "";
+    list.forEach(student => {
+        const div = document.createElement("div");
+        div.className = "student-suggestion";
+
+        const main = document.createElement("div");
+        main.className = "student-suggestion-main";
+        main.textContent = `${student.name} — ${student.house}`;
+
+        const sub = document.createElement("div");
+        sub.className = "student-suggestion-sub";
+        sub.textContent = student.email;
+
+        div.appendChild(main);
+        div.appendChild(sub);
+
+        div.addEventListener("click", () => {
+            const exists = selectedStudents.some(s => s.email === student.email);
+            if (!exists) {
+                selectedStudents.push(student);
+                renderSelectedStudents();
+            }
+            studentSearch.value = "";
+            hideSuggestions();
+            studentSearch.focus();
+        });
+
+        studentSuggestions.appendChild(div);
+    });
+
+    studentSuggestions.style.display = "block";
+}
+
+function filterStudents(term) {
+    const lower = term.toLowerCase();
+    return allStudents.filter(s =>
+        s.name.toLowerCase().includes(lower) ||
+        s.email.toLowerCase().includes(lower)
+    ).slice(0, 20);
+}
+
+studentSearch.addEventListener("input", () => {
+    const term = studentSearch.value.trim();
+    if (term.length < 2) {
+        hideSuggestions();
+        return;
+    }
+    const results = filterStudents(term);
+    showSuggestions(results);
+});
+
+document.addEventListener("click", (e) => {
+    if (!studentPanel.contains(e.target) && e.target !== studentToggle) {
+        hideSuggestions();
+    }
+});
+
+async function loadStudentList() {
+    try {
+        const url = APPS_SCRIPT_URL + "?action=listStudents";
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.status === "success" && Array.isArray(data.students)) {
+            allStudents = data.students.map(s => ({
+                name: s.name || ((s.firstName || "") + " " + (s.lastName || "")).trim(),
+                email: s.email,
+                house: s.house || "Unknown"
+            })).filter(s => s.email && s.name);
+        }
+    } catch (err) {
+        console.error("Failed to load students", err);
+    }
+}
+
 /* --- SUBMIT --- */
-document.getElementById("submitBtn").addEventListener("click", () => {
+document.getElementById("submitBtn").addEventListener("click", async () => {
 
     const teacher = document.getElementById("teacherInput").value.trim();
 
     if (!teacher) return setStatus("Please enter your name or email.", true);
-    if (!currentHouse) return setStatus("Please select a house.", true);
     if (!currentReason) return setStatus("Please select a category.", true);
 
-    const payload = {
-        action: "points",
-        teacher: teacher,
-        student: "",
-        house: currentHouse,
-        category: currentReason,
-        points: 1,
-        timestamp: new Date().toISOString()
-    };
+    // MODE A: No students selected -> award to house
+    if (selectedStudents.length === 0) {
+        if (!currentHouse) return setStatus("Please select a house.", true);
 
-    setStatus("Submitting…");
+        const payload = {
+            action: "points",
+            teacher: teacher,
+            student: "",
+            house: currentHouse,
+            category: currentReason,
+            points: 1,
+            timestamp: new Date().toISOString()
+        };
 
-    fetch(APPS_SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(payload)
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.status !== "success") {
-            return setStatus("Error submitting. Try again.", true);
+        setStatus("Submitting…");
+
+        try {
+            const res = await fetch(APPS_SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+
+            if (data.status !== "success") {
+                return setStatus("Error submitting. Try again.", true);
+            }
+
+            setStatus("✓ Point awarded!", false);
+
+            document.querySelectorAll(".house-btn").forEach(b => b.classList.remove("selected"));
+            document.querySelectorAll(".reason-btn").forEach(b => b.classList.remove("selected"));
+            currentHouse = "";
+            currentReason = "";
+        } catch (err) {
+            console.error(err);
+            setStatus("Error submitting.", true);
         }
 
-        setStatus("✓ Point awarded!", false);
+        return;
+    }
 
-        document.querySelectorAll(".house-btn").forEach(b => b.classList.remove("selected"));
+    // MODE B: Students selected -> one point per student
+    setStatus("Submitting for " + selectedStudents.length + " student(s)…");
+
+    try {
+        const requests = selectedStudents.map(student => {
+            const payload = {
+                action: "points",
+                teacher: teacher,
+                house: student.house,
+                category: currentReason,
+                points: 1,
+                student: student.name,
+                timestamp: new Date().toISOString()
+            };
+
+            return fetch(APPS_SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            }).then(r => r.json().catch(() => null));
+        });
+
+        const results = await Promise.all(requests);
+        const anyError = results.some(r => !r || r.status === "error");
+
+        if (anyError) {
+            setStatus("✗ Some submissions failed. Try again.", true);
+        } else {
+            setStatus("✓ Points awarded for " + selectedStudents.length + " student(s).");
+        }
+
+        // Reset selections
         document.querySelectorAll(".reason-btn").forEach(b => b.classList.remove("selected"));
-        currentHouse = "";
         currentReason = "";
-    })
-    .catch(err => {
+
+        selectedStudents = [];
+        renderSelectedStudents();
+
+        // Auto-collapse student panel
+        if (!studentPanel.classList.contains("hidden")) {
+            toggleStudentPanel();
+        }
+
+    } catch (err) {
         console.error(err);
-        setStatus("Error submitting.", true);
-    });
+        setStatus("✗ Network error.", true);
+    }
 });
+
+// ---- INIT ----
+loadStudentList();
 </script>
 
 </body>
