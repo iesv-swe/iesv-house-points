@@ -581,10 +581,19 @@ async function loadQuestion() {
         console.log('Question response:', data);
 
         if (data.status === 'success' && data.question) {
+            console.log('Question loaded successfully, displaying...');
             currentQuestion = data.question;
             questionStartTime = Date.now();
-            displayQuestion(data.question);
-            startTimer(data.timeLimit || 60);
+
+            try {
+                displayQuestion(data.question);
+                startTimer(data.timeLimit || 60);
+                console.log('Question display and timer complete');
+            } catch (error) {
+                console.error('Error in displayQuestion or startTimer:', error);
+                document.getElementById('questionLoading').classList.add('hidden');
+                showStatus('quizStatus', 'Error displaying question: ' + error.message, 'error');
+            }
         } else {
             // Show the error in the quiz screen
             document.getElementById('questionLoading').classList.add('hidden');
@@ -630,15 +639,24 @@ async function loadQuestion() {
 
 // Display question
 function displayQuestion(question) {
-    document.getElementById('questionLoading').classList.add('hidden');
-    document.getElementById('questionContent').classList.remove('hidden');
+    console.log('displayQuestion called with:', question);
 
-    document.getElementById('questionNumber').textContent = `Question ID: ${question.id}`;
-    document.getElementById('questionText').textContent = question.question;
-    document.getElementById('questionCategory').textContent = `${question.category} • ${question.difficulty}`;
+    try {
+        document.getElementById('questionLoading').classList.add('hidden');
+        document.getElementById('questionContent').classList.remove('hidden');
 
-    const answersGrid = document.getElementById('answersGrid');
-    answersGrid.innerHTML = '';
+        document.getElementById('questionNumber').textContent = `Question ID: ${question.id}`;
+        document.getElementById('questionText').textContent = question.question;
+        document.getElementById('questionCategory').textContent = `${question.category} • ${question.difficulty}`;
+
+        const answersGrid = document.getElementById('answersGrid');
+        answersGrid.innerHTML = '';
+
+        console.log('Question content updated successfully');
+    } catch (error) {
+        console.error('Error displaying question:', error);
+        throw error;
+    }
 
     const options = [
         { label: 'A', text: question.optionA },
@@ -681,8 +699,12 @@ function selectAnswer(answer) {
 
 // Timer
 function startTimer(seconds) {
+    console.log('startTimer called with:', seconds);
+    clearInterval(timerInterval); // Clear any existing timer
+
     let timeLeft = seconds;
     document.getElementById('timerDisplay').textContent = timeLeft;
+    document.getElementById('timerDisplay').classList.remove('warning');
 
     timerInterval = setInterval(() => {
         timeLeft--;
@@ -697,6 +719,8 @@ function startTimer(seconds) {
             submitAnswer(true); // Auto-submit on timeout
         }
     }, 1000);
+
+    console.log('Timer started successfully');
 }
 
 // Submit answer
