@@ -24,7 +24,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    background: radial-gradient(circle at top, #11182c 0%, #05070d 60%, #000 100%);
+    background: radial-gradient(circle at top, #1c2a45 0%, #0a0f18 60%, #000 100%);
     color: #e0eaff;
     position: relative;
 }
@@ -36,12 +36,12 @@ body::before {
     inset: 0;
     background-image: url('./stone.png');
     background-size: cover;
-    opacity: 0.35;
+    opacity: 0.42;
     mix-blend-mode: overlay;
     pointer-events: none;
 }
 
-/* Floating magical dust */
+/* Particle field */
 .particles {
     position: absolute;
     inset: 0;
@@ -52,12 +52,12 @@ body::before {
 
 .particle {
     position: absolute;
-    width: 5px;
-    height: 5px;
-    background: rgba(150,120,255,0.9);
+    width: 4px;
+    height: 4px;
+    background: rgba(120,170,255,0.85);
     border-radius: 50%;
-    box-shadow: 0 0 8px rgba(180,140,255,1);
-    animation: floatUp 8s linear infinite;
+    box-shadow: 0 0 12px rgba(120,170,255,1);
+    animation: floatUp 6s linear infinite;
 }
 
 @keyframes floatUp {
@@ -79,24 +79,21 @@ header {
 header img {
     height: 95px;
     margin-top: 10px;
-    filter: drop-shadow(0 0 16px rgba(150,120,255,0.6));
+    filter: drop-shadow(0 0 12px rgba(120,170,255,0.4));
 }
 
 h1 {
     margin-top: 8px;
-    font-size: 2.6rem;
-    letter-spacing: 4px;
+    font-size: 2.4rem;
+    letter-spacing: 3px;
     text-transform: uppercase;
-    text-shadow: 
-        0 0 14px rgba(150,120,255,0.7),
-        0 0 28px rgba(120,90,255,0.4);
+    text-shadow: 0 0 12px rgba(120,170,255,0.5);
 }
 
 .subtitle {
-    font-size: 1.1rem;
-    color: #cfd7f0;
-    margin-top: 6px;
-    text-shadow: 0 0 10px rgba(180,150,255,0.4);
+    font-size: 1rem;
+    color: #c2cadf;
+    margin-top: 4px;
 }
 
 /* ============================================================
@@ -119,8 +116,8 @@ h1 {
     width: 200px;
     opacity: 0.95;
     filter:
-        drop-shadow(0 0 20px rgba(150,120,255,0.5))
-        drop-shadow(0 0 28px rgba(80,50,200,0.35));
+        drop-shadow(0 0 18px rgba(120,170,255,0.35))
+        contrast(1.15) brightness(1.05);
 }
 
 /* ============================================================
@@ -143,111 +140,111 @@ h1 {
 .screen.active { display: block; }
 
 /* ============================================================
-   ✨ INPUT SCREEN MAGIC UPGRADE ✨
+   INPUT SCREEN (magical tweaks)
 ============================================================ */
 
 #inputScreen h2 {
-    font-size: 2rem;
+    font-size: 1.9rem;
     margin-bottom: 10px;
-    text-shadow: 0 0 12px rgba(160,120,255,0.7);
+    text-shadow: 0 0 10px rgba(160,130,255,0.7);
 }
 
 #inputScreen p {
-    font-size: 1.05rem;
-    color: #cfd7f0;
+    font-size: 1rem;
+    color: #c2cadf;
     margin-bottom: 18px;
-    text-shadow: 0 0 8px rgba(140,110,255,0.3);
+    text-shadow: 0 0 8px rgba(140,110,255,0.4);
 }
 
 /* Magical container aura */
 .magic-container {
     position: relative;
-    padding: 25px 0;
+    padding: 20px 0 10px 0;
 }
 
 .magic-container::before {
     content: "";
     position: absolute;
-    top: -40px;
+    top: -30px;
     left: 50%;
-    width: 150%;
+    width: 140%;
     height: 150%;
     transform: translateX(-50%);
-    background: radial-gradient(circle, rgba(150,120,255,0.11) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(150,120,255,0.12) 0%, transparent 70%);
     animation: auraGlow 6s ease-in-out infinite;
     pointer-events: none;
 }
 
 @keyframes auraGlow {
-    0% { opacity: 0.4; }
-    50% { opacity: 0.8; }
+    0%   { opacity: 0.4; }
+    50%  { opacity: 0.8; }
     100% { opacity: 0.4; }
 }
 
-/* Magical input */
+/* Email input – more magical */
 input[type="email"] {
-    padding: 15px;
+    padding: 14px;
     width: 420px;
     max-width: 95%;
-    border-radius: 12px;
-    border: 1px solid rgba(180,140,255,0.6);
-    background-color: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    border: 1px solid rgba(190,160,255,0.7);
+    background-color: rgba(20,20,40,0.9);
     color: #fff;
     text-align: center;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     outline: none;
-    backdrop-filter: blur(6px);
-    box-shadow: 0 0 14px rgba(150,120,255,0.4);
-    transition: 0.3s ease;
+    box-shadow: 0 0 14px rgba(140,110,255,0.5);
+    backdrop-filter: blur(4px);
+    transition: 0.25s ease;
 }
 
 input[type="email"]:focus {
-    border-color: #e7d4ff;
+    border-color: #f0e0ff;
     box-shadow: 0 0 20px rgba(200,170,255,0.9);
 }
 
 input[type="email"]::placeholder {
-    color: #d7d0ff;
+    color: #d1c6ff;
     opacity: 0.8;
 }
 
-/* Magical button */
+/* Discover button – enchanted */
 button.discover-btn {
-    padding: 16px 34px;
-    margin-top: 24px;
-    background: linear-gradient(135deg, #442d82, #7e55ff);
+    padding: 14px 28px;
+    background: linear-gradient(145deg, #40256f, #7f55ff);
     border: none;
-    border-radius: 14px;
-    color: #fff;
-    font-size: 1.1rem;
+    color: #f5efff;
     cursor: pointer;
+    border-radius: 12px;
+    margin-top: 22px;
+    font-size: 1rem;
     letter-spacing: 1px;
     text-transform: uppercase;
-    box-shadow: 0 0 16px rgba(150,120,255,0.7);
-    transition: 0.25s ease;
+    transition: 0.25s;
+    box-shadow: 0 0 16px rgba(150,120,255,0.8);
 }
-
 button.discover-btn:hover {
-    transform: scale(1.06);
-    box-shadow: 
-        0 0 28px rgba(180,150,255,1),
-        0 0 50px rgba(120,80,255,0.7);
+    background: linear-gradient(145deg, #5130a0, #9b6dff);
+    box-shadow:
+        0 0 22px rgba(190,150,255,1),
+        0 0 40px rgba(140,100,255,0.8);
+    transform: scale(1.05);
 }
-
 button.discover-btn:active {
-    transform: scale(0.98);
+    transform: scale(0.97);
 }
 
 .error-message {
-    background: rgba(255, 70, 70, 0.9);
+    background: rgba(255, 68, 68, 0.9);
     padding: 12px 18px;
     border-radius: 10px;
     margin-top: 18px;
     display: none;
 }
+.error-message.show { display: inline-block; }
 
 /* ============================================================
-   SORTING SCREEN (unchanged)
+   SORTING SCREEN — ORIGINAL ANIMATIONS
 ============================================================ */
 
 #sortingScreen h2 {
@@ -255,12 +252,115 @@ button.discover-btn:active {
     margin-bottom: 20px;
 }
 
+/* Smaller ritual circle wrapper (~260px, responsive) */
+.sorting-icons-wrapper {
+    position: relative;
+    width: min(260px, 70vw);
+    height: min(260px, 70vw);
+    margin: 30px auto;
+}
+
+/* Magical glow behind shields */
+.sorting-icons-wrapper::before {
+    content: "";
+    position: absolute;
+    inset: 22%;
+    border-radius: 50%;
+    box-shadow:
+        0 0 28px rgba(255, 215, 0, 0.35),
+        0 0 45px rgba(255, 255, 255, 0.25);
+    opacity: 0.8;
+    animation: auraPulse 2.7s ease-in-out infinite;
+}
+
+@keyframes auraPulse {
+    0%,100% { transform: scale(0.9); opacity: 0.6; }
+    50%     { transform: scale(1.03); opacity: 1; }
+}
+
+.sorting-icons {
+    position: absolute;
+    inset: 0;
+}
+
+/* Shared shield style */
+.sorting-icons img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 90px;
+    max-width: 40%;
+    transform-origin: center;
+    filter: drop-shadow(0 0 15px rgba(0,0,0,0.7))
+            drop-shadow(0 0 14px rgba(255,255,255,0.35));
+    opacity: 0.96;
+}
+
+/* Radius for orbits */
+:root {
+    --orbit-radius: 78px;
+}
+
+/* Soft circular drift with subtle scale (different phase for each) */
+.icon-phoenix {
+    animation: orbitPhoenix 11s linear infinite;
+}
+@keyframes orbitPhoenix {
+    0%   { transform: translate(-50%, -50%) rotate(0deg)   translate(var(--orbit-radius)) rotate(0deg)   scale(1); }
+    50%  { transform: translate(-50%, -50%) rotate(180deg) translate(var(--orbit-radius)) rotate(-180deg) scale(1.03); }
+    100% { transform: translate(-50%, -50%) rotate(360deg) translate(var(--orbit-radius)) rotate(-360deg) scale(1); }
+}
+
+.icon-dragon {
+    animation: orbitDragon 11s linear infinite;
+}
+@keyframes orbitDragon {
+    0%   { transform: translate(-50%, -50%) rotate(90deg)   translate(var(--orbit-radius)) rotate(-90deg)   scale(1); }
+    50%  { transform: translate(-50%, -50%) rotate(270deg)  translate(var(--orbit-radius)) rotate(-270deg)  scale(1.03); }
+    100% { transform: translate(-50%, -50%) rotate(450deg)  translate(var(--orbit-radius)) rotate(-450deg)  scale(1); }
+}
+
+.icon-hydra {
+    animation: orbitHydra 11s linear infinite;
+}
+@keyframes orbitHydra {
+    0%   { transform: translate(-50%, -50%) rotate(180deg)  translate(var(--orbit-radius)) rotate(-180deg)  scale(1); }
+    50%  { transform: translate(-50%, -50%) rotate(360deg)  translate(var(--orbit-radius)) rotate(-360deg)  scale(1.03); }
+    100% { transform: translate(-50%, -50%) rotate(540deg)  translate(var(--orbit-radius)) rotate(-540deg)  scale(1); }
+}
+
+.icon-griffin {
+    animation: orbitGriffin 11s linear infinite;
+}
+@keyframes orbitGriffin {
+    0%   { transform: translate(-50%, -50%) rotate(270deg)  translate(var(--orbit-radius)) rotate(-270deg)  scale(1); }
+    50%  { transform: translate(-50%, -50%) rotate(450deg)  translate(var(--orbit-radius)) rotate(-450deg)  scale(1.03); }
+    100% { transform: translate(-50%, -50%) rotate(630deg)  translate(var(--orbit-radius)) rotate(-630deg)  scale(1); }
+}
+
+/* Wand spark following a slightly larger ring */
+.wand-spark {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff 0%, #ffd700 45%, rgba(0,0,0,0) 70%);
+    box-shadow: 0 0 12px rgba(255,215,0,0.9);
+    animation: wandSpin 7s linear infinite;
+    pointer-events: none;
+    z-index: 3;
+}
+
+@keyframes wandSpin {
+    0%   { transform: translate(-50%, -50%) rotate(0deg)   translate(calc(var(--orbit-radius) + 18px)); }
+    100% { transform: translate(-50%, -50%) rotate(360deg) translate(calc(var(--orbit-radius) + 18px)); }
+}
+
 .sorting-text {
     font-size: 1.3rem;
     margin-top: 10px;
     animation: pulse 1.6s ease-in-out infinite;
 }
-
 @keyframes pulse {
     0%,100% { opacity: 1; }
     50%     { opacity: 0.4; }
@@ -273,30 +373,97 @@ button.discover-btn:active {
 #revealScreen {
     animation: revealFade 0.8s ease;
 }
-
 @keyframes revealFade {
     from { opacity: 0; transform: scale(0.9); }
     to   { opacity: 1; transform: scale(1); }
 }
 
+.house-creature img {
+    width: 150px;
+    margin: 0 auto;
+    filter:
+        drop-shadow(0 0 12px rgba(0,0,0,0.7))
+        drop-shadow(0 0 18px rgba(255,255,255,0.35));
+}
+
+.house-name {
+    font-size: 3rem;
+    font-weight: 900;
+    margin: 5px 0;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.house-name.phoenix { background: linear-gradient(135deg, #ff4444, #ff8844); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.house-name.dragon  { background: linear-gradient(135deg, #44aa44, #88dd44); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.house-name.hydra   { background: linear-gradient(135deg, #4488ff, #44ddff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.house-name.griffin { background: linear-gradient(135deg, #ffaa00, #ffdd44); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+.house-values {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+}
+
+.house-motto {
+    font-size: 1rem;
+    color: #c2cadf;
+    font-style: italic;
+    margin-bottom: 18px;
+}
+
+.welcome-message {
+    background: rgba(16, 45, 105, 0.45);
+    padding: 18px;
+    border-radius: 15px;
+    margin-top: 20px;
+}
+
+.email-sent {
+    background: #44aa44;
+    padding: 10px 20px;
+    margin-top: 18px;
+    display: inline-block;
+    border-radius: 10px;
+}
+
+/* Confetti */
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    animation: confetti-fall 3s linear;
+    z-index: 4;
+}
+@keyframes confetti-fall {
+    to {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
 /* ============================================================
-   ✨ MAGICAL FOOTER ✨
+   MAGICAL FOOTER
 ============================================================ */
 
 footer {
     text-align: center;
-    margin-bottom: 16px;
+    padding: 10px 0 16px 0;
+    position: relative;
+    z-index: 3;
+}
+
+.destiny-text {
     font-size: 1.2rem;
-    color: #e3d6ff;
+    color: #e8dcff;
     font-style: italic;
     letter-spacing: 1px;
     text-shadow:
         0 0 10px rgba(180,140,255,0.8),
-        0 0 20px rgba(140,100,255,0.5);
-    animation: footerGlow 3.5s ease-in-out infinite alternate;
+        0 0 22px rgba(130,90,255,0.6);
+    animation: destinyGlow 3.5s ease-in-out infinite alternate;
 }
 
-@keyframes footerGlow {
+@keyframes destinyGlow {
     from { opacity: 0.7; }
     to   { opacity: 1; }
 }
@@ -311,8 +478,26 @@ footer {
         display: none;
     }
 
-    h1 { font-size: 2rem; }
-    footer { font-size: 1rem; }
+    .sorting-icons-wrapper {
+        width: min(220px, 80vw);
+        height: min(220px, 80vw);
+    }
+
+    :root {
+        --orbit-radius: 62px;
+    }
+
+    .sorting-icons img {
+        width: 75px;
+    }
+
+    .wand-spark {
+        width: 11px;
+        height: 11px;
+    }
+
+    h1 { font-size: 1.9rem; }
+    .destiny-text { font-size: 1rem; }
 }
 </style>
 </head>
@@ -342,31 +527,32 @@ footer {
     <div class="screen active" id="inputScreen">
         <h2>Enter your school email</h2>
         <p>Please use your IES Västerås student email to discover your house.</p>
-        
+
         <div class="magic-container">
             <input
                 type="email"
                 id="emailInput"
                 placeholder="firstname.lastname.student.vasteras@engelska.se"
             >
-            <button class="discover-btn" onclick="startSorting()">🔮 Discover Your House</button>
+            <button class="discover-btn" onclick="startSorting()">🎩 Discover Your House</button>
         </div>
 
         <div class="error-message" id="errorMessage"></div>
     </div>
 
-    <!-- SORTING SCREEN (unchanged logic) -->
+    <!-- SORTING SCREEN -->
     <div class="screen" id="sortingScreen">
         <h2>The Sorting Ritual</h2>
 
         <div class="sorting-icons-wrapper">
+            <!-- Wand spark -->
             <div class="wand-spark"></div>
 
             <div class="sorting-icons">
-                <img src="./phoenix2-removebg.png" class="icon-phoenix">
-                <img src="./dragon2-removebg.png" class="icon-dragon">
-                <img src="./hydra2-removebg.png" class="icon-hydra">
-                <img src="./griffin2-removebg.png" class="icon-griffin">
+                <img src="./phoenix2-removebg.png" alt="Phoenix" class="icon-phoenix">
+                <img src="./dragon2-removebg.png" alt="Dragon" class="icon-dragon">
+                <img src="./hydra2-removebg.png" alt="Hydra" class="icon-hydra">
+                <img src="./griffin2-removebg.png" alt="Griffin" class="icon-griffin">
             </div>
         </div>
 
@@ -400,14 +586,10 @@ footer {
 </div>
 
 <footer>
-    Let destiny reveal your true House.
+    <p class="destiny-text">Let destiny reveal your true House.</p>
 </footer>
 
 <script>
-/* -------------------------------
-   ALL ORIGINAL LOGIC UNCHANGED
-------------------------------- */
-
 const APPS_SCRIPT_URL =
   'https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec';
 
@@ -438,6 +620,7 @@ const houses = {
     }
 };
 
+/* Particles init (unchanged) */
 const particlesContainer = document.querySelector('.particles');
 for (let i = 0; i < 60; i++) {
     const p = document.createElement('div');
@@ -498,7 +681,9 @@ async function startSorting() {
     document.getElementById('inputScreen').classList.remove('active');
     document.getElementById('sortingScreen').classList.add('active');
 
-    setTimeout(() => revealHouse(assignedHouse, email), 4000);
+    setTimeout(() => {
+        revealHouse(assignedHouse, email);
+    }, 4000);
 }
 
 function revealHouse(houseName, email) {
