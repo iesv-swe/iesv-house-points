@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>House Points Leaderboard - IESV</title>
-<link rel="icon" type="image/x-icon" href="leaderboard-favicon.ico">
+<link rel="icon" type="image/x-icon" href="../assets/icons/leaderboard-favicon.ico">
 
 <style>
     * { margin:0; padding:0; box-sizing:border-box; }
 
     body {
         font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background:url('stone.png') repeat;
+        background:url('../assets/images/backgrounds/stone.png') repeat;
         background-size:600px;
         min-height:100vh;
         padding:20px;
@@ -150,7 +150,8 @@
         width:clamp(55px, 10vw, 105px);
         height:clamp(55px, 10vw, 105px);
         border-radius:50%;
-        background:url('stone-medallion-B.png') center/cover no-repeat;
+        /* background:url('stone-medallion-B.png') center/cover no-repeat; */ /* File doesn't exist */
+        background: rgba(0,0,0,0.3);
         display:flex;
         align-items:center;
         justify-content:center;
@@ -242,10 +243,10 @@ const API =
  "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec?action=houseTotals";
 
 const shields = {
-    Phoenix:"phoenix2-removebg.png",
-    Dragon :"dragon2-removebg.png",
-    Hydra  :"hydra2-removebg.png",
-    Griffin:"griffin2-removebg.png"
+    Phoenix:"../assets/images/houses/phoenix2-removebg.png",
+    Dragon :"../assets/images/houses/dragon2-removebg.png",
+    Hydra  :"../assets/images/houses/hydra2-removebg.png",
+    Griffin:"../assets/images/houses/griffin2-removebg.png"
 };
 
 function roundScore(n){ return Math.round(parseFloat(n)); }
