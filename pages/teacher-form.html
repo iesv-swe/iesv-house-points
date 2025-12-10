@@ -581,6 +581,7 @@ async function loadStudentList() {
         }
     } catch (err) {
         console.error("Failed to load students", err);
+        setStatus("⚠️ Failed to load student list", true);
     }
 }
 
@@ -629,7 +630,11 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
             currentCategory = "";
         } catch (err) {
             console.error(err);
-            return setStatus("✗ Network error.", true);
+            if (!navigator.onLine) {
+                return setStatus("⚠️ You're offline. Check your connection.", true);
+            } else {
+                return setStatus("⚠️ Network error. Please try again.", true);
+            }
         }
 
         return;

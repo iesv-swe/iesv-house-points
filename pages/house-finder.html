@@ -206,7 +206,12 @@ async function loadRoster() {
         loaded = true;
         statusEl.textContent = "Ready.";
     } catch (e) {
-        statusEl.textContent = "Error loading.";
+        if (!navigator.onLine) {
+            statusEl.textContent = "⚠️ You're offline. Check your connection.";
+        } else {
+            statusEl.textContent = "⚠️ Error loading data. Please refresh.";
+        }
+        statusEl.style.color = "#ff9800";
         console.error(e);
     }
 }

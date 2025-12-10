@@ -551,6 +551,12 @@ async function loadStudentList() {
         }
     } catch (err) {
         console.error("Failed to load students", err);
+        // Show error in student selection area if it fails
+        const statusArea = document.querySelector('.status');
+        if (statusArea) {
+            statusArea.textContent = "⚠️ Failed to load student list. Using house selection only.";
+            statusArea.style.color = "#ff9800";
+        }
     }
 }
 
@@ -597,7 +603,11 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
             currentReason = "";
         } catch (err) {
             console.error(err);
-            setStatus("Error submitting.", true);
+            if (!navigator.onLine) {
+                setStatus("⚠️ You're offline. Check your connection.", true);
+            } else {
+                setStatus("⚠️ Error submitting. Please try again.", true);
+            }
         }
 
         return;
@@ -647,7 +657,11 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
 
     } catch (err) {
         console.error(err);
-        setStatus("✗ Network error.", true);
+        if (!navigator.onLine) {
+            setStatus("⚠️ You're offline. Check your connection.", true);
+        } else {
+            setStatus("⚠️ Network error. Please try again.", true);
+        }
     }
 });
 
