@@ -596,7 +596,7 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
         if (!currentHouse) return setStatus("Select a house.", true);
 
         const payload = {
-            action: "points",
+            action: "logPoints",
             source: "teacher-form",
             teacher,
             house: currentHouse,
@@ -641,7 +641,7 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
     try {
         const requests = selectedStudents.map(student => {
             const payload = {
-                action: "points",
+                action: "logPoints",
                 source: "teacher-form",
                 teacher,
                 house: student.house,
