@@ -13,12 +13,13 @@
         font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         background:url('../assets/images/backgrounds/stone.png') repeat;
         background-size:600px;
-        min-height:100vh;
-        padding:clamp(10px, 2vh, 20px);
+        height:100vh;
+        padding:clamp(8px, 1.5vh, 16px);
         color:white;
         display:flex;
         flex-direction:column;
         align-items:center;
+        overflow:hidden;
     }
 
     /* Particles */
@@ -47,27 +48,29 @@
     .header {
         display:flex;
         align-items:center;
-        gap:clamp(10px, 3vw, 30px);
-        margin-bottom:clamp(10px, 3vw, 20px);
+        gap:clamp(8px, 2vw, 20px);
+        margin-bottom:clamp(8px, 1.5vh, 12px);
         text-align:center;
         z-index:5;
         width:100%;
         justify-content:center;
         text-shadow:0 4px 12px black;
+        flex-shrink:0;
     }
 
     .logo {
-        width:clamp(50px, 8vw, 90px);
+        width:clamp(40px, 6vw, 70px);
     }
 
     h1 {
-        font-size:clamp(26px, 4vw, 46px);
+        font-size:clamp(22px, 3.5vw, 38px);
         font-weight:800;
         margin-bottom:2px;
+        line-height:1.1;
     }
 
     .subtitle {
-        font-size:clamp(12px, 2vw, 18px);
+        font-size:clamp(11px, 1.5vw, 16px);
         opacity:0.9;
     }
 
@@ -75,18 +78,21 @@
     .leaderboard {
         display:grid;
         grid-template-columns:repeat(2, 1fr);
-        gap:clamp(10px, 2vw, 26px);
+        grid-template-rows:repeat(2, 1fr);
+        gap:clamp(10px, 1.5vh, 20px);
         width:100%;
-        max-width:1400px;
-        margin:0 auto;
+        max-width:1600px;
+        flex:1;
+        min-height:0;
+        padding:0 clamp(8px, 2vw, 20px);
     }
 
     /* House card */
     .house-card {
         position:relative;
         background:rgba(0,0,0,0.55);
-        border-radius:clamp(14px, 2vw, 26px);
-        padding:clamp(12px, 2vw, 26px);
+        border-radius:clamp(12px, 1.5vw, 20px);
+        padding:clamp(10px, 1.5vh, 18px);
         box-shadow:0 8px 28px rgba(0,0,0,0.65);
         border:2px solid rgba(255,255,255,0.06);
         backdrop-filter:blur(6px);
@@ -94,7 +100,6 @@
         flex-direction:column;
         transition:0.3s ease;
         z-index:1;
-        aspect-ratio:1;
         min-height:0;
     }
 
@@ -134,13 +139,14 @@
         display:flex;
         align-items:center;
         justify-content:center;
-        gap:clamp(10px, 2vw, 28px);
-        margin-bottom:clamp(12px, 2vw, 20px);
+        gap:clamp(8px, 1.5vw, 20px);
+        margin-bottom:clamp(8px, 1.5vh, 14px);
+        flex-shrink:0;
     }
 
     .crest-wrap {
-        width:clamp(55px, 10vw, 105px);
-        height:clamp(55px, 10vw, 105px);
+        width:clamp(45px, 8vw, 80px);
+        height:clamp(45px, 8vw, 80px);
         border-radius:50%;
         background: rgba(0,0,0,0.3);
         display:flex;
@@ -158,7 +164,7 @@
     }
 
     .house-name {
-        font-size:clamp(20px, 3vw, 34px);
+        font-size:clamp(18px, 2.5vw, 28px);
         font-weight:900;
         white-space:nowrap;
         text-align:center;
@@ -166,10 +172,10 @@
     }
 
     .rank-badge {
-        width:clamp(44px, 7vw, 74px);
-        height:clamp(44px, 7vw, 74px);
+        width:clamp(38px, 6vw, 60px);
+        height:clamp(38px, 6vw, 60px);
         border-radius:50%;
-        font-size:clamp(14px, 2vw, 26px);
+        font-size:clamp(13px, 1.8vw, 22px);
         font-weight:700;
         display:flex;
         align-items:center;
@@ -191,9 +197,9 @@
     }
 
     .points {
-        font-size:clamp(50px, 12vw, 180px);
+        font-size:clamp(40px, 10vw, 140px);
         font-weight:900;
-        line-height:1;
+        line-height:0.95;
         text-shadow:0 8px 26px rgba(0,0,0,0.9);
     }
 
@@ -207,29 +213,33 @@
     }
 
     .quiz-points {
-        font-size:clamp(9px, 1.8vw, 27px); /* Max 15% of 180px = 27px */
+        font-size:clamp(8px, 1.5vw, 21px); /* Max 15% of 140px = 21px */
         opacity:0.75;
-        margin-top:clamp(4px, 1vw, 10px);
+        margin-top:clamp(3px, 0.8vh, 8px);
         text-align:center;
     }
 
     .last-updated {
-        font-size:clamp(10px, 1.4vw, 14px);
+        font-size:clamp(9px, 1.2vw, 13px);
         opacity:0.85;
-        margin-top:clamp(8px, 1.5vh, 16px);
-        margin-bottom:clamp(8px, 1.5vh, 16px);
+        margin-top:clamp(6px, 1vh, 10px);
         text-align:center;
+        flex-shrink:0;
     }
 
     /* Mobile adjustments */
     @media (max-width: 768px) {
-        .leaderboard {
-            grid-template-columns: 1fr;
-            gap:clamp(15px, 3vw, 20px);
+        body {
+            height:auto;
+            min-height:100vh;
+            overflow:auto;
         }
 
-        .house-card {
-            aspect-ratio:auto;
+        .leaderboard {
+            grid-template-columns: 1fr;
+            grid-template-rows: auto;
+            gap:clamp(15px, 3vw, 20px);
+            flex:none;
         }
     }
 </style>
