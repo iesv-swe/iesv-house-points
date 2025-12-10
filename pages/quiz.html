@@ -625,7 +625,10 @@ function displayQuestion(question) {
         { label: 'D', text: question.optionD }
     ];
 
-    options.forEach(option => {
+    // Shuffle the options array to randomize answer order
+    const shuffledOptions = shuffleArray(options);
+
+    shuffledOptions.forEach(option => {
         const btn = document.createElement('button');
         btn.className = 'answer-btn';
         btn.innerHTML = `<span class="answer-label">${option.label}</span>${option.text}`;
@@ -638,6 +641,16 @@ function displayQuestion(question) {
 
     document.getElementById('submitBtn').disabled = true;
     document.getElementById('submitBtn').textContent = 'Select an answer';
+}
+
+// Shuffle array using Fisher-Yates algorithm
+function shuffleArray(array) {
+    const shuffled = [...array]; // Create a copy
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
 }
 
 // Select answer

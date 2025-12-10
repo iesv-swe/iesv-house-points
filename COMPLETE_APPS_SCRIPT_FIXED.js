@@ -60,6 +60,11 @@ function doGet(e) {
     return jsonResponse({ status: 'success', settings: result });
   }
 
+  if (action === 'getQuizPointsByHouse') {
+    const result = getQuizPointsByHouse();
+    return jsonResponse(result);
+  }
+
   return jsonResponse({ status: 'error', message: 'Invalid action' });
 }
 
@@ -407,11 +412,21 @@ function getQuizQuestion(email, sessionId) {
   const data = questionsSheet.getDataRange().getValues();
   const activeQuestions = [];
 
+  // Check if user is staff (no .student. in email)
+  const isStaff = email && email.includes('@engelska.se') && !email.includes('.student.');
+
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
     const active = (row[9] === true || row[9] === 'TRUE');
 
     if (active && row[0] && row[1]) {
+      const difficulty = row[7] ? row[7].toString().trim() : '';
+
+      // Staff members only get HARD difficulty questions
+      if (isStaff && difficulty.toLowerCase() !== 'hard') {
+        continue; // Skip non-hard questions for staff
+      }
+
       activeQuestions.push({
         id: row[0],
         question: row[1],
@@ -420,7 +435,7 @@ function getQuizQuestion(email, sessionId) {
         optionC: row[4],
         optionD: row[5],
         correct: row[6],
-        difficulty: row[7],
+        difficulty: difficulty,
         category: row[8]
       });
     }
@@ -429,7 +444,9 @@ function getQuizQuestion(email, sessionId) {
   if (activeQuestions.length === 0) {
     return {
       status: 'error',
-      message: 'No questions available. Please contact an administrator.'
+      message: isStaff
+        ? 'No HARD difficulty questions available. Please contact an administrator.'
+        : 'No questions available. Please contact an administrator.'
     };
   }
 
@@ -716,5 +733,54 @@ function getQuizStudentStats() {
   return {
     status: 'success',
     students: studentsArray
+  };
+}
+
+function getQuizPointsByHouse() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const quizLog = ss.getSheetByName('Quiz Log');
+  const rosterSheet = ss.getSheetByName('Student Roster');
+
+  if (!quizLog || quizLog.getLastRow() <= 1) {
+    return {
+      status: 'success',
+      houses: {
+        Phoenix: 0,
+        Dragon: 0,
+        Hydra: 0,
+        Griffin: 0
+      }
+    };
+  }
+
+  const logData = quizLog.getRange(2, 1, quizLog.getLastRow() - 1, quizLog.getLastColumn()).getValues();
+  const rosterData = rosterSheet ? rosterSheet.getDataRange().getValues() : [];
+
+  const housePoints = {
+    Phoenix: 0,
+    Dragon: 0,
+    Hydra: 0,
+    Griffin: 0
+  };
+
+  logData.forEach(row => {
+    const email = row[1];
+    const points = row[7] || 0;
+
+    // Find student's house
+    for (let i = 1; i < rosterData.length; i++) {
+      if (rosterData[i][2] === email) {
+        const house = rosterData[i][3];
+        if (housePoints[house] !== undefined) {
+          housePoints[house] += points;
+        }
+        break;
+      }
+    }
+  });
+
+  return {
+    status: 'success',
+    houses: housePoints
   };
 }

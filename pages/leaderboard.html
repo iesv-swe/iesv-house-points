@@ -207,6 +207,13 @@
             0 0 60px rgba(255,90,0,1);
     }
 
+    .quiz-points {
+        font-size:clamp(10px, 2.25vw, 31.5px); /* Max 15% of 210px = 31.5px */
+        opacity:0.75;
+        margin-top:clamp(4px, 1vw, 10px);
+        text-align:center;
+    }
+
     .last-updated {
         font-size:clamp(10px, 1.4vw, 14px);
         opacity:0.85;
@@ -232,8 +239,8 @@
 <div class="last-updated" id="lastUpdated">Loading data...</div>
 
 <script>
-const API =
- "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec?action=houseTotals";
+const API_BASE = "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
+const API = API_BASE + "?action=houseTotals";
 
 const shields = {
     Phoenix:"../assets/images/houses/phoenix2-removebg.png",
@@ -250,8 +257,13 @@ async function loadLeaderboard() {
         const json = await res.json();
         if (json.status !== "success") throw new Error();
 
+        // Fetch quiz points
+        const quizRes = await fetch(API_BASE + "?action=getQuizPointsByHouse");
+        const quizJson = await quizRes.json();
+        const quizPoints = quizJson.status === "success" ? quizJson.houses : {};
+
         const houses = json.data.houses.slice().sort((a,b)=>a.rank-b.rank);
-        renderLeaderboard(houses);
+        renderLeaderboard(houses, quizPoints);
 
         document.getElementById("lastUpdated").textContent =
             "Last updated: " + new Date().toLocaleString();
@@ -262,7 +274,7 @@ async function loadLeaderboard() {
     }
 }
 
-function renderLeaderboard(houses){
+function renderLeaderboard(houses, quizPoints = {}){
     const board = document.getElementById("leaderboard");
     board.innerHTML = "";
 
@@ -270,6 +282,7 @@ function renderLeaderboard(houses){
         const ordinal = h.rank===1?"1st":h.rank===2?"2nd":h.rank===3?"3rd":"4th";
         const rankClass = h.rank===1?"gold":h.rank===2?"silver":h.rank===3?"bronze":"";
         const isWinner = h.rank===1;
+        const houseQuizPoints = quizPoints[h.house] || 0;
 
         const card = document.createElement("div");
         card.className = "house-card" + (isWinner ? " winner" : "");
@@ -290,6 +303,9 @@ function renderLeaderboard(houses){
             <div class="points-area">
                 <div class="points ${isWinner ? "winner-points" : ""}">
                     ${roundScore(h.houseScore)}
+                </div>
+                <div class="quiz-points">
+                    Quiz Points: ${houseQuizPoints}
                 </div>
             </div>
         `;

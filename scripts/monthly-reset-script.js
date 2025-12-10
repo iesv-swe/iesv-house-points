@@ -104,7 +104,7 @@ function archiveCurrentSeason() {
   return seasonNumber;
 }
 
-// Archive quiz statistics for the season
+// Archive quiz statistics for the season - SAVES TOP 10 STUDENTS
 function archiveQuizStats() {
   const sheet = SpreadsheetApp.getActiveSpreadsheet();
   const quizLog = sheet.getSheetByName('Quiz Log');
@@ -113,11 +113,10 @@ function archiveQuizStats() {
   // Create Quiz Season History tab if it doesn't exist
   if (!quizHistorySheet) {
     quizHistorySheet = sheet.insertSheet('Quiz Season History');
-    quizHistorySheet.getRange('A1:J1').setValues([[
-      'Season #', 'End Date', 'House', 'Total Attempts', 'Correct Answers',
-      'Accuracy %', 'Total Points', 'Top Student', 'Top Student Correct', 'Top Student House'
+    quizHistorySheet.getRange('A1:F1').setValues([[
+      'Season #', 'End Date', 'House', 'Total Attempts', 'Correct Answers', 'Accuracy %'
     ]]);
-    quizHistorySheet.getRange('A1:J1').setFontWeight('bold');
+    quizHistorySheet.getRange('A1:F1').setFontWeight('bold');
   }
 
   if (!quizLog || quizLog.getLastRow() <= 1) {
@@ -133,9 +132,11 @@ function archiveQuizStats() {
   const seasonNumber = historySheet ? historySheet.getLastRow() : 1;
   const endDate = new Date();
 
-  // Calculate stats by house
+  // Calculate stats by house and student
   const houseStats = {};
   const studentStats = {};
+  const rosterSheet = sheet.getSheetByName('Student Roster');
+  const rosterData = rosterSheet ? rosterSheet.getDataRange().getValues() : [];
 
   quizData.forEach(row => {
     const email = row[1];
@@ -143,42 +144,35 @@ function archiveQuizStats() {
     const points = row[7];
 
     // Get student's house from Student Roster
-    const rosterSheet = sheet.getSheetByName('Student Roster');
-    if (rosterSheet) {
-      const rosterData = rosterSheet.getDataRange().getValues();
-      for (let i = 1; i < rosterData.length; i++) {
-        if (rosterData[i][2] === email) {
-          const house = rosterData[i][3];
-          const studentName = `${rosterData[i][0]} ${rosterData[i][1]}`;
+    for (let i = 1; i < rosterData.length; i++) {
+      if (rosterData[i][2] === email) {
+        const house = rosterData[i][3];
+        const studentName = `${rosterData[i][0]} ${rosterData[i][1]}`;
 
-          // House stats
-          if (!houseStats[house]) {
-            houseStats[house] = { attempts: 0, correct: 0, points: 0 };
-          }
-          houseStats[house].attempts++;
-          if (isCorrect) houseStats[house].correct++;
-          houseStats[house].points += points;
-
-          // Student stats
-          if (!studentStats[email]) {
-            studentStats[email] = { name: studentName, house: house, correct: 0, attempts: 0 };
-          }
-          studentStats[email].attempts++;
-          if (isCorrect) studentStats[email].correct++;
-
-          break;
+        // House stats
+        if (!houseStats[house]) {
+          houseStats[house] = { attempts: 0, correct: 0, points: 0 };
         }
+        houseStats[house].attempts++;
+        if (isCorrect) houseStats[house].correct++;
+        houseStats[house].points += points;
+
+        // Student stats
+        if (!studentStats[email]) {
+          studentStats[email] = { name: studentName, house: house, correct: 0, attempts: 0 };
+        }
+        studentStats[email].attempts++;
+        if (isCorrect) studentStats[email].correct++;
+
+        break;
       }
     }
   });
 
-  // Find top student
-  let topStudent = { name: '-', correct: 0, house: '-' };
-  Object.values(studentStats).forEach(student => {
-    if (student.correct > topStudent.correct) {
-      topStudent = student;
-    }
-  });
+  // Get top 10 students
+  const topStudents = Object.values(studentStats)
+    .sort((a, b) => b.correct - a.correct)
+    .slice(0, 10);
 
   // Archive each house's stats
   Object.entries(houseStats).forEach(([house, stats]) => {
@@ -190,15 +184,32 @@ function archiveQuizStats() {
       house,
       stats.attempts,
       stats.correct,
-      accuracy,
-      stats.points,
-      topStudent.name,
-      topStudent.correct,
-      topStudent.house
+      accuracy
     ]);
   });
 
-  Logger.log('Quiz stats archived for season ' + seasonNumber);
+  // Create or get Top 10 Students sheet
+  let top10Sheet = sheet.getSheetByName('Quiz Top 10 History');
+  if (!top10Sheet) {
+    top10Sheet = sheet.insertSheet('Quiz Top 10 History');
+    top10Sheet.getRange('A1:E1').setValues([[
+      'Season #', 'Rank', 'Student Name', 'Correct Answers', 'House'
+    ]]);
+    top10Sheet.getRange('A1:E1').setFontWeight('bold');
+  }
+
+  // Archive top 10 students
+  topStudents.forEach((student, index) => {
+    top10Sheet.appendRow([
+      seasonNumber,
+      index + 1,
+      student.name,
+      student.correct,
+      student.house
+    ]);
+  });
+
+  Logger.log('Quiz stats archived for season ' + seasonNumber + ' with top 10 students');
 }
 
 // Reset all house points to zero
