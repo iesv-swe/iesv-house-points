@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://script.google.com https://script.googleusercontent.com;">
 <title>House Points Quiz - IESV</title>
 <link rel="icon" type="image/x-icon" href="../assets/icons/console-favicon.ico">
 
@@ -305,8 +306,10 @@ body {
     padding: 15px;
     border-radius: 10px;
     margin-top: 15px;
-    text-align: center;
+    text-align: left;
     font-size: 14px;
+    white-space: pre-line;
+    line-height: 1.6;
 }
 
 .status-error {
@@ -576,47 +579,83 @@ async function loadQuestion() {
         const data = await response.json();
         console.log('Question response:', data);
 
-        if (data.status === 'success') {
+        if (data.status === 'success' && data.question) {
+            console.log('Question loaded successfully, displaying...');
             currentQuestion = data.question;
             questionStartTime = Date.now();
-            displayQuestion(data.question);
-            startTimer(data.timeLimit || 60);
+
+            try {
+                displayQuestion(data.question);
+                startTimer(data.timeLimit || 60);
+                console.log('Question display and timer complete');
+            } catch (error) {
+                console.error('Error in displayQuestion or startTimer:', error);
+                document.getElementById('questionLoading').classList.add('hidden');
+                showStatus('quizStatus', 'Error displaying question: ' + error.message, 'error');
+            }
         } else {
-            showStatus('quizStatus', data.message || 'Failed to load question', 'error');
+            // Show the error in the quiz screen
             document.getElementById('questionLoading').classList.add('hidden');
-            // Add back button to return to email screen
-            setTimeout(() => {
-                if (confirm('Failed to load question. Return to start?')) {
-                    showScreen('email');
-                    document.getElementById('startBtn').disabled = false;
-                }
-            }, 2000);
+
+            const errorMsg = data.message || 'Failed to load question. Possible issues:\n' +
+                '• Quiz Questions sheet may not exist\n' +
+                '• No active questions in the sheet\n' +
+                '• Backend not fully configured\n\n' +
+                'See QUIZ_SETUP_GUIDE.md for setup instructions.';
+
+            showStatus('quizStatus', errorMsg, 'error');
+
+            // Add a visible back button
+            const backBtn = document.createElement('button');
+            backBtn.className = 'btn-secondary';
+            backBtn.textContent = '← Back to Start';
+            backBtn.style.marginTop = '15px';
+            backBtn.onclick = () => {
+                showScreen('email');
+                document.getElementById('startBtn').disabled = false;
+                backBtn.remove();
+            };
+            document.getElementById('quizStatus').parentNode.appendChild(backBtn);
         }
     } catch (error) {
         console.error('Question load error:', error);
         document.getElementById('questionLoading').classList.add('hidden');
-        showStatus('quizStatus', 'Quiz backend not configured. Please see QUIZ_SETUP_GUIDE.md', 'error');
-        // Add back button
-        setTimeout(() => {
-            if (confirm('Quiz system not ready. Return to start?')) {
-                showScreen('email');
-                document.getElementById('startBtn').disabled = false;
-            }
-        }, 2000);
+        showStatus('quizStatus', 'Network error or quiz backend not configured. Please see QUIZ_SETUP_GUIDE.md', 'error');
+
+        // Add a visible back button
+        const backBtn = document.createElement('button');
+        backBtn.className = 'btn-secondary';
+        backBtn.textContent = '← Back to Start';
+        backBtn.style.marginTop = '15px';
+        backBtn.onclick = () => {
+            showScreen('email');
+            document.getElementById('startBtn').disabled = false;
+            backBtn.remove();
+        };
+        document.getElementById('quizStatus').parentNode.appendChild(backBtn);
     }
 }
 
 // Display question
 function displayQuestion(question) {
-    document.getElementById('questionLoading').classList.add('hidden');
-    document.getElementById('questionContent').classList.remove('hidden');
+    console.log('displayQuestion called with:', question);
 
-    document.getElementById('questionNumber').textContent = `Question ID: ${question.id}`;
-    document.getElementById('questionText').textContent = question.question;
-    document.getElementById('questionCategory').textContent = `${question.category} • ${question.difficulty}`;
+    try {
+        document.getElementById('questionLoading').classList.add('hidden');
+        document.getElementById('questionContent').classList.remove('hidden');
 
-    const answersGrid = document.getElementById('answersGrid');
-    answersGrid.innerHTML = '';
+        document.getElementById('questionNumber').textContent = `Question ID: ${question.id}`;
+        document.getElementById('questionText').textContent = question.question;
+        document.getElementById('questionCategory').textContent = `${question.category} • ${question.difficulty}`;
+
+        const answersGrid = document.getElementById('answersGrid');
+        answersGrid.innerHTML = '';
+
+        console.log('Question content updated successfully');
+    } catch (error) {
+        console.error('Error displaying question:', error);
+        throw error;
+    }
 
     const options = [
         { label: 'A', text: question.optionA },
@@ -672,8 +711,12 @@ function selectAnswer(answer) {
 
 // Timer
 function startTimer(seconds) {
+    console.log('startTimer called with:', seconds);
+    clearInterval(timerInterval); // Clear any existing timer
+
     let timeLeft = seconds;
     document.getElementById('timerDisplay').textContent = timeLeft;
+    document.getElementById('timerDisplay').classList.remove('warning');
 
     timerInterval = setInterval(() => {
         timeLeft--;
@@ -688,6 +731,8 @@ function startTimer(seconds) {
             submitAnswer(true); // Auto-submit on timeout
         }
     }, 1000);
+
+    console.log('Timer started successfully');
 }
 
 // Submit answer
