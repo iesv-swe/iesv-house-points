@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://script.google.com https://script.googleusercontent.com;">
 <title>House Points - Teacher Input</title>
 <link rel="icon" type="image/x-icon" href="../assets/icons/teacher-favicon.ico">
 
@@ -343,19 +344,19 @@ input {
 <h2>Select House</h2>
 <div class="house-grid">
 
-<button type="button" class="house-btn" data-house="Phoenix">
+<button class="house-btn" data-house="Phoenix">
     <img src="../assets/images/houses/phoenix2-removebg.png" alt="Phoenix">
 </button>
 
-<button type="button" class="house-btn" data-house="Dragon">
+<button class="house-btn" data-house="Dragon">
     <img src="../assets/images/houses/dragon2-removebg.png" alt="Dragon">
 </button>
 
-<button type="button" class="house-btn" data-house="Hydra">
+<button class="house-btn" data-house="Hydra">
     <img src="../assets/images/houses/hydra2-removebg.png" alt="Hydra">
 </button>
 
-<button type="button" class="house-btn" data-house="Griffin">
+<button class="house-btn" data-house="Griffin">
     <img src="../assets/images/houses/griffin2-removebg.png" alt="Griffin">
 </button>
 
@@ -367,13 +368,13 @@ input {
 <h2>Select Category</h2>
 
 <div class="category-grid">
-<div class="category-btn" data-category="Kindness/Helping Others" role="button" tabindex="0">❤️ Kindness/Helping Others</div>
-<div class="category-btn" data-category="Academic Effort/Excellence" role="button" tabindex="0">📚 Academic Effort/Excellence</div>
-<div class="category-btn" data-category="Teamwork/Collaboration" role="button" tabindex="0">🤝 Teamwork/Collaboration</div>
-<div class="category-btn" data-category="Respect" role="button" tabindex="0">🙏 Respect</div>
-<div class="category-btn" data-category="Leadership" role="button" tabindex="0">⭐ Leadership</div>
-<div class="category-btn" data-category="Creativity/Problem Solving" role="button" tabindex="0">💡 Creativity/Problem Solving</div>
-<div class="category-btn" data-category="Responsibility" role="button" tabindex="0">✅ Responsibility</div>
+<div class="category-btn" data-category="Kindness/Helping Others">❤️ Kindness/Helping Others</div>
+<div class="category-btn" data-category="Academic Effort/Excellence">📚 Academic Effort/Excellence</div>
+<div class="category-btn" data-category="Teamwork/Collaboration">🤝 Teamwork/Collaboration</div>
+<div class="category-btn" data-category="Respect">🙏 Respect</div>
+<div class="category-btn" data-category="Leadership">⭐ Leadership</div>
+<div class="category-btn" data-category="Creativity/Problem Solving">💡 Creativity/Problem Solving</div>
+<div class="category-btn" data-category="Responsibility">✅ Responsibility</div>
 </div>
 </div>
 
@@ -402,7 +403,6 @@ const houseCard = document.getElementById("houseCard");
 
 houseButtons.forEach(btn => {
     btn.addEventListener("click", () => {
-        console.log("House clicked:", btn.dataset.house);
         houseButtons.forEach(b => b.classList.remove("selected"));
         btn.classList.add("selected");
         currentHouse = btn.dataset.house;
@@ -413,7 +413,6 @@ houseButtons.forEach(btn => {
 const categoryButtons = [...document.querySelectorAll(".category-btn")];
 categoryButtons.forEach(btn => {
     btn.addEventListener("click", () => {
-        console.log("Category clicked:", btn.dataset.category);
         categoryButtons.forEach(b => b.classList.remove("selected"));
         btn.classList.add("selected");
         currentCategory = btn.dataset.category;
@@ -515,7 +514,7 @@ function showSuggestions(list) {
 
         const main = document.createElement("div");
         main.className = "student-suggestion-main";
-        main.textContent = `${student.name} — ${student.house}`;
+        main.textContent = `${student.name};
 
         const sub = document.createElement("div");
         sub.className = "student-suggestion-sub";
@@ -582,6 +581,7 @@ async function loadStudentList() {
         }
     } catch (err) {
         console.error("Failed to load students", err);
+        setStatus("⚠️ Failed to load student list", true);
     }
 }
 
@@ -630,7 +630,11 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
             currentCategory = "";
         } catch (err) {
             console.error(err);
-            return setStatus("✗ Network error.", true);
+            if (!navigator.onLine) {
+                return setStatus("⚠️ You're offline. Check your connection.", true);
+            } else {
+                return setStatus("⚠️ Network error. Please try again.", true);
+            }
         }
 
         return;
@@ -685,7 +689,6 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
 });
 
 // ---- INIT ----
-renderSelectedStudents(); // Ensure house card is visible on load
 loadStudentList();
 </script>
 
