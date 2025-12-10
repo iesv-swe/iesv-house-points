@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://script.google.com https://script.googleusercontent.com;">
+<title>Canvas War - IESV House Points</title>
+<link rel="icon" type="image/x-icon" href="../assets/icons/console-favicon.ico">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-image: url("../assets/images/backgrounds/stone.png");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    padding: 20px;
+    color: white;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+    background: rgba(40, 40, 40, 0.95);
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+.header h1 {
+    font-size: 42px;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #dc143c, #228b22, #4169e1, #ff8c00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.header .subtitle {
+    font-size: 16px;
+    opacity: 0.9;
+    color: #b3bddc;
+}
+
+/* Email Screen */
+.email-screen {
+    max-width: 500px;
+    margin: 0 auto;
+    background: rgba(60, 60, 60, 0.95);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6);
+}
+
+.email-screen input {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #00c3ff, #0080ff);
+    border: none;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 195, 255, 0.4);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Main Canvas Layout */
+.canvas-container {
+    display: grid;
+    grid-template-columns: 300px 1fr 300px;
+    gap: 20px;
+    align-items: start;
+}
+
+.sidebar {
+    background: rgba(50, 50, 50, 0.95);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.sidebar h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    color: #00c3ff;
+}
+
+/* Student Status */
+.status-item {
+    margin-bottom: 15px;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+}
+
+.status-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 5px;
+}
+
+.status-value {
+    font-size: 18px;
+    font-weight: bold;
+    color: #00c3ff;
+}
+
+.color-preview {
+    width: 30px;
+    height: 30px;
+    border-radius: 5px;
+    display: inline-block;
+    border: 2px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.countdown {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ff8c00;
+    text-align: center;
+    margin: 15px 0;
+}
+
+/* Canvas Grid */
+.canvas-wrapper {
+    background: rgba(40, 40, 40, 0.95);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+#canvasGrid {
+    display: grid;
+    gap: 1px;
+    background: #222;
+    padding: 2px;
+    margin: 0 auto;
+    border-radius: 8px;
+    cursor: crosshair;
+}
+
+.pixel {
+    width: 100%;
+    height: 100%;
+    background: #333;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.pixel:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+    z-index: 10;
+    position: relative;
+}
+
+.pixel.placed {
+    cursor: not-allowed;
+}
+
+/* Territory Stats */
+.territory-stats {
+    margin-top: 20px;
+}
+
+.stat-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.stat-house {
+    width: 80px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.stat-progress {
+    flex: 1;
+    height: 25px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 0 10px;
+    position: relative;
+}
+
+.stat-fill {
+    height: 100%;
+    transition: width 0.5s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.stat-count {
+    width: 60px;
+    text-align: right;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* Activity Feed */
+.activity-feed {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    padding: 10px;
+    margin-bottom: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    font-size: 13px;
+    border-left: 3px solid;
+}
+
+.activity-item .time {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-top: 3px;
+}
+
+/* Place Pixel Button */
+.place-pixel-area {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    text-align: center;
+}
+
+.place-pixel-area .cooldown-msg {
+    color: #ff6b6b;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.place-pixel-area .ready-msg {
+    color: #4caf50;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+/* Status Messages */
+.status-message {
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 10px;
+    text-align: center;
+    font-size: 13px;
+}
+
+.status-error {
+    background: rgba(244, 67, 54, 0.2);
+    border: 1px solid #f44336;
+    color: #ffcdd2;
+}
+
+.status-success {
+    background: rgba(76, 175, 80, 0.2);
+    border: 1px solid #4caf50;
+    color: #c8e6c9;
+}
+
+.status-info {
+    background: rgba(33, 150, 243, 0.2);
+    border: 1px solid #2196f3;
+    color: #bbdefb;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+}
+
+.spinner {
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    border-top: 4px solid #00c3ff;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .canvas-container {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        max-width: 600px;
+        margin: 0 auto 20px;
+    }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 195, 255, 0.5);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 195, 255, 0.8);
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🎨 House Canvas War</h1>
+        <p class="subtitle">Claim territory for your house, one pixel at a time!</p>
+    </div>
+
+    <!-- EMAIL INPUT SCREEN -->
+    <div id="emailScreen" class="email-screen">
+        <p style="margin-bottom: 15px; opacity: 0.9;">Enter your school email to join the canvas war:</p>
+        <input
+            type="email"
+            id="emailInput"
+            placeholder="your.name.student@engelska.se"
+            autocomplete="email"
+        >
+        <button id="startBtn" class="btn-primary">Enter Canvas</button>
+
+        <div id="emailStatus" class="status-message hidden"></div>
+    </div>
+
+    <!-- MAIN CANVAS SCREEN -->
+    <div id="canvasScreen" class="hidden">
+        <div class="canvas-container">
+            <!-- LEFT SIDEBAR: Student Status -->
+            <div class="sidebar">
+                <h3>Your Status</h3>
+
+                <div class="status-item">
+                    <div class="status-label">Student</div>
+                    <div class="status-value" id="studentName">-</div>
+                </div>
+
+                <div class="status-item">
+                    <div class="status-label">House</div>
+                    <div class="status-value" id="studentHouse">-</div>
+                </div>
+
+                <div class="status-item">
+                    <div class="status-label">Your Color</div>
+                    <div>
+                        <span class="color-preview" id="studentColor"></span>
+                    </div>
+                </div>
+
+                <div class="status-item">
+                    <div class="status-label">Available Points</div>
+                    <div class="status-value" id="studentPoints">0</div>
+                </div>
+
+                <div id="countdownBox" class="status-item hidden">
+                    <div class="status-label">Campaign Ends In</div>
+                    <div class="countdown" id="campaignCountdown">-</div>
+                </div>
+
+                <div class="place-pixel-area">
+                    <div id="cooldownStatus"></div>
+                </div>
+            </div>
+
+            <!-- CENTER: Canvas Grid -->
+            <div class="canvas-wrapper">
+                <div id="canvasLoading" class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading canvas...</p>
+                </div>
+
+                <div id="canvasContent" class="hidden">
+                    <div id="canvasGrid"></div>
+
+                    <div class="territory-stats">
+                        <h3 style="text-align: center; margin-bottom: 15px; color: #00c3ff;">Territory Control</h3>
+                        <div class="stat-bar">
+                            <div class="stat-house" style="color: #dc143c;">Phoenix</div>
+                            <div class="stat-progress">
+                                <div class="stat-fill" id="phoenixBar" style="background: #dc143c; width: 0%;">0%</div>
+                            </div>
+                            <div class="stat-count" id="phoenixCount">0</div>
+                        </div>
+
+                        <div class="stat-bar">
+                            <div class="stat-house" style="color: #228b22;">Dragon</div>
+                            <div class="stat-progress">
+                                <div class="stat-fill" id="dragonBar" style="background: #228b22; width: 0%;">0%</div>
+                            </div>
+                            <div class="stat-count" id="dragonCount">0</div>
+                        </div>
+
+                        <div class="stat-bar">
+                            <div class="stat-house" style="color: #4169e1;">Hydra</div>
+                            <div class="stat-progress">
+                                <div class="stat-fill" id="hydraBar" style="background: #4169e1; width: 0%;">0%</div>
+                            </div>
+                            <div class="stat-count" id="hydraCount">0</div>
+                        </div>
+
+                        <div class="stat-bar">
+                            <div class="stat-house" style="color: #ff8c00;">Griffin</div>
+                            <div class="stat-progress">
+                                <div class="stat-fill" id="griffinBar" style="background: #ff8c00; width: 0%;">0%</div>
+                            </div>
+                            <div class="stat-count" id="griffinCount">0</div>
+                        </div>
+
+                        <div class="stat-bar">
+                            <div class="stat-house" style="color: #000;">Staff</div>
+                            <div class="stat-progress">
+                                <div class="stat-fill" id="staffBar" style="background: #000; width: 0%;">0%</div>
+                            </div>
+                            <div class="stat-count" id="staffCount">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="canvasStatus" class="status-message hidden"></div>
+            </div>
+
+            <!-- RIGHT SIDEBAR: Recent Activity -->
+            <div class="sidebar">
+                <h3>Recent Activity</h3>
+                <div class="activity-feed" id="activityFeed">
+                    <p style="opacity: 0.6; text-align: center; padding: 20px;">No activity yet...</p>
+                </div>
+
+                <button id="refreshBtn" class="btn-primary" style="margin-top: 15px; font-size: 14px; padding: 12px;">
+                    🔄 Refresh Canvas
+                </button>
+
+                <button id="leaderboardBtn" class="btn-primary" style="margin-top: 10px; font-size: 14px; padding: 12px; background: linear-gradient(135deg, #9c27b0, #673ab7);">
+                    📊 View Leaderboard
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
+
+let studentEmail = '';
+let studentStatus = null;
+let canvasData = null;
+let sessionId = generateSessionId();
+let countdownInterval = null;
+
+function generateSessionId() {
+    return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+// Show status message
+function showStatus(elementId, message, type = 'info') {
+    const el = document.getElementById(elementId);
+    el.textContent = message;
+    el.className = 'status-message status-' + type;
+    el.classList.remove('hidden');
+}
+
+function hideStatus(elementId) {
+    document.getElementById(elementId).classList.add('hidden');
+}
+
+// Enter canvas button
+document.getElementById('startBtn').addEventListener('click', async () => {
+    const email = document.getElementById('emailInput').value.trim().toLowerCase();
+
+    if (!email || !email.includes('@')) {
+        showStatus('emailStatus', 'Please enter a valid email address', 'error');
+        return;
+    }
+
+    studentEmail = email;
+    showStatus('emailStatus', 'Loading canvas...', 'info');
+    document.getElementById('startBtn').disabled = true;
+
+    // Load student status and canvas
+    const success = await loadStudentStatus();
+
+    if (success) {
+        document.getElementById('emailScreen').classList.add('hidden');
+        document.getElementById('canvasScreen').classList.remove('hidden');
+        loadCanvas();
+        loadRecentActivity();
+        startCooldownCheck();
+    } else {
+        document.getElementById('startBtn').disabled = false;
+    }
+});
+
+// Load student status
+async function loadStudentStatus() {
+    try {
+        const url = `${API_URL}?action=getStudentCanvasStatus&email=${encodeURIComponent(studentEmail)}`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            studentStatus = data;
+
+            document.getElementById('studentName').textContent = data.name || 'Unknown';
+            document.getElementById('studentHouse').textContent = data.isStaff ? 'Staff' : data.house;
+            document.getElementById('studentColor').style.background = data.color;
+            document.getElementById('studentPoints').textContent = data.pointBalance;
+
+            // Show countdown if enabled
+            if (data.settings.campaignEndDate && studentStatus.settings) {
+                const settingsResponse = await fetch(`${API_URL}?action=getCanvasSettings`);
+                const settingsData = await settingsResponse.json();
+
+                if (settingsData.status === 'success' && settingsData.settings.showCountdown) {
+                    document.getElementById('countdownBox').classList.remove('hidden');
+                    startCountdown(data.settings.campaignEndDate);
+                }
+            }
+
+            updateCooldownStatus();
+            return true;
+        } else {
+            showStatus('emailStatus', data.message || 'Error loading student status', 'error');
+            return false;
+        }
+    } catch (error) {
+        showStatus('emailStatus', 'Canvas system not configured. Please contact an administrator.', 'error');
+        return false;
+    }
+}
+
+// Load canvas state
+async function loadCanvas() {
+    try {
+        const url = `${API_URL}?action=getCanvasState`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            canvasData = data;
+            renderCanvas(data);
+            loadStats();
+        } else {
+            showStatus('canvasStatus', data.message || 'Error loading canvas', 'error');
+        }
+    } catch (error) {
+        showStatus('canvasStatus', 'Network error loading canvas', 'error');
+    }
+}
+
+// Render canvas grid
+function renderCanvas(data) {
+    const grid = document.getElementById('canvasGrid');
+    const { width, height, pixelSize } = data.settings;
+
+    grid.style.gridTemplateColumns = `repeat(${width}, ${pixelSize}px)`;
+    grid.style.gridTemplateRows = `repeat(${height}, ${pixelSize}px)`;
+    grid.innerHTML = '';
+
+    // Create pixel map for quick lookup
+    const pixelMap = {};
+    data.pixels.forEach(pixel => {
+        const key = `${pixel.row}-${pixel.col}`;
+        pixelMap[key] = pixel;
+    });
+
+    // Generate grid
+    for (let row = 0; row < height; row++) {
+        for (let col = 0; col < width; col++) {
+            const pixel = document.createElement('div');
+            pixel.className = 'pixel';
+            pixel.dataset.row = row;
+            pixel.dataset.col = col;
+
+            const key = `${row}-${col}`;
+            if (pixelMap[key]) {
+                pixel.style.background = pixelMap[key].color;
+                pixel.classList.add('placed');
+                pixel.title = `${pixelMap[key].house} - ${new Date(pixelMap[key].placedAt).toLocaleString()}`;
+            }
+
+            pixel.addEventListener('click', () => handlePixelClick(row, col));
+
+            grid.appendChild(pixel);
+        }
+    }
+
+    document.getElementById('canvasLoading').classList.add('hidden');
+    document.getElementById('canvasContent').classList.remove('hidden');
+}
+
+// Handle pixel click
+async function handlePixelClick(row, col) {
+    if (!studentStatus || !studentStatus.canPlace) {
+        if (studentStatus.pointBalance < 1) {
+            showStatus('canvasStatus', 'You need at least 1 house point to place a pixel! Earn points first.', 'error');
+        } else if (studentStatus.cooldown.onCooldown) {
+            showStatus('canvasStatus', `Please wait ${studentStatus.cooldown.minutesRemaining} more minute(s) before placing another pixel.`, 'error');
+        } else {
+            showStatus('canvasStatus', 'Campaign is not active or you cannot place pixels.', 'error');
+        }
+        return;
+    }
+
+    hideStatus('canvasStatus');
+    showStatus('canvasStatus', 'Placing pixel...', 'info');
+
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'placePixel',
+                email: studentEmail,
+                row: row,
+                col: col,
+                sessionId: sessionId
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            showStatus('canvasStatus', data.message, 'success');
+
+            // Update pixel on grid
+            const pixelElement = document.querySelector(`.pixel[data-row="${row}"][data-col="${col}"]`);
+            if (pixelElement) {
+                pixelElement.style.background = data.pixel.color;
+                pixelElement.classList.add('placed');
+            }
+
+            // Update stats
+            if (data.stats) {
+                updateStats(data.stats);
+            }
+
+            // Reload student status
+            await loadStudentStatus();
+            loadRecentActivity();
+
+        } else {
+            showStatus('canvasStatus', data.message, 'error');
+        }
+    } catch (error) {
+        showStatus('canvasStatus', 'Network error. Please try again.', 'error');
+    }
+}
+
+// Load and update stats
+async function loadStats() {
+    try {
+        const url = `${API_URL}?action=getCanvasStats`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            updateStats(data.stats);
+        }
+    } catch (error) {
+        console.error('Error loading stats:', error);
+    }
+}
+
+function updateStats(stats) {
+    const houses = ['Phoenix', 'Dragon', 'Hydra', 'Griffin', 'Staff'];
+
+    houses.forEach(house => {
+        const houseData = stats[house];
+        const barId = house.toLowerCase() + 'Bar';
+        const countId = house.toLowerCase() + 'Count';
+
+        const bar = document.getElementById(barId);
+        const count = document.getElementById(countId);
+
+        if (bar && count) {
+            bar.style.width = houseData.percentage + '%';
+            bar.textContent = houseData.percentage + '%';
+            count.textContent = houseData.count;
+        }
+    });
+}
+
+// Load recent activity
+async function loadRecentActivity() {
+    try {
+        const url = `${API_URL}?action=getCanvasRecentActivity&limit=10`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.status === 'success' && data.activity.length > 0) {
+            const feed = document.getElementById('activityFeed');
+            feed.innerHTML = '';
+
+            data.activity.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'activity-item';
+                div.style.borderLeftColor = item.color;
+
+                const time = new Date(item.timestamp);
+                const timeAgo = getTimeAgo(time);
+
+                div.innerHTML = `
+                    <div><strong>${item.house}</strong> placed a pixel at (${item.row}, ${item.col})</div>
+                    <div class="time">${timeAgo}</div>
+                `;
+
+                feed.appendChild(div);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading activity:', error);
+    }
+}
+
+function getTimeAgo(date) {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    if (seconds < 60) return `${seconds}s ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+}
+
+// Update cooldown status display
+function updateCooldownStatus() {
+    const statusDiv = document.getElementById('cooldownStatus');
+
+    if (!studentStatus) {
+        statusDiv.innerHTML = '<p class="cooldown-msg">Loading...</p>';
+        return;
+    }
+
+    if (studentStatus.pointBalance < 1) {
+        statusDiv.innerHTML = '<p class="cooldown-msg">❌ No points available<br>Earn points to play!</p>';
+    } else if (studentStatus.cooldown.onCooldown) {
+        statusDiv.innerHTML = `<p class="cooldown-msg">⏳ Cooldown: ${studentStatus.cooldown.minutesRemaining} min remaining</p>`;
+    } else if (!studentStatus.settings.campaignActive) {
+        statusDiv.innerHTML = '<p class="cooldown-msg">Campaign is not active</p>';
+    } else {
+        statusDiv.innerHTML = '<p class="ready-msg">✅ Ready to place pixel!<br>Click on the canvas</p>';
+    }
+}
+
+// Start cooldown check interval
+function startCooldownCheck() {
+    setInterval(async () => {
+        await loadStudentStatus();
+    }, 30000); // Check every 30 seconds
+}
+
+// Campaign countdown
+function startCountdown(endDate) {
+    const end = new Date(endDate);
+
+    function update() {
+        const now = new Date();
+        const diff = end - now;
+
+        if (diff <= 0) {
+            document.getElementById('campaignCountdown').textContent = 'ENDED';
+            clearInterval(countdownInterval);
+            return;
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+        document.getElementById('campaignCountdown').textContent = `${days}d ${hours}h ${minutes}m`;
+    }
+
+    update();
+    countdownInterval = setInterval(update, 60000); // Update every minute
+}
+
+// Refresh button
+document.getElementById('refreshBtn').addEventListener('click', () => {
+    loadCanvas();
+    loadStats();
+    loadRecentActivity();
+    loadStudentStatus();
+});
+
+// Leaderboard button
+document.getElementById('leaderboardBtn').addEventListener('click', () => {
+    window.location.href = 'canvas-leaderboard.html';
+});
+
+// Enter key support
+document.getElementById('emailInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        document.getElementById('startBtn').click();
+    }
+});
+</script>
+
+</body>
+</html>

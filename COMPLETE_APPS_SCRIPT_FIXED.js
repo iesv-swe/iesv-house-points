@@ -65,6 +65,40 @@ function doGet(e) {
     return jsonResponse(result);
   }
 
+  // Canvas Actions
+  if (action === 'getCanvasState') {
+    const result = getCanvasState();
+    return jsonResponse(result);
+  }
+
+  if (action === 'getCanvasStats') {
+    const result = getCanvasStats();
+    return jsonResponse(result);
+  }
+
+  if (action === 'getStudentCanvasStatus') {
+    const email = e.parameter.email;
+    const result = getStudentCanvasStatus(email);
+    return jsonResponse(result);
+  }
+
+  if (action === 'getCanvasRecentActivity') {
+    const limit = parseInt(e.parameter.limit) || 10;
+    const result = getCanvasRecentActivity(limit);
+    return jsonResponse(result);
+  }
+
+  if (action === 'getCanvasLeaderboard') {
+    const password = e.parameter.password;
+    const result = getCanvasLeaderboard(password);
+    return jsonResponse(result);
+  }
+
+  if (action === 'getCanvasSettings') {
+    const result = getCanvasSettings();
+    return jsonResponse({ status: 'success', settings: result });
+  }
+
   return jsonResponse({ status: 'error', message: 'Invalid action' });
 }
 
@@ -90,6 +124,27 @@ function doPost(e) {
 
   if (data.action === 'updateQuizSettings') {
     const result = updateQuizSettings(data.settings);
+    return jsonResponse(result);
+  }
+
+  // Canvas Actions
+  if (data.action === 'placePixel') {
+    const result = placePixel(data);
+    return jsonResponse(result);
+  }
+
+  if (data.action === 'wipeCanvas') {
+    const result = wipeCanvas(data.password);
+    return jsonResponse(result);
+  }
+
+  if (data.action === 'extendCampaign') {
+    const result = extendCampaign(data.newEndDate, data.password);
+    return jsonResponse(result);
+  }
+
+  if (data.action === 'updateCanvasSettings') {
+    const result = updateCanvasSettings(data.settings, data.password);
     return jsonResponse(result);
   }
 
@@ -782,5 +837,740 @@ function getQuizPointsByHouse() {
   return {
     status: 'success',
     houses: housePoints
+  };
+}
+
+// ============================================================================
+// CANVAS SYSTEM - r/Place Style Pixel War
+// ============================================================================
+
+/**
+ * Initialize Canvas sheets (run this once to set up)
+ */
+function initializeCanvasSheets() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+
+  // Canvas State sheet
+  let canvasState = ss.getSheetByName('Canvas State');
+  if (!canvasState) {
+    canvasState = ss.insertSheet('Canvas State');
+    canvasState.appendRow(['Row', 'Col', 'Color', 'PlacedBy', 'PlacedAt', 'House', 'StudentName']);
+    canvasState.getRange('A1:G1').setFontWeight('bold').setBackground('#4a86e8');
+  }
+
+  // Canvas Settings sheet
+  let canvasSettings = ss.getSheetByName('Canvas Settings');
+  if (!canvasSettings) {
+    canvasSettings = ss.insertSheet('Canvas Settings');
+    canvasSettings.appendRow(['Setting', 'Value']);
+    canvasSettings.getRange('A1:B1').setFontWeight('bold').setBackground('#4a86e8');
+
+    // Default settings
+    const defaults = [
+      ['canvasWidth', 100],
+      ['canvasHeight', 100],
+      ['pixelSize', 8],
+      ['cooldownMinutes', 60],
+      ['pointCostPerPixel', 1],
+      ['campaignStartDate', new Date()],
+      ['campaignEndDate', new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)], // 7 days from now
+      ['canvasActive', 'TRUE'],
+      ['allowOverwrite', 'FALSE'],
+      ['allowBlackOverwrite', 'FALSE'],
+      ['showCountdown', 'TRUE'],
+      ['happyHourActive', 'FALSE'],
+      ['happyHourPixelsAllowed', 5],
+      ['leaderboardPassword', 'canvas2025'],
+      ['adminPassword', 'admin2025']
+    ];
+
+    defaults.forEach(row => canvasSettings.appendRow(row));
+  }
+
+  // Canvas Activity Log sheet
+  let canvasLog = ss.getSheetByName('Canvas Activity Log');
+  if (!canvasLog) {
+    canvasLog = ss.insertSheet('Canvas Activity Log');
+    canvasLog.appendRow(['Timestamp', 'Email', 'Name', 'House', 'Row', 'Col', 'Color', 'PointsSpent', 'SessionId']);
+    canvasLog.getRange('A1:I1').setFontWeight('bold').setBackground('#4a86e8');
+  }
+
+  // Canvas History sheet
+  let canvasHistory = ss.getSheetByName('Canvas History');
+  if (!canvasHistory) {
+    canvasHistory = ss.insertSheet('Canvas History');
+    canvasHistory.appendRow(['CampaignEndDate', 'WinningHouse', 'WinningPercentage', 'TotalPixels', 'Phoenix%', 'Dragon%', 'Hydra%', 'Griffin%', 'Staff%']);
+    canvasHistory.getRange('A1:I1').setFontWeight('bold').setBackground('#4a86e8');
+  }
+
+  return { status: 'success', message: 'Canvas sheets initialized successfully!' };
+}
+
+/**
+ * Get Canvas settings
+ */
+function getCanvasSettings() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const settingsSheet = ss.getSheetByName('Canvas Settings');
+
+  if (!settingsSheet) {
+    return {
+      canvasWidth: 100,
+      canvasHeight: 100,
+      pixelSize: 8,
+      cooldownMinutes: 60,
+      pointCostPerPixel: 1,
+      campaignStartDate: new Date(),
+      campaignEndDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      canvasActive: true,
+      allowOverwrite: false,
+      allowBlackOverwrite: false,
+      showCountdown: true,
+      happyHourActive: false,
+      happyHourPixelsAllowed: 5
+    };
+  }
+
+  const data = settingsSheet.getDataRange().getValues();
+  const settings = {};
+
+  for (let i = 1; i < data.length; i++) {
+    const key = data[i][0];
+    let value = data[i][1];
+
+    if (value === 'TRUE') value = true;
+    if (value === 'FALSE') value = false;
+    if (key.includes('Date') && value) value = new Date(value);
+
+    settings[key] = value;
+  }
+
+  return settings;
+}
+
+/**
+ * Get current canvas state (all placed pixels)
+ */
+function getCanvasState() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const canvasSheet = ss.getSheetByName('Canvas State');
+  const settings = getCanvasSettings();
+
+  if (!canvasSheet || canvasSheet.getLastRow() <= 1) {
+    return {
+      status: 'success',
+      pixels: [],
+      settings: {
+        width: settings.canvasWidth,
+        height: settings.canvasHeight,
+        pixelSize: settings.pixelSize
+      }
+    };
+  }
+
+  const data = canvasSheet.getRange(2, 1, canvasSheet.getLastRow() - 1, 7).getValues();
+  const pixels = data.map(row => ({
+    row: row[0],
+    col: row[1],
+    color: row[2],
+    placedBy: row[3],
+    placedAt: row[4],
+    house: row[5],
+    studentName: row[6]
+  }));
+
+  return {
+    status: 'success',
+    pixels: pixels,
+    settings: {
+      width: settings.canvasWidth,
+      height: settings.canvasHeight,
+      pixelSize: settings.pixelSize
+    }
+  };
+}
+
+/**
+ * Calculate student's available point balance
+ */
+function getStudentPointBalance(email) {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const pointsLog = ss.getSheetByName('Points Log');
+  const canvasLog = ss.getSheetByName('Canvas Activity Log');
+
+  let earnedPoints = 0;
+  let spentPoints = 0;
+
+  // Calculate earned points from Points Log
+  if (pointsLog && pointsLog.getLastRow() > 1) {
+    const pointsData = pointsLog.getDataRange().getValues();
+    for (let i = 1; i < pointsData.length; i++) {
+      if (pointsData[i][1] === email) { // Column B = Student email
+        earnedPoints += Number(pointsData[i][4]) || 0; // Column E = Points
+      }
+    }
+  }
+
+  // Calculate spent points from Canvas Activity Log
+  if (canvasLog && canvasLog.getLastRow() > 1) {
+    const canvasData = canvasLog.getDataRange().getValues();
+    for (let i = 1; i < canvasData.length; i++) {
+      if (canvasData[i][1] === email) { // Column B = Email
+        spentPoints += Number(canvasData[i][7]) || 0; // Column H = PointsSpent
+      }
+    }
+  }
+
+  return earnedPoints - spentPoints;
+}
+
+/**
+ * Check if student is on cooldown
+ */
+function checkCanvasCooldown(email, settings) {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const canvasLog = ss.getSheetByName('Canvas Activity Log');
+
+  if (!canvasLog || canvasLog.getLastRow() <= 1) {
+    return { onCooldown: false, minutesRemaining: 0 };
+  }
+
+  const logData = canvasLog.getDataRange().getValues();
+  const now = new Date();
+
+  // Find most recent placement by this student
+  for (let i = logData.length - 1; i >= 1; i--) {
+    if (logData[i][1] === email) {
+      const lastPlacement = new Date(logData[i][0]);
+      const minutesSince = (now - lastPlacement) / (1000 * 60);
+
+      if (minutesSince < settings.cooldownMinutes) {
+        return {
+          onCooldown: true,
+          minutesRemaining: Math.ceil(settings.cooldownMinutes - minutesSince),
+          lastPlacement: lastPlacement
+        };
+      }
+      break;
+    }
+  }
+
+  return { onCooldown: false, minutesRemaining: 0 };
+}
+
+/**
+ * Get student's canvas status (cooldown, points, etc.)
+ */
+function getStudentCanvasStatus(email) {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const settings = getCanvasSettings();
+  const rosterSheet = ss.getSheetByName('Student Roster');
+
+  // Get student info
+  let studentName = '';
+  let house = '';
+  let isStaff = false;
+
+  if (rosterSheet) {
+    const rosterData = rosterSheet.getDataRange().getValues();
+    for (let i = 1; i < rosterData.length; i++) {
+      if (rosterData[i][2] === email) { // Column C = Email
+        studentName = `${rosterData[i][0]} ${rosterData[i][1]}`; // First Last
+        house = rosterData[i][3]; // Column D = House
+        break;
+      }
+    }
+  }
+
+  // Check if staff (has @engelska.se but no .student.)
+  isStaff = email.includes('@engelska.se') && !email.includes('.student.');
+
+  const pointBalance = getStudentPointBalance(email);
+  const cooldownStatus = checkCanvasCooldown(email, settings);
+
+  // Get student's color
+  const houseColors = {
+    'Phoenix': '#dc143c',
+    'Dragon': '#228b22',
+    'Hydra': '#4169e1',
+    'Griffin': '#ff8c00'
+  };
+
+  const color = isStaff ? '#000000' : houseColors[house] || '#cccccc';
+
+  return {
+    status: 'success',
+    email: email,
+    name: studentName,
+    house: house,
+    isStaff: isStaff,
+    color: color,
+    pointBalance: pointBalance,
+    canPlace: pointBalance >= settings.pointCostPerPixel && !cooldownStatus.onCooldown && settings.canvasActive,
+    cooldown: cooldownStatus,
+    settings: {
+      cooldownMinutes: settings.cooldownMinutes,
+      pointCost: settings.pointCostPerPixel,
+      campaignActive: settings.canvasActive,
+      campaignEndDate: settings.campaignEndDate
+    }
+  };
+}
+
+/**
+ * Place a pixel on the canvas
+ */
+function placePixel(data) {
+  const email = data.email;
+  const row = data.row;
+  const col = data.col;
+  const sessionId = data.sessionId || 'none';
+
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const settings = getCanvasSettings();
+  const canvasState = ss.getSheetByName('Canvas State');
+  const canvasLog = ss.getSheetByName('Canvas Activity Log');
+  const rosterSheet = ss.getSheetByName('Student Roster');
+
+  // Validate campaign is active
+  if (!settings.canvasActive) {
+    return {
+      status: 'error',
+      message: 'Canvas campaign is not currently active.'
+    };
+  }
+
+  // Check campaign dates
+  const now = new Date();
+  if (now < new Date(settings.campaignStartDate)) {
+    return {
+      status: 'error',
+      message: 'Canvas campaign has not started yet.'
+    };
+  }
+  if (now > new Date(settings.campaignEndDate)) {
+    return {
+      status: 'error',
+      message: 'Canvas campaign has ended.'
+    };
+  }
+
+  // Get student info
+  let studentName = '';
+  let house = '';
+  let isStaff = false;
+
+  if (rosterSheet) {
+    const rosterData = rosterSheet.getDataRange().getValues();
+    for (let i = 1; i < rosterData.length; i++) {
+      if (rosterData[i][2] === email) {
+        studentName = `${rosterData[i][0]} ${rosterData[i][1]}`;
+        house = rosterData[i][3];
+        break;
+      }
+    }
+  }
+
+  isStaff = email.includes('@engelska.se') && !email.includes('.student.');
+
+  if (!house && !isStaff) {
+    return {
+      status: 'error',
+      message: 'Student not found in roster.'
+    };
+  }
+
+  // Validate coordinates
+  if (row < 0 || row >= settings.canvasHeight || col < 0 || col >= settings.canvasWidth) {
+    return {
+      status: 'error',
+      message: 'Invalid coordinates.'
+    };
+  }
+
+  // Check point balance
+  const pointBalance = getStudentPointBalance(email);
+  if (pointBalance < settings.pointCostPerPixel) {
+    return {
+      status: 'error',
+      message: `You need at least ${settings.pointCostPerPixel} house point(s) to place a pixel. Earn points first!`
+    };
+  }
+
+  // Check cooldown
+  const cooldownStatus = checkCanvasCooldown(email, settings);
+  if (cooldownStatus.onCooldown) {
+    return {
+      status: 'error',
+      message: `Please wait ${cooldownStatus.minutesRemaining} more minute(s) before placing another pixel.`
+    };
+  }
+
+  // Determine color based on house/staff
+  const houseColors = {
+    'Phoenix': '#dc143c',
+    'Dragon': '#228b22',
+    'Hydra': '#4169e1',
+    'Griffin': '#ff8c00'
+  };
+
+  const color = isStaff ? '#000000' : houseColors[house];
+
+  // Check if pixel already exists at this location
+  const stateData = canvasState.getLastRow() > 1 ? canvasState.getRange(2, 1, canvasState.getLastRow() - 1, 7).getValues() : [];
+
+  for (let i = 0; i < stateData.length; i++) {
+    if (stateData[i][0] === row && stateData[i][1] === col) {
+      // Pixel exists
+      if (!settings.allowOverwrite) {
+        return {
+          status: 'error',
+          message: 'This pixel has already been claimed! No overwrites allowed.'
+        };
+      }
+
+      // Check if it's a black pixel and if black overwrites are disabled
+      if (stateData[i][2] === '#000000' && !settings.allowBlackOverwrite) {
+        return {
+          status: 'error',
+          message: 'Staff pixels cannot be overwritten!'
+        };
+      }
+    }
+  }
+
+  // Add or update pixel in Canvas State
+  let pixelExists = false;
+  for (let i = 0; i < stateData.length; i++) {
+    if (stateData[i][0] === row && stateData[i][1] === col) {
+      // Update existing pixel
+      canvasState.getRange(i + 2, 3, 1, 5).setValues([[color, email, new Date(), house || 'Staff', studentName]]);
+      pixelExists = true;
+      break;
+    }
+  }
+
+  if (!pixelExists) {
+    // Add new pixel
+    canvasState.appendRow([row, col, color, email, new Date(), house || 'Staff', studentName]);
+  }
+
+  // Log the activity
+  canvasLog.appendRow([
+    new Date(),
+    email,
+    studentName,
+    house || 'Staff',
+    row,
+    col,
+    color,
+    settings.pointCostPerPixel,
+    sessionId
+  ]);
+
+  // Calculate new stats
+  const stats = calculateCanvasStats();
+
+  return {
+    status: 'success',
+    message: 'Pixel placed successfully!',
+    pixel: {
+      row: row,
+      col: col,
+      color: color,
+      house: house || 'Staff'
+    },
+    newBalance: pointBalance - settings.pointCostPerPixel,
+    stats: stats
+  };
+}
+
+/**
+ * Calculate canvas statistics (territory percentages)
+ */
+function calculateCanvasStats() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const canvasState = ss.getSheetByName('Canvas State');
+
+  const stats = {
+    Phoenix: 0,
+    Dragon: 0,
+    Hydra: 0,
+    Griffin: 0,
+    Staff: 0,
+    total: 0
+  };
+
+  if (!canvasState || canvasState.getLastRow() <= 1) {
+    return {
+      Phoenix: { count: 0, percentage: 0 },
+      Dragon: { count: 0, percentage: 0 },
+      Hydra: { count: 0, percentage: 0 },
+      Griffin: { count: 0, percentage: 0 },
+      Staff: { count: 0, percentage: 0 },
+      total: 0
+    };
+  }
+
+  const data = canvasState.getRange(2, 1, canvasState.getLastRow() - 1, 6).getValues();
+
+  data.forEach(row => {
+    const house = row[5]; // Column F = House
+    if (stats[house] !== undefined) {
+      stats[house]++;
+      stats.total++;
+    }
+  });
+
+  return {
+    Phoenix: { count: stats.Phoenix, percentage: stats.total > 0 ? Math.round((stats.Phoenix / stats.total) * 100) : 0 },
+    Dragon: { count: stats.Dragon, percentage: stats.total > 0 ? Math.round((stats.Dragon / stats.total) * 100) : 0 },
+    Hydra: { count: stats.Hydra, percentage: stats.total > 0 ? Math.round((stats.Hydra / stats.total) * 100) : 0 },
+    Griffin: { count: stats.Griffin, percentage: stats.total > 0 ? Math.round((stats.Griffin / stats.total) * 100) : 0 },
+    Staff: { count: stats.Staff, percentage: stats.total > 0 ? Math.round((stats.Staff / stats.total) * 100) : 0 },
+    total: stats.total
+  };
+}
+
+/**
+ * Get canvas statistics
+ */
+function getCanvasStats() {
+  return {
+    status: 'success',
+    stats: calculateCanvasStats()
+  };
+}
+
+/**
+ * Get recent canvas activity
+ */
+function getCanvasRecentActivity(limit = 10) {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const canvasLog = ss.getSheetByName('Canvas Activity Log');
+
+  if (!canvasLog || canvasLog.getLastRow() <= 1) {
+    return {
+      status: 'success',
+      activity: []
+    };
+  }
+
+  const lastRow = canvasLog.getLastRow();
+  const startRow = Math.max(2, lastRow - limit + 1);
+  const numRows = lastRow - startRow + 1;
+
+  const data = canvasLog.getRange(startRow, 1, numRows, 7).getValues();
+
+  // Reverse to get most recent first
+  const activity = data.reverse().map(row => ({
+    timestamp: row[0],
+    house: row[3],
+    row: row[4],
+    col: row[5],
+    color: row[6]
+  }));
+
+  return {
+    status: 'success',
+    activity: activity
+  };
+}
+
+/**
+ * Get canvas leaderboards (password protected)
+ */
+function getCanvasLeaderboard(password) {
+  const settings = getCanvasSettings();
+
+  // Check password
+  if (password !== settings.leaderboardPassword) {
+    return {
+      status: 'error',
+      message: 'Invalid password. Leaderboard is password protected.'
+    };
+  }
+
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const canvasLog = ss.getSheetByName('Canvas Activity Log');
+
+  if (!canvasLog || canvasLog.getLastRow() <= 1) {
+    return {
+      status: 'success',
+      studentLeaderboard: [],
+      houseLeaderboard: []
+    };
+  }
+
+  const data = canvasLog.getRange(2, 1, canvasLog.getLastRow() - 1, 9).getValues();
+
+  // Count pixels per student
+  const studentCounts = {};
+  const houseCounts = { Phoenix: 0, Dragon: 0, Hydra: 0, Griffin: 0, Staff: 0 };
+
+  data.forEach(row => {
+    const email = row[1];
+    const name = row[2];
+    const house = row[3];
+
+    if (!studentCounts[email]) {
+      studentCounts[email] = { name: name, house: house, count: 0 };
+    }
+    studentCounts[email].count++;
+
+    if (houseCounts[house] !== undefined) {
+      houseCounts[house]++;
+    }
+  });
+
+  // Convert to array and sort
+  const studentLeaderboard = Object.entries(studentCounts)
+    .map(([email, data]) => ({
+      email: email,
+      name: data.name,
+      house: data.house,
+      pixelsPlaced: data.count
+    }))
+    .sort((a, b) => b.pixelsPlaced - a.pixelsPlaced)
+    .slice(0, 10); // Top 10
+
+  const houseLeaderboard = Object.entries(houseCounts)
+    .map(([house, count]) => ({
+      house: house,
+      pixelsPlaced: count
+    }))
+    .sort((a, b) => b.pixelsPlaced - a.pixelsPlaced);
+
+  return {
+    status: 'success',
+    studentLeaderboard: studentLeaderboard,
+    houseLeaderboard: houseLeaderboard
+  };
+}
+
+/**
+ * Wipe canvas and save winner (admin only)
+ */
+function wipeCanvas(password) {
+  const settings = getCanvasSettings();
+
+  // Check admin password
+  if (password !== settings.adminPassword) {
+    return {
+      status: 'error',
+      message: 'Invalid admin password.'
+    };
+  }
+
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const canvasState = ss.getSheetByName('Canvas State');
+  const canvasHistory = ss.getSheetByName('Canvas History');
+
+  // Calculate final stats
+  const stats = calculateCanvasStats();
+
+  // Determine winner
+  let winner = 'None';
+  let winningCount = 0;
+
+  ['Phoenix', 'Dragon', 'Hydra', 'Griffin', 'Staff'].forEach(house => {
+    if (stats[house].count > winningCount) {
+      winningCount = stats[house].count;
+      winner = house;
+    }
+  });
+
+  // Save to history
+  canvasHistory.appendRow([
+    new Date(),
+    winner,
+    stats[winner].percentage,
+    stats.total,
+    stats.Phoenix.percentage,
+    stats.Dragon.percentage,
+    stats.Hydra.percentage,
+    stats.Griffin.percentage,
+    stats.Staff.percentage
+  ]);
+
+  // Clear canvas state (keep header)
+  if (canvasState.getLastRow() > 1) {
+    canvasState.deleteRows(2, canvasState.getLastRow() - 1);
+  }
+
+  return {
+    status: 'success',
+    message: `Canvas wiped! Winner: ${winner} with ${stats[winner].percentage}%`,
+    winner: winner,
+    stats: stats
+  };
+}
+
+/**
+ * Extend campaign end date (admin only)
+ */
+function extendCampaign(newEndDate, password) {
+  const settings = getCanvasSettings();
+
+  // Check admin password
+  if (password !== settings.adminPassword) {
+    return {
+      status: 'error',
+      message: 'Invalid admin password.'
+    };
+  }
+
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const settingsSheet = ss.getSheetByName('Canvas Settings');
+  const data = settingsSheet.getDataRange().getValues();
+
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] === 'campaignEndDate') {
+      settingsSheet.getRange(i + 1, 2).setValue(new Date(newEndDate));
+      break;
+    }
+  }
+
+  return {
+    status: 'success',
+    message: 'Campaign end date extended successfully!',
+    newEndDate: new Date(newEndDate)
+  };
+}
+
+/**
+ * Update canvas settings (admin only)
+ */
+function updateCanvasSettings(newSettings, password) {
+  const settings = getCanvasSettings();
+
+  // Check admin password
+  if (password !== settings.adminPassword) {
+    return {
+      status: 'error',
+      message: 'Invalid admin password.'
+    };
+  }
+
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const settingsSheet = ss.getSheetByName('Canvas Settings');
+  const data = settingsSheet.getDataRange().getValues();
+
+  Object.keys(newSettings).forEach(key => {
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === key) {
+        let value = newSettings[key];
+        if (typeof value === 'boolean') {
+          value = value ? 'TRUE' : 'FALSE';
+        }
+        settingsSheet.getRange(i + 1, 2).setValue(value);
+        break;
+      }
+    }
+  });
+
+  return {
+    status: 'success',
+    message: 'Settings updated successfully!'
   };
 }

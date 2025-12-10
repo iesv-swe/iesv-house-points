@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canvas Leaderboard - IESV</title>
+<link rel="icon" type="image/x-icon" href="../assets/icons/console-favicon.ico">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-image: url("../assets/images/backgrounds/stone.png");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    padding: 20px;
+    color: white;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+    background: rgba(40, 40, 40, 0.95);
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+.header h1 {
+    font-size: 36px;
+    margin-bottom: 8px;
+    color: #00c3ff;
+}
+
+.card {
+    background: rgba(60, 60, 60, 0.95);
+    padding: 30px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.password-screen input {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #9c27b0, #673ab7);
+    border: none;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(156, 39, 176, 0.4);
+}
+
+.btn-secondary {
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 20px;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.leaderboard-table thead {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.leaderboard-table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: bold;
+    color: #00c3ff;
+    border-bottom: 2px solid rgba(0, 195, 255, 0.3);
+}
+
+.leaderboard-table td {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.leaderboard-table tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.rank {
+    font-weight: bold;
+    font-size: 18px;
+    width: 60px;
+    text-align: center;
+}
+
+.rank-1 { color: #ffd700; }
+.rank-2 { color: #c0c0c0; }
+.rank-3 { color: #cd7f32; }
+
+.house-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.house-phoenix { background: #dc143c; color: white; }
+.house-dragon { background: #228b22; color: white; }
+.house-hydra { background: #4169e1; color: white; }
+.house-griffin { background: #ff8c00; color: white; }
+.house-staff { background: #000; color: white; }
+
+.status-message {
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 15px;
+    text-align: center;
+}
+
+.status-error {
+    background: rgba(244, 67, 54, 0.2);
+    border: 1px solid #f44336;
+    color: #ffcdd2;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.section-title {
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: #00c3ff;
+    border-bottom: 2px solid rgba(0, 195, 255, 0.3);
+    padding-bottom: 10px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+    <div class="header">
+        <h1>📊 Canvas Leaderboard</h1>
+        <p style="opacity: 0.9;">Top contributors to the pixel war</p>
+    </div>
+
+    <!-- PASSWORD SCREEN -->
+    <div id="passwordScreen" class="card password-screen">
+        <h2 style="margin-bottom: 20px;">🔒 Password Required</h2>
+        <p style="margin-bottom: 15px; opacity: 0.9;">This leaderboard is password protected. Enter the password to view:</p>
+        <input
+            type="password"
+            id="passwordInput"
+            placeholder="Enter leaderboard password"
+        >
+        <button id="unlockBtn" class="btn-primary">Unlock Leaderboard</button>
+
+        <div id="passwordStatus" class="status-message status-error hidden"></div>
+
+        <a href="canvas.html" class="btn-secondary">← Back to Canvas</a>
+    </div>
+
+    <!-- LEADERBOARD SCREEN -->
+    <div id="leaderboardScreen" class="hidden">
+        <!-- House Leaderboard -->
+        <div class="card">
+            <h2 class="section-title">🏆 House Rankings</h2>
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th class="rank">Rank</th>
+                        <th>House</th>
+                        <th style="text-align: right;">Pixels Placed</th>
+                    </tr>
+                </thead>
+                <tbody id="houseLeaderboard">
+                    <tr>
+                        <td colspan="3" style="text-align: center; opacity: 0.6;">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Student Leaderboard -->
+        <div class="card">
+            <h2 class="section-title">👤 Top 10 Students</h2>
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th class="rank">Rank</th>
+                        <th>Student</th>
+                        <th>House</th>
+                        <th style="text-align: right;">Pixels Placed</th>
+                    </tr>
+                </thead>
+                <tbody id="studentLeaderboard">
+                    <tr>
+                        <td colspan="4" style="text-align: center; opacity: 0.6;">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="text-align: center;">
+            <a href="canvas.html" class="btn-secondary">← Back to Canvas</a>
+        </div>
+    </div>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
+
+let currentPassword = '';
+
+// Unlock button
+document.getElementById('unlockBtn').addEventListener('click', async () => {
+    const password = document.getElementById('passwordInput').value.trim();
+
+    if (!password) {
+        showError('Please enter a password');
+        return;
+    }
+
+    currentPassword = password;
+    document.getElementById('unlockBtn').disabled = true;
+    document.getElementById('unlockBtn').textContent = 'Unlocking...';
+
+    const success = await loadLeaderboard(password);
+
+    if (success) {
+        document.getElementById('passwordScreen').classList.add('hidden');
+        document.getElementById('leaderboardScreen').classList.remove('hidden');
+    } else {
+        document.getElementById('unlockBtn').disabled = false;
+        document.getElementById('unlockBtn').textContent = 'Unlock Leaderboard';
+    }
+});
+
+// Load leaderboard data
+async function loadLeaderboard(password) {
+    try {
+        const url = `${API_URL}?action=getCanvasLeaderboard&password=${encodeURIComponent(password)}`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            renderHouseLeaderboard(data.houseLeaderboard);
+            renderStudentLeaderboard(data.studentLeaderboard);
+            return true;
+        } else {
+            showError(data.message || 'Invalid password');
+            return false;
+        }
+    } catch (error) {
+        showError('Network error. Please try again.');
+        return false;
+    }
+}
+
+// Render house leaderboard
+function renderHouseLeaderboard(houses) {
+    const tbody = document.getElementById('houseLeaderboard');
+    tbody.innerHTML = '';
+
+    if (houses.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; opacity: 0.6;">No data yet</td></tr>';
+        return;
+    }
+
+    houses.forEach((house, index) => {
+        const tr = document.createElement('tr');
+        const rankClass = index < 3 ? `rank-${index + 1}` : '';
+
+        const houseClass = `house-${house.house.toLowerCase()}`;
+
+        tr.innerHTML = `
+            <td class="rank ${rankClass}">${index + 1}</td>
+            <td><span class="${houseClass} house-badge">${house.house}</span></td>
+            <td style="text-align: right; font-weight: bold;">${house.pixelsPlaced}</td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+}
+
+// Render student leaderboard
+function renderStudentLeaderboard(students) {
+    const tbody = document.getElementById('studentLeaderboard');
+    tbody.innerHTML = '';
+
+    if (students.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; opacity: 0.6;">No data yet</td></tr>';
+        return;
+    }
+
+    students.forEach((student, index) => {
+        const tr = document.createElement('tr');
+        const rankClass = index < 3 ? `rank-${index + 1}` : '';
+
+        const houseClass = `house-${student.house.toLowerCase()}`;
+
+        tr.innerHTML = `
+            <td class="rank ${rankClass}">${index + 1}</td>
+            <td>${student.name}</td>
+            <td><span class="${houseClass} house-badge">${student.house}</span></td>
+            <td style="text-align: right; font-weight: bold;">${student.pixelsPlaced}</td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+}
+
+// Show error message
+function showError(message) {
+    const el = document.getElementById('passwordStatus');
+    el.textContent = message;
+    el.classList.remove('hidden');
+}
+
+// Enter key support
+document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        document.getElementById('unlockBtn').click();
+    }
+});
+</script>
+
+</body>
+</html>
