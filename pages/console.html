@@ -96,6 +96,12 @@
             gap: 15px;
         }
 
+        @media (max-width: 600px) {
+            .button-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
         /* ★ NEW PUBLIC BUTTON STYLE (Uniform Blue) ★ */
         .console-button {
             display: flex;
@@ -193,6 +199,40 @@
             .scale-wrapper {
                 transform: scale(1.0);
                 width: 100%;
+            }
+
+            body {
+                padding: 20px 10px;
+            }
+
+            .section {
+                padding: 20px 15px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .subtitle {
+                font-size: 14px;
+            }
+
+            .section h2 {
+                font-size: 20px;
+            }
+
+            .logos-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .logo-item img {
+                width: 100px;
+                height: 100px;
+            }
+
+            .logo-name {
+                font-size: 16px;
             }
         }
     </style>
@@ -330,22 +370,22 @@
             <div class="logos-grid">
 
                 <div class="logo-item">
-                    <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/assets/images/houses/phoenix2-removebg.png">
+                    <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/assets/images/houses/phoenix2-removebg.png" onclick="openLogoFullSize(this.src)" alt="Phoenix Shield">
                     <div class="logo-name">Phoenix 🔥</div>
                 </div>
 
                 <div class="logo-item">
-                    <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/assets/images/houses/dragon2-removebg.png">
+                    <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/assets/images/houses/dragon2-removebg.png" onclick="openLogoFullSize(this.src)" alt="Dragon Shield">
                     <div class="logo-name">Dragon 🐉</div>
                 </div>
 
                 <div class="logo-item">
-                    <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/assets/images/houses/hydra2-removebg.png">
+                    <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/assets/images/houses/hydra2-removebg.png" onclick="openLogoFullSize(this.src)" alt="Hydra Shield">
                     <div class="logo-name">Hydra 🌊</div>
                 </div>
 
                 <div class="logo-item">
-                    <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/assets/images/houses/griffin2-removebg.png">
+                    <img src="https://raw.githubusercontent.com/iesv-swe/iesv-house-points/main/assets/images/houses/griffin2-removebg.png" onclick="openLogoFullSize(this.src)" alt="Griffin Shield">
                     <div class="logo-name">Griffin 🦅</div>
                 </div>
 
@@ -354,6 +394,41 @@
 
     </div>
 </div>
+
+<script>
+function openLogoFullSize(imageSrc) {
+    // Open image in new window/tab at full size
+    const newWindow = window.open('', '_blank');
+    newWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>House Shield</title>
+            <style>
+                body {
+                    margin: 0;
+                    padding: 0;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    min-height: 100vh;
+                    background: linear-gradient(135deg, #102d69 0%, #00a0df 100%);
+                }
+                img {
+                    max-width: 90vw;
+                    max-height: 90vh;
+                    object-fit: contain;
+                    cursor: pointer;
+                }
+            </style>
+        </head>
+        <body onclick="window.close()">
+            <img src="${imageSrc}" alt="House Shield" title="Click to close">
+        </body>
+        </html>
+    `);
+}
+</script>
 
 </body>
 </html>
