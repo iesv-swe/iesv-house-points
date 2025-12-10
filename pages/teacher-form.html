@@ -401,9 +401,7 @@ const houseButtons = [...document.querySelectorAll(".house-btn")];
 const houseCard = document.getElementById("houseCard");
 
 houseButtons.forEach(btn => {
-    btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+    btn.addEventListener("click", () => {
         console.log("House clicked:", btn.dataset.house);
         houseButtons.forEach(b => b.classList.remove("selected"));
         btn.classList.add("selected");
@@ -414,9 +412,7 @@ houseButtons.forEach(btn => {
 /* ---- CATEGORY BUTTON LOGIC ---- */
 const categoryButtons = [...document.querySelectorAll(".category-btn")];
 categoryButtons.forEach(btn => {
-    btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+    btn.addEventListener("click", () => {
         console.log("Category clicked:", btn.dataset.category);
         categoryButtons.forEach(b => b.classList.remove("selected"));
         btn.classList.add("selected");
