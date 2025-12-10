@@ -476,10 +476,6 @@ function renderSelectedStudents() {
         nameSpan.className = "student-tag-name";
         nameSpan.textContent = student.name;
 
-        const houseSpan = document.createElement("span");
-        houseSpan.className = "student-tag-house";
-        houseSpan.textContent = student.house;
-
         const removeSpan = document.createElement("span");
         removeSpan.className = "student-tag-remove";
         removeSpan.textContent = "×";
@@ -489,7 +485,6 @@ function renderSelectedStudents() {
         });
 
         tag.appendChild(nameSpan);
-        tag.appendChild(houseSpan);
         tag.appendChild(removeSpan);
 
         selectedStudentsContainer.appendChild(tag);
