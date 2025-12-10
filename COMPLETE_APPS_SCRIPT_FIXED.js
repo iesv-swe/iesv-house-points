@@ -434,7 +434,7 @@ function getQuizQuestion(email, sessionId) {
         optionB: row[3],
         optionC: row[4],
         optionD: row[5],
-        correct: row[6],
+        // correct: row[6],  // Security: Do not send correct answer to client
         difficulty: difficulty,
         category: row[8]
       });
