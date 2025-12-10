@@ -268,12 +268,38 @@ async function loadLeaderboard() {
         console.error(err);
         const updatedEl = document.getElementById("lastUpdated");
         if (!navigator.onLine) {
-            updatedEl.textContent = "⚠️ You're offline. Check your connection and refresh.";
+            updatedEl.textContent = "⚠️ You're offline. Check your connection.";
         } else {
-            updatedEl.textContent = "⚠️ Error loading data. Please refresh the page.";
+            updatedEl.textContent = "⚠️ Error loading data.";
         }
         updatedEl.style.color = "#ff9800";
         updatedEl.style.fontWeight = "bold";
+
+        // Add retry button
+        const board = document.getElementById("leaderboard");
+        board.innerHTML = `
+            <div style="text-align: center; padding: 60px 20px;">
+                <div style="font-size: 64px; margin-bottom: 20px;">😕</div>
+                <h2 style="color: #333; margin-bottom: 15px;">Failed to Load Leaderboard</h2>
+                <p style="color: #666; margin-bottom: 25px;">
+                    ${!navigator.onLine ? "You appear to be offline." : "There was a problem connecting to the server."}
+                </p>
+                <button onclick="location.reload()" style="
+                    padding: 12px 30px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+                    transition: transform 0.2s;
+                ">
+                    🔄 Retry
+                </button>
+            </div>
+        `;
     }
 }
 
