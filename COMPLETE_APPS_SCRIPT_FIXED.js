@@ -973,12 +973,12 @@ function generateMondrianLayout() {
 function initializeCanvasSheets() {
   const ss = SpreadsheetApp.openById(SHEET_ID);
 
-  // Canvas State sheet - stores claimed blocks
+  // Canvas State sheet
   let canvasState = ss.getSheetByName('Canvas State');
   if (!canvasState) {
     canvasState = ss.insertSheet('Canvas State');
-    canvasState.appendRow(['BlockID', 'Color', 'PlacedBy', 'PlacedAt', 'House', 'StudentName']);
-    canvasState.getRange('A1:F1').setFontWeight('bold').setBackground('#4a86e8');
+    canvasState.appendRow(['Row', 'Col', 'Color', 'PlacedBy', 'PlacedAt', 'House', 'StudentName']);
+    canvasState.getRange('A1:G1').setFontWeight('bold').setBackground('#4a86e8');
   }
 
   // Canvas Settings sheet
@@ -988,16 +988,13 @@ function initializeCanvasSheets() {
     canvasSettings.appendRow(['Setting', 'Value']);
     canvasSettings.getRange('A1:B1').setFontWeight('bold').setBackground('#4a86e8');
 
-    // Generate initial Mondrian layout
-    const layout = generateMondrianLayout();
-
-    // Default settings
+    // Default settings - 20x20 grid = 400 blocks
     const defaults = [
-      ['canvasWidth', 1000],
-      ['canvasHeight', 1000],
-      ['totalBlocks', layout.length],
+      ['canvasWidth', 20],
+      ['canvasHeight', 20],
+      ['pixelSize', 30],
       ['cooldownMinutes', 60],
-      ['pointCostPerBlock', 1],
+      ['pointCostPerPixel', 1],
       ['campaignStartDate', new Date()],
       ['campaignEndDate', new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)], // 7 days from now
       ['canvasActive', 'TRUE'],
@@ -1005,10 +1002,9 @@ function initializeCanvasSheets() {
       ['allowBlackOverwrite', 'FALSE'],
       ['showCountdown', 'TRUE'],
       ['happyHourActive', 'FALSE'],
-      ['happyHourBlocksAllowed', 5],
+      ['happyHourPixelsAllowed', 5],
       ['leaderboardPassword', 'canvas2025'],
-      ['adminPassword', 'admin2025'],
-      ['mondrianLayout', JSON.stringify(layout)]
+      ['adminPassword', 'admin2025']
     ];
 
     defaults.forEach(row => canvasSettings.appendRow(row));
@@ -1069,16 +1065,6 @@ function getCanvasSettings() {
     if (value === 'FALSE') value = false;
     if (key.includes('Date') && value) value = new Date(value);
 
-    // Parse JSON layout
-    if (key === 'mondrianLayout' && typeof value === 'string') {
-      try {
-        value = JSON.parse(value);
-      } catch (e) {
-        Logger.log(`Error parsing mondrianLayout: ${e}`);
-        value = [];
-      }
-    }
-
     settings[key] = value;
   }
 
@@ -1086,57 +1072,43 @@ function getCanvasSettings() {
 }
 
 /**
- * Get current canvas state (all placed blocks)
+ * Get current canvas state (all placed pixels)
  */
 function getCanvasState() {
   const ss = SpreadsheetApp.openById(SHEET_ID);
   const canvasSheet = ss.getSheetByName('Canvas State');
   const settings = getCanvasSettings();
 
-  // Get Mondrian layout
-  const layout = settings.mondrianLayout || [];
-
-  // Get claimed blocks
-  const claimedBlocks = {};
-  if (canvasSheet && canvasSheet.getLastRow() > 1) {
-    const data = canvasSheet.getRange(2, 1, canvasSheet.getLastRow() - 1, 6).getValues();
-    data.forEach(row => {
-      claimedBlocks[row[0]] = {
-        blockId: row[0],
-        color: row[1],
-        placedBy: row[2],
-        placedAt: row[3],
-        house: row[4],
-        studentName: row[5]
-      };
-    });
+  if (!canvasSheet || canvasSheet.getLastRow() <= 1) {
+    return {
+      status: 'success',
+      pixels: [],
+      settings: {
+        width: settings.canvasWidth,
+        height: settings.canvasHeight,
+        pixelSize: settings.pixelSize
+      }
+    };
   }
 
-  // Merge layout with claimed blocks
-  const blocks = layout.map(block => {
-    const claimed = claimedBlocks[block.id];
-    return {
-      id: block.id,
-      x: block.x,
-      y: block.y,
-      width: block.width,
-      height: block.height,
-      color: claimed ? claimed.color : null,
-      placedBy: claimed ? claimed.placedBy : null,
-      placedAt: claimed ? claimed.placedAt : null,
-      house: claimed ? claimed.house : null,
-      studentName: claimed ? claimed.studentName : null
-    };
-  });
+  const data = canvasSheet.getRange(2, 1, canvasSheet.getLastRow() - 1, 7).getValues();
+  const pixels = data.map(row => ({
+    row: row[0],
+    col: row[1],
+    color: row[2],
+    placedBy: row[3],
+    placedAt: row[4],
+    house: row[5],
+    studentName: row[6]
+  }));
 
   return {
     status: 'success',
-    blocks: blocks,
-    layout: layout,
+    pixels: pixels,
     settings: {
-      width: settings.canvasWidth || 1000,
-      height: settings.canvasHeight || 1000,
-      totalBlocks: settings.totalBlocks || layout.length
+      width: settings.canvasWidth,
+      height: settings.canvasHeight,
+      pixelSize: settings.pixelSize
     }
   };
 }
@@ -1543,16 +1515,17 @@ function getCanvasStats() {
 
 /**
  * Check if there's a winner (mathematically impossible to catch up)
+ * With 20x20 grid = 400 blocks, winner needs 200+ blocks (50%+)
  */
 function checkForWinner() {
   const settings = getCanvasSettings();
   const stats = calculateCanvasStats();
 
-  const totalPixels = settings.canvasWidth * settings.canvasHeight;
-  const placedPixels = stats.total;
-  const remainingPixels = totalPixels - placedPixels;
+  const totalBlocks = settings.canvasWidth * settings.canvasHeight; // 400
+  const placedBlocks = stats.total;
+  const remainingBlocks = totalBlocks - placedBlocks;
 
-  // Sort houses by pixel count (excluding Staff)
+  // Sort houses by block count (excluding Staff)
   const houses = ['Phoenix', 'Dragon', 'Hydra', 'Griffin'];
   const houseCounts = houses.map(house => ({
     house: house,
@@ -1562,9 +1535,9 @@ function checkForWinner() {
   const leader = houseCounts[0];
   const secondPlace = houseCounts[1];
 
-  // Winner condition: Leader has more than 50% OR mathematically impossible to catch up
-  const hasAbsoluteMajority = leader.count > (totalPixels / 2);
-  const mathematicallyImpossible = (secondPlace.count + remainingPixels) < leader.count;
+  // Winner condition: Leader has 200+ blocks (50%+) OR mathematically impossible to catch up
+  const hasAbsoluteMajority = leader.count > (totalBlocks / 2); // 200+ blocks
+  const mathematicallyImpossible = (secondPlace.count + remainingBlocks) < leader.count;
 
   if (hasAbsoluteMajority || mathematicallyImpossible) {
     return {
@@ -1573,8 +1546,8 @@ function checkForWinner() {
       winnerCount: leader.count,
       winnerPercentage: stats[leader.house].percentage,
       declaredAt: new Date(),
-      totalPixels: totalPixels,
-      placedPixels: placedPixels,
+      totalBlocks: totalBlocks,
+      placedBlocks: placedBlocks,
       stats: stats
     };
   }
@@ -1592,8 +1565,8 @@ function checkForWinner() {
       winnerPercentage: stats[leader.house].percentage,
       declaredAt: campaignEnd,
       reason: 'Campaign end date reached',
-      totalPixels: totalPixels,
-      placedPixels: placedPixels,
+      totalBlocks: totalBlocks,
+      placedBlocks: placedBlocks,
       stats: stats
     };
   }
@@ -1602,7 +1575,7 @@ function checkForWinner() {
     hasWinner: false,
     leader: leader.house,
     leaderCount: leader.count,
-    remainingPixels: remainingPixels
+    remainingBlocks: remainingBlocks
   };
 }
 
