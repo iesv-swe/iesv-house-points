@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canvas Map - IESV House Points</title>
+<link rel="icon" type="image/x-icon" href="../assets/icons/console-favicon.ico">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: radial-gradient(ellipse at center, #1a1a2e 0%, #0f0f1e 100%);
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+/* Mystical background effect */
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        radial-gradient(circle at 20% 50%, rgba(220, 20, 60, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 50%, rgba(34, 139, 34, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 50% 20%, rgba(65, 105, 225, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 50% 80%, rgba(255, 140, 0, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    animation: mysticalPulse 10s ease-in-out infinite;
+}
+
+@keyframes mysticalPulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+}
+
+/* Canvas container with border */
+.canvas-wrapper {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    padding: 30px;
+    background: linear-gradient(135deg, rgba(30, 30, 50, 0.8), rgba(20, 20, 40, 0.9));
+    border: 3px solid transparent;
+    border-radius: 15px;
+    box-shadow:
+        0 0 60px rgba(0, 195, 255, 0.2),
+        inset 0 0 30px rgba(0, 0, 0, 0.5);
+    background-clip: padding-box;
+}
+
+.canvas-wrapper::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: linear-gradient(135deg,
+        #dc143c 0%,
+        #228b22 25%,
+        #4169e1 50%,
+        #ff8c00 75%,
+        #dc143c 100%
+    );
+    border-radius: 15px;
+    z-index: -1;
+    animation: borderRotate 8s linear infinite;
+}
+
+@keyframes borderRotate {
+    0% { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(360deg); }
+}
+
+#canvasGrid {
+    display: grid;
+    gap: 1px;
+    background: #0a0a0a;
+    padding: 2px;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+}
+
+.pixel {
+    width: 100%;
+    height: 100%;
+    background: #1a1a1a;
+    border-radius: 1px;
+}
+
+/* Stats overlay */
+.stats-overlay {
+    position: fixed;
+    top: 40px;
+    right: 40px;
+    background: linear-gradient(135deg, rgba(20, 20, 40, 0.95), rgba(30, 30, 50, 0.95));
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(0, 195, 255, 0.3);
+    border-radius: 15px;
+    padding: 25px;
+    min-width: 280px;
+    box-shadow:
+        0 10px 40px rgba(0, 0, 0, 0.6),
+        0 0 30px rgba(0, 195, 255, 0.1);
+}
+
+.stats-title {
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #00c3ff;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(0, 195, 255, 0.5);
+}
+
+.house-stat {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    border-left: 4px solid;
+    transition: all 0.3s ease;
+}
+
+.house-stat:hover {
+    transform: translateX(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+
+.house-stat.rank-1 {
+    padding: 18px 20px;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05));
+    border-left-width: 6px;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+}
+
+.house-stat.rank-1 .house-name {
+    font-size: 20px;
+}
+
+.house-stat.rank-1 .house-percentage {
+    font-size: 26px;
+}
+
+.house-name {
+    font-weight: bold;
+    font-size: 16px;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.house-percentage {
+    font-size: 22px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 0 10px currentColor;
+}
+
+.rank-badge {
+    position: absolute;
+    left: -12px;
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    color: #1a1a2e;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.rank-badge.rank-2 {
+    background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
+}
+
+.rank-badge.rank-3 {
+    background: linear-gradient(135deg, #cd7f32, #e6a762);
+}
+
+.rank-badge.rank-4 {
+    background: linear-gradient(135deg, #666, #888);
+}
+
+/* Update timer */
+.update-timer {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, rgba(20, 20, 40, 0.95), rgba(30, 30, 50, 0.95));
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(0, 195, 255, 0.3);
+    border-radius: 25px;
+    padding: 10px 25px;
+    color: #00c3ff;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.timer-icon {
+    font-size: 16px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+.loading {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: white;
+}
+
+.spinner {
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    border-top: 4px solid #00c3ff;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Total pixels counter */
+.total-pixels {
+    text-align: center;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: #888;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.total-pixels span {
+    color: #00c3ff;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* Campaign end notice */
+.campaign-end {
+    position: fixed;
+    top: 40px;
+    left: 40px;
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.95), rgba(238, 90, 82, 0.95));
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    padding: 15px 25px;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    animation: slideIn 0.5s ease;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .stats-overlay {
+        top: 20px;
+        right: 20px;
+        min-width: 200px;
+        padding: 15px;
+    }
+
+    .update-timer {
+        bottom: 20px;
+        font-size: 11px;
+        padding: 8px 15px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- Loading -->
+<div id="loading" class="loading">
+    <div class="spinner"></div>
+    <p style="font-size: 18px; opacity: 0.8;">Loading Canvas Map...</p>
+</div>
+
+<!-- Campaign End Notice -->
+<div id="campaignEnd" class="campaign-end hidden">
+    ⚠️ Campaign Ended
+</div>
+
+<!-- Canvas Container -->
+<div id="canvasWrapper" class="canvas-wrapper hidden">
+    <div id="canvasGrid"></div>
+</div>
+
+<!-- Stats Overlay -->
+<div id="statsOverlay" class="stats-overlay hidden">
+    <div class="stats-title">Territory Control</div>
+    <div id="houseStats"></div>
+    <div class="total-pixels">
+        Total Pixels: <span id="totalPixels">0</span>
+    </div>
+</div>
+
+<!-- Update Timer -->
+<div id="updateTimer" class="update-timer hidden">
+    <span class="timer-icon">⏱️</span>
+    <span>Next update in <span id="countdown">60:00</span></span>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
+
+const UPDATE_INTERVAL = 60 * 60 * 1000; // 1 hour in milliseconds
+let nextUpdateTime = null;
+let countdownInterval = null;
+
+// House colors
+const houseColors = {
+    'Phoenix': '#dc143c',
+    'Dragon': '#228b22',
+    'Hydra': '#4169e1',
+    'Griffin': '#ff8c00',
+    'Staff': '#000000'
+};
+
+// Initialize on load
+window.addEventListener('load', () => {
+    loadCanvasMap();
+    startUpdateCycle();
+});
+
+// Load canvas and stats
+async function loadCanvasMap() {
+    try {
+        // Load canvas state
+        const canvasResponse = await fetch(`${API_URL}?action=getCanvasState`);
+        const canvasData = await canvasResponse.json();
+
+        // Load stats
+        const statsResponse = await fetch(`${API_URL}?action=getCanvasStats`);
+        const statsData = await statsResponse.json();
+
+        // Check settings for campaign status
+        const settingsResponse = await fetch(`${API_URL}?action=getCanvasSettings`);
+        const settingsData = await settingsResponse.json();
+
+        if (canvasData.status === 'success') {
+            renderCanvas(canvasData);
+        }
+
+        if (statsData.status === 'success') {
+            renderStats(statsData.stats);
+        }
+
+        // Check if campaign ended
+        if (settingsData.status === 'success') {
+            const endDate = new Date(settingsData.settings.campaignEndDate);
+            if (new Date() > endDate) {
+                document.getElementById('campaignEnd').classList.remove('hidden');
+            }
+        }
+
+        // Hide loading, show content
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('canvasWrapper').classList.remove('hidden');
+        document.getElementById('statsOverlay').classList.remove('hidden');
+        document.getElementById('updateTimer').classList.remove('hidden');
+
+    } catch (error) {
+        console.error('Error loading canvas:', error);
+        document.getElementById('loading').innerHTML = '<p style="color: #ff6b6b;">Error loading canvas. Please refresh the page.</p>';
+    }
+}
+
+// Render canvas grid
+function renderCanvas(data) {
+    const grid = document.getElementById('canvasGrid');
+    const { width, height, pixelSize } = data.settings;
+
+    // Calculate appropriate pixel size for fullscreen
+    const maxWidth = window.innerWidth * 0.85;
+    const maxHeight = window.innerHeight * 0.85;
+    const calculatedSize = Math.floor(Math.min(maxWidth / width, maxHeight / height));
+    const finalSize = Math.max(3, Math.min(calculatedSize, 15)); // Between 3-15px
+
+    grid.style.gridTemplateColumns = `repeat(${width}, ${finalSize}px)`;
+    grid.style.gridTemplateRows = `repeat(${height}, ${finalSize}px)`;
+    grid.innerHTML = '';
+
+    // Create pixel map
+    const pixelMap = {};
+    data.pixels.forEach(pixel => {
+        const key = `${pixel.row}-${pixel.col}`;
+        pixelMap[key] = pixel;
+    });
+
+    // Generate grid
+    for (let row = 0; row < height; row++) {
+        for (let col = 0; col < width; col++) {
+            const pixel = document.createElement('div');
+            pixel.className = 'pixel';
+
+            const key = `${row}-${col}`;
+            if (pixelMap[key]) {
+                pixel.style.background = pixelMap[key].color;
+            }
+
+            grid.appendChild(pixel);
+        }
+    }
+}
+
+// Render stats overlay
+function renderStats(stats) {
+    const container = document.getElementById('houseStats');
+    const totalPixels = stats.total;
+
+    // Create array of houses with stats
+    const houses = [
+        { name: 'Phoenix', color: houseColors.Phoenix, ...stats.Phoenix },
+        { name: 'Dragon', color: houseColors.Dragon, ...stats.Dragon },
+        { name: 'Hydra', color: houseColors.Hydra, ...stats.Hydra },
+        { name: 'Griffin', color: houseColors.Griffin, ...stats.Griffin }
+    ];
+
+    // Sort by percentage (descending)
+    houses.sort((a, b) => b.percentage - a.percentage);
+
+    // Render houses
+    container.innerHTML = '';
+    houses.forEach((house, index) => {
+        const div = document.createElement('div');
+        div.className = `house-stat rank-${index + 1}`;
+        div.style.borderLeftColor = house.color;
+        div.style.position = 'relative';
+
+        div.innerHTML = `
+            <span class="rank-badge rank-${index + 1}">${index + 1}</span>
+            <span class="house-name" style="color: ${house.color}">${house.name}</span>
+            <span class="house-percentage" style="color: ${house.color}">${house.percentage}%</span>
+        `;
+
+        container.appendChild(div);
+    });
+
+    // Update total
+    document.getElementById('totalPixels').textContent = totalPixels.toLocaleString();
+}
+
+// Start update cycle
+function startUpdateCycle() {
+    nextUpdateTime = Date.now() + UPDATE_INTERVAL;
+    updateCountdown();
+
+    countdownInterval = setInterval(() => {
+        updateCountdown();
+    }, 1000);
+
+    // Auto-refresh every hour
+    setInterval(() => {
+        loadCanvasMap();
+        nextUpdateTime = Date.now() + UPDATE_INTERVAL;
+    }, UPDATE_INTERVAL);
+}
+
+// Update countdown display
+function updateCountdown() {
+    const now = Date.now();
+    const remaining = Math.max(0, nextUpdateTime - now);
+
+    const minutes = Math.floor(remaining / 60000);
+    const seconds = Math.floor((remaining % 60000) / 1000);
+
+    const display = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    document.getElementById('countdown').textContent = display;
+
+    if (remaining === 0) {
+        loadCanvasMap();
+        nextUpdateTime = Date.now() + UPDATE_INTERVAL;
+    }
+}
+
+// Responsive resize
+window.addEventListener('resize', () => {
+    const canvasData = {
+        settings: {
+            width: parseInt(document.getElementById('canvasGrid').style.gridTemplateColumns.split(' ').length) || 100,
+            height: parseInt(document.getElementById('canvasGrid').style.gridTemplateRows.split(' ').length) || 100
+        },
+        pixels: []
+    };
+
+    // Re-render to adjust pixel size
+    setTimeout(() => {
+        loadCanvasMap();
+    }, 200);
+});
+</script>
+
+</body>
+</html>
