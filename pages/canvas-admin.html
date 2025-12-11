@@ -431,6 +431,7 @@ document.getElementById('wipeBtn').addEventListener('click', async () => {
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 action: 'wipeCanvas',
                 password: password
@@ -472,6 +473,7 @@ document.getElementById('extendBtn').addEventListener('click', async () => {
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 action: 'extendCampaign',
                 newEndDate: newEndDate,
@@ -517,6 +519,7 @@ document.getElementById('settingsBtn').addEventListener('click', async () => {
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 action: 'updateCanvasSettings',
                 settings: newSettings,
@@ -600,6 +603,7 @@ document.getElementById('updateSizeStartBtn').addEventListener('click', async ()
 
         const response = await fetch(API_URL, {
             method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
 
@@ -656,6 +660,7 @@ document.getElementById('wipeStartBtn').addEventListener('click', async () => {
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 action: 'startNewCampaign',
                 adminPassword: password,
