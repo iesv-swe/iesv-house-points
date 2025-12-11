@@ -855,22 +855,25 @@ function getQuizPointsByHouse() {
 // ============================================================================
 
 /**
- * Generate Mondrian-style layout with ~400 blocks
- * Uses recursive subdivision algorithm
+ * Generate Mondrian-style layout with blocks using specified grid dimensions.
+ * gridWidth × gridHeight defines the number of blocks (e.g. 25 × 25 = 625 blocks).
  */
-function generateMondrianLayout() {
+function generateMondrianLayout(gridWidth, gridHeight) {
+  // Safety defaults
+  gridWidth = Number(gridWidth) || 20;
+  gridHeight = Number(gridHeight) || 20;
+
   const canvasWidth = 1000;
   const canvasHeight = 1000;
-  const gridSize = 20; // 20x20 = 400 blocks
-  const blockWidth = canvasWidth / gridSize;
-  const blockHeight = canvasHeight / gridSize;
-  
+  const blockWidth = canvasWidth / gridWidth;
+  const blockHeight = canvasHeight / gridHeight;
+
   const blocks = [];
   let blockId = 0;
-  
-  // Create a simple 20x20 grid - guaranteed 400 blocks
-  for (let row = 0; row < gridSize; row++) {
-    for (let col = 0; col < gridSize; col++) {
+
+  // Create a simple grid of gridWidth × gridHeight blocks
+  for (let row = 0; row < gridHeight; row++) {
+    for (let col = 0; col < gridWidth; col++) {
       blocks.push({
         id: blockId++,
         x: col * blockWidth,
@@ -880,8 +883,8 @@ function generateMondrianLayout() {
       });
     }
   }
-  
-  Logger.log(`Generated ${blocks.length} blocks for Mondrian layout`);
+
+  Logger.log(`Generated ${blocks.length} blocks for Mondrian layout (${gridWidth}x${gridHeight})`);
   return blocks;
 }
 
@@ -891,7 +894,8 @@ function generateMondrianLayout() {
  * This creates the complete layout that will be used by all users
  */
 function generateMondrianLayoutWithMapping(gridWidth, gridHeight) {
-  const blocks = generateMondrianLayout();
+  // Use the dynamic generator
+  const blocks = generateMondrianLayout(gridWidth, gridHeight);
 
   // Create list of all grid coordinates
   const gridCoords = [];
@@ -917,6 +921,32 @@ function generateMondrianLayoutWithMapping(gridWidth, gridHeight) {
 }
 
 /**
+ * Regenerate Mondrian layout manually from Apps Script editor
+ * Admin helper function to force regeneration of the layout
+ */
+function regenerateMondrian() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const settings = getCanvasSettings();
+  const width = Number(settings.canvasWidth) || 20;
+  const height = Number(settings.canvasHeight) || 20;
+  const newLayout = generateMondrianLayoutWithMapping(width, height);
+
+  const sheet = ss.getSheetByName('Canvas Settings');
+  const data = sheet.getDataRange().getValues();
+  let rowIndex = -1;
+  for (let i = 0; i < data.length; i++) {
+    if (data[i][0] === 'mondrianLayout') { rowIndex = i + 1; break; }
+  }
+  if (rowIndex === -1) {
+    sheet.appendRow(['mondrianLayout', JSON.stringify(newLayout)]);
+  } else {
+    sheet.getRange(rowIndex, 2).setValue(JSON.stringify(newLayout));
+  }
+  Logger.log('Regenerated mondrian layout for ' + width + 'x' + height + ' with ' + newLayout.length + ' blocks');
+  return { status: 'success', width, height, blocks: newLayout.length };
+}
+
+/**
  * Initialize Canvas sheets (run this once to set up)
  */
 function initializeCanvasSheets() {
@@ -937,13 +967,15 @@ function initializeCanvasSheets() {
     canvasSettings.appendRow(['Setting', 'Value']);
     canvasSettings.getRange('A1:B1').setFontWeight('bold').setBackground('#4a86e8');
 
-    // Default settings - 20x20 grid = 400 blocks
-    // Generate initial Mondrian layout
-    const mondrianLayout = generateMondrianLayoutWithMapping(20, 20);
+    const defaultCanvasWidth = 20;
+    const defaultCanvasHeight = 20;
+
+    // Generate initial Mondrian layout for the defaults
+    const mondrianLayout = generateMondrianLayoutWithMapping(defaultCanvasWidth, defaultCanvasHeight);
 
     const defaults = [
-      ['canvasWidth', 20],
-      ['canvasHeight', 20],
+      ['canvasWidth', defaultCanvasWidth],
+      ['canvasHeight', defaultCanvasHeight],
       ['pixelSize', 30],
       ['cooldownMinutes', 60],
       ['pointCostPerPixel', 1],
@@ -957,6 +989,7 @@ function initializeCanvasSheets() {
       ['happyHourPixelsAllowed', 5],
       ['leaderboardPassword', 'canvas2025'],
       ['adminPassword', 'admin2025'],
+      ['winnerPoints', 0], // new setting: points to award to winning house
       ['mondrianLayout', JSON.stringify(mondrianLayout)]
     ];
 
@@ -1003,7 +1036,8 @@ function getCanvasSettings() {
       allowBlackOverwrite: false,
       showCountdown: true,
       happyHourActive: false,
-      happyHourPixelsAllowed: 5
+      happyHourPixelsAllowed: 5,
+      winnerPoints: 0
     };
   }
 
@@ -1024,12 +1058,59 @@ function getCanvasSettings() {
         value = JSON.parse(value);
       } catch (e) {
         Logger.log('Error parsing mondrianLayout: ' + e);
-        // Generate new layout if parsing fails
-        value = generateMondrianLayoutWithMapping(settings.canvasWidth || 20, settings.canvasHeight || 20);
+        value = null; // Will be regenerated below
       }
     }
 
     settings[key] = value;
+  }
+
+  // Ensure numeric types for canvas dimensions with fallback to 20
+  settings.canvasWidth = Number(settings.canvasWidth) || 20;
+  settings.canvasHeight = Number(settings.canvasHeight) || 20;
+  settings.winnerPoints = Number(settings.winnerPoints) || 0;
+
+  // Auto-regenerate mondrianLayout if missing or length mismatch
+  try {
+    const expectedLength = settings.canvasWidth * settings.canvasHeight;
+    let needsRegeneration = false;
+
+    if (!settings.mondrianLayout) {
+      Logger.log('mondrianLayout is missing, regenerating...');
+      needsRegeneration = true;
+    } else if (!Array.isArray(settings.mondrianLayout)) {
+      Logger.log('mondrianLayout is not an array, regenerating...');
+      needsRegeneration = true;
+    } else if (settings.mondrianLayout.length !== expectedLength) {
+      Logger.log(`mondrianLayout length mismatch: ${settings.mondrianLayout.length} != ${expectedLength}, regenerating...`);
+      needsRegeneration = true;
+    }
+
+    if (needsRegeneration) {
+      const newLayout = generateMondrianLayoutWithMapping(settings.canvasWidth, settings.canvasHeight);
+      settings.mondrianLayout = newLayout;
+
+      // Persist back to Canvas Settings sheet
+      let rowIndex = -1;
+      for (let i = 0; i < data.length; i++) {
+        if (data[i][0] === 'mondrianLayout') {
+          rowIndex = i + 1;
+          break;
+        }
+      }
+
+      if (rowIndex === -1) {
+        settingsSheet.appendRow(['mondrianLayout', JSON.stringify(newLayout)]);
+        Logger.log('Appended new mondrianLayout to Canvas Settings');
+      } else {
+        settingsSheet.getRange(rowIndex, 2).setValue(JSON.stringify(newLayout));
+        Logger.log('Updated mondrianLayout in Canvas Settings');
+      }
+    }
+  } catch (e) {
+    Logger.log('Error during mondrianLayout auto-regeneration: ' + e);
+    // Fallback to default layout if regeneration fails
+    settings.mondrianLayout = generateMondrianLayoutWithMapping(settings.canvasWidth, settings.canvasHeight);
   }
 
   return settings;
@@ -1647,6 +1728,30 @@ function declareWinner(winnerData) {
       settingsSheet.appendRow([key, value]);
     }
   });
+
+  // Award winner points if configured
+  try {
+    const settings = getCanvasSettings();
+    const winnerPoints = Number(settings.winnerPoints) || 0;
+    const winningHouse = winnerData.winner;
+
+    if (winnerPoints > 0 && winningHouse) {
+      try {
+        logPoints({
+          teacher: 'Canvas System',
+          student: '',
+          house: winningHouse,
+          category: 'Campaign Win',
+          points: winnerPoints
+        });
+        Logger.log(`Awarded ${winnerPoints} points to ${winningHouse} for winning canvas campaign.`);
+      } catch (e) {
+        Logger.log('Error awarding winner points: ' + e);
+      }
+    }
+  } catch (e) {
+    Logger.log('Error when attempting to award winner points: ' + e);
+  }
 }
 
 /**
