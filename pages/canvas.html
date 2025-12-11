@@ -684,128 +684,11 @@ let studentStatus = null;
 let canvasData = null;
 let sessionId = generateSessionId();
 let countdownInterval = null;
-let mondrianLayout = null; // Will store generated layout
+let mondrianLayout = null; // Will store layout from backend
 let blockToGridMap = {}; // Maps block ID to grid (row, col)
 
 function generateSessionId() {
     return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-}
-
-// Generate Mondrian-style layout (similar to backend algorithm)
-function generateMondrianLayout(gridWidth, gridHeight) {
-    const canvasWidth = 1000;
-    const canvasHeight = 1000;
-    const targetBlocks = gridWidth * gridHeight; // 400 blocks
-    const minSize = 30;
-
-    const blocks = [];
-    let blockId = 0;
-
-    const queue = [{
-        x: 0,
-        y: 0,
-        width: canvasWidth,
-        height: canvasHeight,
-        depth: 0
-    }];
-
-    while (blocks.length + queue.length < targetBlocks && queue.length > 0) {
-        queue.sort((a, b) => (b.width * b.height) - (a.width * a.height));
-
-        const rect = queue.shift();
-        const canSplitH = rect.height >= minSize * 2;
-        const canSplitV = rect.width >= minSize * 2;
-
-        const splitProb = Math.max(0.3, 1 - (rect.depth * 0.15) - (blocks.length / targetBlocks) * 0.5);
-        const shouldSplit = Math.random() < splitProb && (canSplitH || canSplitV);
-
-        if (!shouldSplit || (!canSplitH && !canSplitV)) {
-            blocks.push({
-                id: blockId++,
-                x: rect.x,
-                y: rect.y,
-                width: rect.width,
-                height: rect.height
-            });
-        } else {
-            const splitHorizontal = canSplitH && (!canSplitV || Math.random() > 0.5);
-
-            if (splitHorizontal) {
-                const minSplitY = rect.y + minSize;
-                const maxSplitY = rect.y + rect.height - minSize;
-                const splitY = Math.floor(minSplitY + Math.random() * (maxSplitY - minSplitY));
-
-                queue.push({
-                    x: rect.x,
-                    y: rect.y,
-                    width: rect.width,
-                    height: splitY - rect.y,
-                    depth: rect.depth + 1
-                });
-
-                queue.push({
-                    x: rect.x,
-                    y: splitY,
-                    width: rect.width,
-                    height: rect.y + rect.height - splitY,
-                    depth: rect.depth + 1
-                });
-            } else {
-                const minSplitX = rect.x + minSize;
-                const maxSplitX = rect.x + rect.width - minSize;
-                const splitX = Math.floor(minSplitX + Math.random() * (maxSplitX - minSplitX));
-
-                queue.push({
-                    x: rect.x,
-                    y: rect.y,
-                    width: splitX - rect.x,
-                    height: rect.height,
-                    depth: rect.depth + 1
-                });
-
-                queue.push({
-                    x: splitX,
-                    y: rect.y,
-                    width: rect.x + rect.width - splitX,
-                    height: rect.height,
-                    depth: rect.depth + 1
-                });
-            }
-        }
-    }
-
-    while (queue.length > 0) {
-        const rect = queue.shift();
-        blocks.push({
-            id: blockId++,
-            x: rect.x,
-            y: rect.y,
-            width: rect.width,
-            height: rect.height
-        });
-    }
-
-    // Map each block to a grid coordinate
-    const gridCoords = [];
-    for (let row = 0; row < gridHeight; row++) {
-        for (let col = 0; col < gridWidth; col++) {
-            gridCoords.push({ row, col });
-        }
-    }
-
-    // Shuffle and assign
-    gridCoords.sort(() => Math.random() - 0.5);
-    blocks.forEach((block, index) => {
-        if (index < gridCoords.length) {
-            const coord = gridCoords[index];
-            block.row = coord.row;
-            block.col = coord.col;
-            blockToGridMap[block.id] = { row: coord.row, col: coord.col };
-        }
-    });
-
-    console.log(`Generated ${blocks.length} Mondrian blocks`);
-    return blocks;
 }
 
 // Show status message
@@ -912,9 +795,14 @@ function renderCanvas(data) {
     const container = document.getElementById('canvasGrid');
     const { width, height } = data.settings;
 
-    // Generate Mondrian layout if not already done
-    if (!mondrianLayout) {
-        mondrianLayout = generateMondrianLayout(width, height);
+    // Use Mondrian layout from backend (persistent across all users)
+    if (!mondrianLayout && data.settings.mondrianLayout) {
+        mondrianLayout = data.settings.mondrianLayout;
+        // Build blockToGridMap from the layout
+        mondrianLayout.forEach(block => {
+            blockToGridMap[block.id] = { row: block.row, col: block.col };
+        });
+        console.log(`Loaded ${mondrianLayout.length} Mondrian blocks from backend`);
     }
 
     // Create pixel map for quick lookup

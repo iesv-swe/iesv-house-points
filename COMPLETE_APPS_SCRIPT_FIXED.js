@@ -968,6 +968,36 @@ function generateMondrianLayout() {
 }
 
 /**
+ * Generate Mondrian layout and map to grid coordinates
+ * This creates the complete layout that will be used by all users
+ */
+function generateMondrianLayoutWithMapping(gridWidth, gridHeight) {
+  const blocks = generateMondrianLayout();
+
+  // Create list of all grid coordinates
+  const gridCoords = [];
+  for (let row = 0; row < gridHeight; row++) {
+    for (let col = 0; col < gridWidth; col++) {
+      gridCoords.push({ row, col });
+    }
+  }
+
+  // Shuffle grid coordinates randomly
+  gridCoords.sort(() => Math.random() - 0.5);
+
+  // Assign each block to a grid coordinate
+  blocks.forEach((block, index) => {
+    if (index < gridCoords.length) {
+      const coord = gridCoords[index];
+      block.row = coord.row;
+      block.col = coord.col;
+    }
+  });
+
+  return blocks;
+}
+
+/**
  * Initialize Canvas sheets (run this once to set up)
  */
 function initializeCanvasSheets() {
@@ -989,6 +1019,9 @@ function initializeCanvasSheets() {
     canvasSettings.getRange('A1:B1').setFontWeight('bold').setBackground('#4a86e8');
 
     // Default settings - 20x20 grid = 400 blocks
+    // Generate initial Mondrian layout
+    const mondrianLayout = generateMondrianLayoutWithMapping(20, 20);
+
     const defaults = [
       ['canvasWidth', 20],
       ['canvasHeight', 20],
@@ -1004,7 +1037,8 @@ function initializeCanvasSheets() {
       ['happyHourActive', 'FALSE'],
       ['happyHourPixelsAllowed', 5],
       ['leaderboardPassword', 'canvas2025'],
-      ['adminPassword', 'admin2025']
+      ['adminPassword', 'admin2025'],
+      ['mondrianLayout', JSON.stringify(mondrianLayout)]
     ];
 
     defaults.forEach(row => canvasSettings.appendRow(row));
@@ -1065,6 +1099,17 @@ function getCanvasSettings() {
     if (value === 'FALSE') value = false;
     if (key.includes('Date') && value) value = new Date(value);
 
+    // Parse Mondrian layout JSON
+    if (key === 'mondrianLayout' && value) {
+      try {
+        value = JSON.parse(value);
+      } catch (e) {
+        Logger.log('Error parsing mondrianLayout: ' + e);
+        // Generate new layout if parsing fails
+        value = generateMondrianLayoutWithMapping(settings.canvasWidth || 20, settings.canvasHeight || 20);
+      }
+    }
+
     settings[key] = value;
   }
 
@@ -1086,7 +1131,8 @@ function getCanvasState() {
       settings: {
         width: settings.canvasWidth,
         height: settings.canvasHeight,
-        pixelSize: settings.pixelSize
+        pixelSize: settings.pixelSize,
+        mondrianLayout: settings.mondrianLayout
       }
     };
   }
@@ -1108,7 +1154,8 @@ function getCanvasState() {
     settings: {
       width: settings.canvasWidth,
       height: settings.canvasHeight,
-      pixelSize: settings.pixelSize
+      pixelSize: settings.pixelSize,
+      mondrianLayout: settings.mondrianLayout
     }
   };
 }
@@ -1994,6 +2041,21 @@ function wipeCanvas(password) {
   if (canvasState.getLastRow() > 1) {
     canvasState.deleteRows(2, canvasState.getLastRow() - 1);
   }
+
+  // Generate new Mondrian layout for next campaign
+  const newLayout = generateMondrianLayoutWithMapping(settings.canvasWidth, settings.canvasHeight);
+  const settingsSheet = ss.getSheetByName('Canvas Settings');
+  const settingsData = settingsSheet.getDataRange().getValues();
+
+  // Update mondrianLayout setting
+  for (let i = 1; i < settingsData.length; i++) {
+    if (settingsData[i][0] === 'mondrianLayout') {
+      settingsSheet.getRange(i + 1, 2).setValue(JSON.stringify(newLayout));
+      break;
+    }
+  }
+
+  Logger.log(`Canvas wiped. Winner: ${winner}. New Mondrian layout generated with ${newLayout.length} blocks.`);
 
   return {
     status: 'success',
