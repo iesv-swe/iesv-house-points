@@ -523,6 +523,10 @@ const UPDATE_INTERVAL = 60 * 60 * 1000; // 1 hour in milliseconds
 let nextUpdateTime = null;
 let countdownInterval = null;
 
+// Mondrian layout globals
+let mondrianLayout = null; // Will store generated layout
+let blockToGridMap = {}; // Maps block ID to grid (row, col)
+
 // House colors
 const houseColors = {
     'Phoenix': '#dc143c',
@@ -531,6 +535,160 @@ const houseColors = {
     'Griffin': '#ff8c00',
     'Staff': '#000000'
 };
+
+// Generate Mondrian-style layout
+function generateMondrianLayout(gridWidth, gridHeight) {
+    const canvasWidth = 1000;
+    const canvasHeight = 1000;
+    const targetBlocks = gridWidth * gridHeight; // Should be 400
+    const minSize = 30; // Minimum block dimension
+
+    const blocks = [];
+    let blockId = 0;
+
+    // Start with full canvas
+    const queue = [{
+        x: 0,
+        y: 0,
+        width: canvasWidth,
+        height: canvasHeight,
+        depth: 0
+    }];
+
+    // Recursive subdivision with controlled randomness
+    while (blocks.length + queue.length < targetBlocks && queue.length > 0) {
+        // Sort queue by area (largest first) to split big blocks preferentially
+        queue.sort((a, b) => (b.width * b.height) - (a.width * a.height));
+
+        const rect = queue.shift();
+
+        // Calculate split probability based on:
+        // - depth (deeper = less likely to split)
+        // - progress toward target (closer = less likely to split)
+        // - size (larger = more likely to split)
+        const progress = blocks.length / targetBlocks;
+        const splitProb = Math.max(0.3, 1 - (rect.depth * 0.15) - (progress * 0.5));
+
+        const shouldSplit = Math.random() < splitProb &&
+                           (rect.width > minSize * 2 || rect.height > minSize * 2);
+
+        if (shouldSplit) {
+            const canSplitH = rect.width > minSize * 2;
+            const canSplitV = rect.height > minSize * 2;
+
+            let splitDir;
+            if (canSplitH && canSplitV) {
+                // Prefer splitting along the longer dimension
+                splitDir = rect.width > rect.height ? 'horizontal' : 'vertical';
+                // Add some randomness
+                if (Math.random() < 0.3) {
+                    splitDir = splitDir === 'horizontal' ? 'vertical' : 'horizontal';
+                }
+            } else if (canSplitH) {
+                splitDir = 'horizontal';
+            } else if (canSplitV) {
+                splitDir = 'vertical';
+            } else {
+                // Can't split, make it a block
+                blocks.push({
+                    id: blockId++,
+                    x: rect.x,
+                    y: rect.y,
+                    width: rect.width,
+                    height: rect.height
+                });
+                continue;
+            }
+
+            if (splitDir === 'horizontal') {
+                // Split horizontally (left/right)
+                const minSplit = rect.x + minSize;
+                const maxSplit = rect.x + rect.width - minSize;
+                const splitX = Math.floor(minSplit + Math.random() * (maxSplit - minSplit));
+
+                queue.push({
+                    x: rect.x,
+                    y: rect.y,
+                    width: splitX - rect.x,
+                    height: rect.height,
+                    depth: rect.depth + 1
+                });
+                queue.push({
+                    x: splitX,
+                    y: rect.y,
+                    width: rect.x + rect.width - splitX,
+                    height: rect.height,
+                    depth: rect.depth + 1
+                });
+            } else {
+                // Split vertically (top/bottom)
+                const minSplit = rect.y + minSize;
+                const maxSplit = rect.y + rect.height - minSize;
+                const splitY = Math.floor(minSplit + Math.random() * (maxSplit - minSplit));
+
+                queue.push({
+                    x: rect.x,
+                    y: rect.y,
+                    width: rect.width,
+                    height: splitY - rect.y,
+                    depth: rect.depth + 1
+                });
+                queue.push({
+                    x: rect.x,
+                    y: splitY,
+                    width: rect.width,
+                    height: rect.y + rect.height - splitY,
+                    depth: rect.depth + 1
+                });
+            }
+        } else {
+            // Don't split - make this a block
+            blocks.push({
+                id: blockId++,
+                x: rect.x,
+                y: rect.y,
+                width: rect.width,
+                height: rect.height
+            });
+        }
+    }
+
+    // Add any remaining queue items as blocks
+    while (queue.length > 0 && blocks.length < targetBlocks) {
+        const rect = queue.shift();
+        blocks.push({
+            id: blockId++,
+            x: rect.x,
+            y: rect.y,
+            width: rect.width,
+            height: rect.height
+        });
+    }
+
+    // Map each block to a grid coordinate
+    // Create list of all grid coordinates
+    const gridCoords = [];
+    for (let row = 0; row < gridHeight; row++) {
+        for (let col = 0; col < gridWidth; col++) {
+            gridCoords.push({ row, col });
+        }
+    }
+
+    // Shuffle grid coordinates randomly
+    gridCoords.sort(() => Math.random() - 0.5);
+
+    // Assign each block to a grid coordinate
+    blocks.forEach((block, index) => {
+        if (index < gridCoords.length) {
+            const coord = gridCoords[index];
+            block.row = coord.row;
+            block.col = coord.col;
+            blockToGridMap[block.id] = { row: coord.row, col: coord.col };
+        }
+    });
+
+    return blocks;
+}
 
 // Initialize on load
 window.addEventListener('load', () => {
@@ -585,42 +743,76 @@ async function loadCanvasMap() {
     }
 }
 
-// Render canvas grid
+// Render canvas grid with Mondrian layout
 function renderCanvas(data) {
-    const grid = document.getElementById('canvasGrid');
-    const { width, height, pixelSize } = data.settings;
+    const container = document.getElementById('canvasGrid');
+    const { width, height } = data.settings;
 
-    // Calculate appropriate pixel size for fullscreen
+    // Generate Mondrian layout if not already done
+    if (!mondrianLayout) {
+        mondrianLayout = generateMondrianLayout(width, height);
+    }
+
+    // Calculate appropriate canvas size for fullscreen
     const maxWidth = window.innerWidth * 0.85;
     const maxHeight = window.innerHeight * 0.85;
-    const calculatedSize = Math.floor(Math.min(maxWidth / width, maxHeight / height));
-    const finalSize = Math.max(3, Math.min(calculatedSize, 15)); // Between 3-15px
+    const canvasSize = Math.floor(Math.min(maxWidth, maxHeight));
 
-    grid.style.gridTemplateColumns = `repeat(${width}, ${finalSize}px)`;
-    grid.style.gridTemplateRows = `repeat(${height}, ${finalSize}px)`;
-    grid.innerHTML = '';
+    // Set up container as positioned container
+    container.style.display = 'block';
+    container.style.position = 'relative';
+    container.style.width = canvasSize + 'px';
+    container.style.height = canvasSize + 'px';
+    container.style.background = 'rgba(80, 80, 100, 0.5)';
+    container.style.padding = '3px';
+    container.style.borderRadius = '8px';
+    container.style.boxShadow = '0 0 30px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 0, 0, 0.5)';
+    container.innerHTML = '';
 
-    // Create pixel map
+    // Create pixel map for quick lookup
     const pixelMap = {};
     data.pixels.forEach(pixel => {
         const key = `${pixel.row}-${pixel.col}`;
         pixelMap[key] = pixel;
     });
 
-    // Generate grid
-    for (let row = 0; row < height; row++) {
-        for (let col = 0; col < width; col++) {
-            const pixel = document.createElement('div');
-            pixel.className = 'pixel';
+    // Calculate scale factor from virtual 1000px canvas to actual display size
+    const scale = canvasSize / 1000;
 
-            const key = `${row}-${col}`;
-            if (pixelMap[key]) {
-                pixel.style.background = pixelMap[key].color;
-            }
+    // Render each Mondrian block
+    mondrianLayout.forEach(block => {
+        const blockDiv = document.createElement('div');
 
-            grid.appendChild(pixel);
+        // Position and size based on block dimensions (scaled from 1000px virtual canvas)
+        blockDiv.style.position = 'absolute';
+        blockDiv.style.left = (block.x * scale) + 'px';
+        blockDiv.style.top = (block.y * scale) + 'px';
+        blockDiv.style.width = (block.width * scale) + 'px';
+        blockDiv.style.height = (block.height * scale) + 'px';
+        blockDiv.style.boxSizing = 'border-box';
+
+        // Check if this block is claimed
+        const key = `${block.row}-${block.col}`;
+        const pixelData = pixelMap[key];
+
+        if (pixelData) {
+            // Claimed block
+            blockDiv.style.background = pixelData.color;
+            blockDiv.style.border = '2px solid rgba(0, 0, 0, 0.9)';
+            blockDiv.style.boxShadow = '0 1px 4px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.15)';
+            blockDiv.classList.add('claimed');
+        } else {
+            // Unclaimed block
+            blockDiv.style.background = '#1a1a1a';
+            blockDiv.style.border = '2px solid rgba(0, 0, 0, 0.7)';
+            blockDiv.style.boxShadow = 'inset 0 0 3px rgba(255, 255, 255, 0.1)';
         }
-    }
+
+        blockDiv.style.borderRadius = '2px';
+        blockDiv.style.transition = 'transform 0.1s, box-shadow 0.1s';
+
+        container.appendChild(blockDiv);
+    });
 }
 
 // Render stats overlay

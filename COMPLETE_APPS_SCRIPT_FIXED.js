@@ -851,8 +851,121 @@ function getQuizPointsByHouse() {
 }
 
 // ============================================================================
-// CANVAS SYSTEM - r/Place Style Pixel War
+// CANVAS SYSTEM - Mondrian-Style Block War
 // ============================================================================
+
+/**
+ * Generate Mondrian-style layout with ~400 blocks
+ * Uses recursive subdivision algorithm
+ */
+function generateMondrianLayout() {
+  const canvasWidth = 1000;  // Virtual canvas dimensions
+  const canvasHeight = 1000;
+  const targetBlocks = 400;
+  const minSize = 30;  // Minimum block size
+
+  const blocks = [];
+  let blockId = 0;
+
+  // Start with full canvas
+  const queue = [{
+    x: 0,
+    y: 0,
+    width: canvasWidth,
+    height: canvasHeight,
+    depth: 0
+  }];
+
+  while (blocks.length + queue.length < targetBlocks && queue.length > 0) {
+    // Sort queue by size (larger first) to ensure good mix
+    queue.sort((a, b) => (b.width * b.height) - (a.width * a.height));
+
+    const rect = queue.shift();
+
+    // Decide if this should be split or kept as a block
+    const area = rect.width * rect.height;
+    const canSplitH = rect.height >= minSize * 2;
+    const canSplitV = rect.width >= minSize * 2;
+
+    // Probability of splitting decreases with depth and size
+    const splitProb = Math.max(0.3, 1 - (rect.depth * 0.15) - (blocks.length / targetBlocks) * 0.5);
+    const shouldSplit = Math.random() < splitProb && (canSplitH || canSplitV);
+
+    if (!shouldSplit || (!canSplitH && !canSplitV)) {
+      // Keep as block
+      blocks.push({
+        id: blockId++,
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height
+      });
+    } else {
+      // Decide split direction
+      const splitHorizontal = canSplitH && (!canSplitV || Math.random() > 0.5);
+
+      if (splitHorizontal) {
+        // Split horizontally
+        const minSplitY = rect.y + minSize;
+        const maxSplitY = rect.y + rect.height - minSize;
+        const splitY = Math.floor(minSplitY + Math.random() * (maxSplitY - minSplitY));
+
+        queue.push({
+          x: rect.x,
+          y: rect.y,
+          width: rect.width,
+          height: splitY - rect.y,
+          depth: rect.depth + 1
+        });
+
+        queue.push({
+          x: rect.x,
+          y: splitY,
+          width: rect.width,
+          height: rect.y + rect.height - splitY,
+          depth: rect.depth + 1
+        });
+      } else {
+        // Split vertically
+        const minSplitX = rect.x + minSize;
+        const maxSplitX = rect.x + rect.width - minSize;
+        const splitX = Math.floor(minSplitX + Math.random() * (maxSplitX - minSplitX));
+
+        queue.push({
+          x: rect.x,
+          y: rect.y,
+          width: splitX - rect.x,
+          height: rect.height,
+          depth: rect.depth + 1
+        });
+
+        queue.push({
+          x: splitX,
+          y: rect.y,
+          width: rect.x + rect.width - splitX,
+          height: rect.height,
+          depth: rect.depth + 1
+        });
+      }
+    }
+  }
+
+  // Add all remaining queue items as blocks
+  while (queue.length > 0) {
+    const rect = queue.shift();
+    blocks.push({
+      id: blockId++,
+      x: rect.x,
+      y: rect.y,
+      width: rect.width,
+      height: rect.height
+    });
+  }
+
+  Logger.log(`Generated ${blocks.length} blocks for Mondrian layout`);
+
+  return blocks;
+}
 
 /**
  * Initialize Canvas sheets (run this once to set up)
@@ -875,11 +988,11 @@ function initializeCanvasSheets() {
     canvasSettings.appendRow(['Setting', 'Value']);
     canvasSettings.getRange('A1:B1').setFontWeight('bold').setBackground('#4a86e8');
 
-    // Default settings
+    // Default settings - 20x20 grid = 400 blocks
     const defaults = [
-      ['canvasWidth', 100],
-      ['canvasHeight', 100],
-      ['pixelSize', 8],
+      ['canvasWidth', 20],
+      ['canvasHeight', 20],
+      ['pixelSize', 30],
       ['cooldownMinutes', 60],
       ['pointCostPerPixel', 1],
       ['campaignStartDate', new Date()],
@@ -1402,16 +1515,17 @@ function getCanvasStats() {
 
 /**
  * Check if there's a winner (mathematically impossible to catch up)
+ * With 20x20 grid = 400 blocks, winner needs 200+ blocks (50%+)
  */
 function checkForWinner() {
   const settings = getCanvasSettings();
   const stats = calculateCanvasStats();
 
-  const totalPixels = settings.canvasWidth * settings.canvasHeight;
-  const placedPixels = stats.total;
-  const remainingPixels = totalPixels - placedPixels;
+  const totalBlocks = settings.canvasWidth * settings.canvasHeight; // 400
+  const placedBlocks = stats.total;
+  const remainingBlocks = totalBlocks - placedBlocks;
 
-  // Sort houses by pixel count (excluding Staff)
+  // Sort houses by block count (excluding Staff)
   const houses = ['Phoenix', 'Dragon', 'Hydra', 'Griffin'];
   const houseCounts = houses.map(house => ({
     house: house,
@@ -1421,9 +1535,9 @@ function checkForWinner() {
   const leader = houseCounts[0];
   const secondPlace = houseCounts[1];
 
-  // Winner condition: Leader has more than 50% OR mathematically impossible to catch up
-  const hasAbsoluteMajority = leader.count > (totalPixels / 2);
-  const mathematicallyImpossible = (secondPlace.count + remainingPixels) < leader.count;
+  // Winner condition: Leader has 200+ blocks (50%+) OR mathematically impossible to catch up
+  const hasAbsoluteMajority = leader.count > (totalBlocks / 2); // 200+ blocks
+  const mathematicallyImpossible = (secondPlace.count + remainingBlocks) < leader.count;
 
   if (hasAbsoluteMajority || mathematicallyImpossible) {
     return {
@@ -1432,8 +1546,8 @@ function checkForWinner() {
       winnerCount: leader.count,
       winnerPercentage: stats[leader.house].percentage,
       declaredAt: new Date(),
-      totalPixels: totalPixels,
-      placedPixels: placedPixels,
+      totalBlocks: totalBlocks,
+      placedBlocks: placedBlocks,
       stats: stats
     };
   }
@@ -1451,8 +1565,8 @@ function checkForWinner() {
       winnerPercentage: stats[leader.house].percentage,
       declaredAt: campaignEnd,
       reason: 'Campaign end date reached',
-      totalPixels: totalPixels,
-      placedPixels: placedPixels,
+      totalBlocks: totalBlocks,
+      placedBlocks: placedBlocks,
       stats: stats
     };
   }
@@ -1461,7 +1575,7 @@ function checkForWinner() {
     hasWinner: false,
     leader: leader.house,
     leaderCount: leader.count,
-    remainingPixels: remainingPixels
+    remainingBlocks: remainingBlocks
   };
 }
 

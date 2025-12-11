@@ -684,9 +684,128 @@ let studentStatus = null;
 let canvasData = null;
 let sessionId = generateSessionId();
 let countdownInterval = null;
+let mondrianLayout = null; // Will store generated layout
+let blockToGridMap = {}; // Maps block ID to grid (row, col)
 
 function generateSessionId() {
     return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+// Generate Mondrian-style layout (similar to backend algorithm)
+function generateMondrianLayout(gridWidth, gridHeight) {
+    const canvasWidth = 1000;
+    const canvasHeight = 1000;
+    const targetBlocks = gridWidth * gridHeight; // 400 blocks
+    const minSize = 30;
+
+    const blocks = [];
+    let blockId = 0;
+
+    const queue = [{
+        x: 0,
+        y: 0,
+        width: canvasWidth,
+        height: canvasHeight,
+        depth: 0
+    }];
+
+    while (blocks.length + queue.length < targetBlocks && queue.length > 0) {
+        queue.sort((a, b) => (b.width * b.height) - (a.width * a.height));
+
+        const rect = queue.shift();
+        const canSplitH = rect.height >= minSize * 2;
+        const canSplitV = rect.width >= minSize * 2;
+
+        const splitProb = Math.max(0.3, 1 - (rect.depth * 0.15) - (blocks.length / targetBlocks) * 0.5);
+        const shouldSplit = Math.random() < splitProb && (canSplitH || canSplitV);
+
+        if (!shouldSplit || (!canSplitH && !canSplitV)) {
+            blocks.push({
+                id: blockId++,
+                x: rect.x,
+                y: rect.y,
+                width: rect.width,
+                height: rect.height
+            });
+        } else {
+            const splitHorizontal = canSplitH && (!canSplitV || Math.random() > 0.5);
+
+            if (splitHorizontal) {
+                const minSplitY = rect.y + minSize;
+                const maxSplitY = rect.y + rect.height - minSize;
+                const splitY = Math.floor(minSplitY + Math.random() * (maxSplitY - minSplitY));
+
+                queue.push({
+                    x: rect.x,
+                    y: rect.y,
+                    width: rect.width,
+                    height: splitY - rect.y,
+                    depth: rect.depth + 1
+                });
+
+                queue.push({
+                    x: rect.x,
+                    y: splitY,
+                    width: rect.width,
+                    height: rect.y + rect.height - splitY,
+                    depth: rect.depth + 1
+                });
+            } else {
+                const minSplitX = rect.x + minSize;
+                const maxSplitX = rect.x + rect.width - minSize;
+                const splitX = Math.floor(minSplitX + Math.random() * (maxSplitX - minSplitX));
+
+                queue.push({
+                    x: rect.x,
+                    y: rect.y,
+                    width: splitX - rect.x,
+                    height: rect.height,
+                    depth: rect.depth + 1
+                });
+
+                queue.push({
+                    x: splitX,
+                    y: rect.y,
+                    width: rect.x + rect.width - splitX,
+                    height: rect.height,
+                    depth: rect.depth + 1
+                });
+            }
+        }
+    }
+
+    while (queue.length > 0) {
+        const rect = queue.shift();
+        blocks.push({
+            id: blockId++,
+            x: rect.x,
+            y: rect.y,
+            width: rect.width,
+            height: rect.height
+        });
+    }
+
+    // Map each block to a grid coordinate
+    const gridCoords = [];
+    for (let row = 0; row < gridHeight; row++) {
+        for (let col = 0; col < gridWidth; col++) {
+            gridCoords.push({ row, col });
+        }
+    }
+
+    // Shuffle and assign
+    gridCoords.sort(() => Math.random() - 0.5);
+    blocks.forEach((block, index) => {
+        if (index < gridCoords.length) {
+            const coord = gridCoords[index];
+            block.row = coord.row;
+            block.col = coord.col;
+            blockToGridMap[block.id] = { row: coord.row, col: coord.col };
+        }
+    });
+
+    console.log(`Generated ${blocks.length} Mondrian blocks`);
+    return blocks;
 }
 
 // Show status message
@@ -790,12 +909,13 @@ async function loadCanvas() {
 
 // Render canvas grid
 function renderCanvas(data) {
-    const grid = document.getElementById('canvasGrid');
-    const { width, height, pixelSize } = data.settings;
+    const container = document.getElementById('canvasGrid');
+    const { width, height } = data.settings;
 
-    grid.style.gridTemplateColumns = `repeat(${width}, ${pixelSize}px)`;
-    grid.style.gridTemplateRows = `repeat(${height}, ${pixelSize}px)`;
-    grid.innerHTML = '';
+    // Generate Mondrian layout if not already done
+    if (!mondrianLayout) {
+        mondrianLayout = generateMondrianLayout(width, height);
+    }
 
     // Create pixel map for quick lookup
     const pixelMap = {};
@@ -804,36 +924,66 @@ function renderCanvas(data) {
         pixelMap[key] = pixel;
     });
 
-    // Random size classes for visual variety
-    const sizeClasses = ['size-tiny', 'size-small', '', '', 'size-large', 'size-huge'];
+    // Clear container and set up as positioned container
+    container.innerHTML = '';
+    container.style.display = 'block';
+    container.style.position = 'relative';
+    container.style.width = '600px';
+    container.style.height = '600px';
+    container.style.margin = '0 auto';
 
-    // Generate grid
-    for (let row = 0; row < height; row++) {
-        for (let col = 0; col < width; col++) {
-            const pixel = document.createElement('div');
-            pixel.className = 'pixel';
-            pixel.dataset.row = row;
-            pixel.dataset.col = col;
+    // Render each Mondrian block
+    mondrianLayout.forEach(block => {
+        const blockDiv = document.createElement('div');
+        blockDiv.className = 'mondrian-block';
+        blockDiv.dataset.blockId = block.id;
+        blockDiv.dataset.row = block.row;
+        blockDiv.dataset.col = block.col;
 
-            // Add random size variation for visual interest
-            // More normal sizes (empty string) than extreme sizes
-            const randomSize = sizeClasses[Math.floor(Math.random() * sizeClasses.length)];
-            if (randomSize) {
-                pixel.classList.add(randomSize);
-            }
+        // Position and size based on block dimensions
+        const scale = 600 / 1000; // Scale down from 1000px virtual size to 600px actual
+        blockDiv.style.position = 'absolute';
+        blockDiv.style.left = (block.x * scale) + 'px';
+        blockDiv.style.top = (block.y * scale) + 'px';
+        blockDiv.style.width = (block.width * scale) + 'px';
+        blockDiv.style.height = (block.height * scale) + 'px';
+        blockDiv.style.border = '2px solid rgba(0, 0, 0, 0.7)';
+        blockDiv.style.boxSizing = 'border-box';
+        blockDiv.style.cursor = 'pointer';
+        blockDiv.style.transition = 'all 0.2s ease';
 
-            const key = `${row}-${col}`;
-            if (pixelMap[key]) {
-                pixel.style.background = pixelMap[key].color;
-                pixel.classList.add('placed');
-                pixel.title = `${pixelMap[key].house} - ${new Date(pixelMap[key].placedAt).toLocaleString()}`;
-            }
-
-            pixel.addEventListener('click', () => handlePixelClick(row, col));
-
-            grid.appendChild(pixel);
+        // Check if this block's grid position is claimed
+        const key = `${block.row}-${block.col}`;
+        if (pixelMap[key]) {
+            blockDiv.style.background = pixelMap[key].color;
+            blockDiv.classList.add('claimed');
+            blockDiv.title = `${pixelMap[key].house} - ${new Date(pixelMap[key].placedAt).toLocaleString()}`;
+        } else {
+            blockDiv.style.background = '#333';
         }
-    }
+
+        // Hover effect
+        blockDiv.addEventListener('mouseenter', () => {
+            if (!blockDiv.classList.contains('claimed')) {
+                blockDiv.style.transform = 'scale(1.05)';
+                blockDiv.style.boxShadow = '0 0 20px rgba(255, 255, 255, 0.6)';
+                blockDiv.style.zIndex = '100';
+                blockDiv.style.border = '3px solid rgba(255, 255, 255, 0.8)';
+            }
+        });
+
+        blockDiv.addEventListener('mouseleave', () => {
+            blockDiv.style.transform = 'scale(1)';
+            blockDiv.style.boxShadow = 'none';
+            blockDiv.style.zIndex = '1';
+            blockDiv.style.border = '2px solid rgba(0, 0, 0, 0.7)';
+        });
+
+        // Click handler - sends the mapped grid coordinate
+        blockDiv.addEventListener('click', () => handlePixelClick(block.row, block.col));
+
+        container.appendChild(blockDiv);
+    });
 
     document.getElementById('canvasLoading').classList.add('hidden');
     document.getElementById('canvasContent').classList.remove('hidden');
