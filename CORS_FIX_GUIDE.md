@@ -7,7 +7,7 @@ The canvas-admin.html page experiences CORS (Cross-Origin Resource Sharing) erro
 CORS errors occur when:
 1. The frontend (GitHub Pages) and backend (Google Apps Script) are on different domains
 2. The browser enforces CORS security policy for cross-origin requests
-3. The Google Apps Script doesn't properly handle CORS requests
+3. The Google Apps Script deployment is not configured with proper access permissions
 
 ## Solution
 
@@ -34,7 +34,9 @@ The Google Apps Script must be deployed correctly to handle cross-origin request
 4. **Configure the deployment:**
    - Type: Web app
    - Execute as: **Me** (your account)
-   - Who has access: **Anyone** (or "Anyone with Google account" if you want to restrict)
+   - Who has access: **Anyone with Google account** (recommended for security)
+     - Use **"Anyone"** only if you need public unauthenticated access
+     - Note: "Anyone" allows requests without Google authentication
 5. **Click Deploy**
 6. **Copy the new Web App URL**
 7. **Update API_URL in canvas-admin.html** with the new deployment URL
@@ -43,12 +45,8 @@ The Google Apps Script must be deployed correctly to handle cross-origin request
 
 - **Always deploy a NEW version** after making changes to the Apps Script
 - **Test the deployment** by visiting the URL in a browser - it should return JSON, not an error
-- **Check deployment permissions** - "Anyone" access is required for CORS to work
+- **Check deployment permissions** - proper access settings are required for CORS to work
 - The Apps Script automatically allows cross-origin requests when deployed with proper permissions
-
-### Alternative: Add Explicit CORS Handling (If Needed)
-
-If the above doesn't work, you can add explicit CORS handling to the Apps Script. However, Google Apps Script should handle this automatically when deployed correctly.
 
 ### Verification
 
