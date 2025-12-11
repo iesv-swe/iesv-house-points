@@ -859,126 +859,32 @@ function getQuizPointsByHouse() {
  * Uses recursive subdivision algorithm
  */
 function generateMondrianLayout() {
-  const canvasWidth = 1000;  // Virtual canvas dimensions
+  const canvasWidth = 1000;
   const canvasHeight = 1000;
-  const targetBlocks = 400;
-  const minSize = 25;  // Minimum block size (reduced to allow 400 blocks)
-
+  const gridSize = 20; // 20x20 = 400 blocks
+  const blockWidth = canvasWidth / gridSize;
+  const blockHeight = canvasHeight / gridSize;
+  
   const blocks = [];
   let blockId = 0;
-
-  // Start with full canvas
-  const queue = [{
-    x: 0,
-    y: 0,
-    width: canvasWidth,
-    height: canvasHeight,
-    depth: 0
-  }];
-
-  while (blocks.length + queue.length < targetBlocks && queue.length > 0) {
-    // Sort queue by size (larger first) to ensure good mix
-    queue.sort((a, b) => (b.width * b.height) - (a.width * a.height));
-
-    const rect = queue.shift();
-
-    // Decide if this should be split or kept as a block
-    const remaining = targetBlocks - (blocks.length + queue.length);
-    const canSplitH = rect.height >= minSize * 2;
-    const canSplitV = rect.width >= minSize * 2;
-
-    // Force split if we need more blocks and can still split
-    const needMoreBlocks = remaining > 0;
-    const canSplit = canSplitH || canSplitV;
-
-    // Probability of splitting - higher when we need more blocks
-    const progress = blocks.length / targetBlocks;
-    const splitProb = needMoreBlocks ? Math.max(0.7, 1 - (progress * 0.3)) : 0;
-    const shouldSplit = canSplit && (Math.random() < splitProb || remaining > 1);
-
-    if (!shouldSplit || !canSplit) {
-      // Keep as block
+  
+  // Create a simple 20x20 grid - guaranteed 400 blocks
+  for (let row = 0; row < gridSize; row++) {
+    for (let col = 0; col < gridSize; col++) {
       blocks.push({
         id: blockId++,
-        x: rect.x,
-        y: rect.y,
-        width: rect.width,
-        height: rect.height
+        x: col * blockWidth,
+        y: row * blockHeight,
+        width: blockWidth,
+        height: blockHeight
       });
-    } else {
-      // Decide split direction - prefer the dimension that can be split
-      let splitHorizontal;
-      if (canSplitH && canSplitV) {
-        // Both directions possible - choose based on aspect ratio
-        splitHorizontal = rect.height > rect.width;
-        // Add randomness
-        if (Math.random() < 0.3) splitHorizontal = !splitHorizontal;
-      } else {
-        splitHorizontal = canSplitH;
-      }
-
-      if (splitHorizontal) {
-        // Split horizontally
-        const minSplitY = rect.y + minSize;
-        const maxSplitY = rect.y + rect.height - minSize;
-        const splitY = Math.floor(minSplitY + Math.random() * (maxSplitY - minSplitY));
-
-        queue.push({
-          x: rect.x,
-          y: rect.y,
-          width: rect.width,
-          height: splitY - rect.y,
-          depth: rect.depth + 1
-        });
-
-        queue.push({
-          x: rect.x,
-          y: splitY,
-          width: rect.width,
-          height: rect.y + rect.height - splitY,
-          depth: rect.depth + 1
-        });
-      } else {
-        // Split vertically
-        const minSplitX = rect.x + minSize;
-        const maxSplitX = rect.x + rect.width - minSize;
-        const splitX = Math.floor(minSplitX + Math.random() * (maxSplitX - minSplitX));
-
-        queue.push({
-          x: rect.x,
-          y: rect.y,
-          width: splitX - rect.x,
-          height: rect.height,
-          depth: rect.depth + 1
-        });
-
-        queue.push({
-          x: splitX,
-          y: rect.y,
-          width: rect.x + rect.width - splitX,
-          height: rect.height,
-          depth: rect.depth + 1
-        });
-      }
     }
   }
-
-  // Add all remaining queue items as blocks
-  while (queue.length > 0) {
-    const rect = queue.shift();
-    blocks.push({
-      id: blockId++,
-      x: rect.x,
-      y: rect.y,
-      width: rect.width,
-      height: rect.height
-    });
-  }
-
+  
   Logger.log(`Generated ${blocks.length} blocks for Mondrian layout`);
-
   return blocks;
 }
+
 
 /**
  * Generate Mondrian layout and map to grid coordinates
