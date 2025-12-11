@@ -524,7 +524,7 @@ let nextUpdateTime = null;
 let countdownInterval = null;
 
 // Mondrian layout globals
-let mondrianLayout = null; // Will store generated layout
+let mondrianLayout = null; // Will store layout from backend
 let blockToGridMap = {}; // Maps block ID to grid (row, col)
 
 // House colors
@@ -535,160 +535,6 @@ const houseColors = {
     'Griffin': '#ff8c00',
     'Staff': '#000000'
 };
-
-// Generate Mondrian-style layout
-function generateMondrianLayout(gridWidth, gridHeight) {
-    const canvasWidth = 1000;
-    const canvasHeight = 1000;
-    const targetBlocks = gridWidth * gridHeight; // Should be 400
-    const minSize = 30; // Minimum block dimension
-
-    const blocks = [];
-    let blockId = 0;
-
-    // Start with full canvas
-    const queue = [{
-        x: 0,
-        y: 0,
-        width: canvasWidth,
-        height: canvasHeight,
-        depth: 0
-    }];
-
-    // Recursive subdivision with controlled randomness
-    while (blocks.length + queue.length < targetBlocks && queue.length > 0) {
-        // Sort queue by area (largest first) to split big blocks preferentially
-        queue.sort((a, b) => (b.width * b.height) - (a.width * a.height));
-
-        const rect = queue.shift();
-
-        // Calculate split probability based on:
-        // - depth (deeper = less likely to split)
-        // - progress toward target (closer = less likely to split)
-        // - size (larger = more likely to split)
-        const progress = blocks.length / targetBlocks;
-        const splitProb = Math.max(0.3, 1 - (rect.depth * 0.15) - (progress * 0.5));
-
-        const shouldSplit = Math.random() < splitProb &&
-                           (rect.width > minSize * 2 || rect.height > minSize * 2);
-
-        if (shouldSplit) {
-            const canSplitH = rect.width > minSize * 2;
-            const canSplitV = rect.height > minSize * 2;
-
-            let splitDir;
-            if (canSplitH && canSplitV) {
-                // Prefer splitting along the longer dimension
-                splitDir = rect.width > rect.height ? 'horizontal' : 'vertical';
-                // Add some randomness
-                if (Math.random() < 0.3) {
-                    splitDir = splitDir === 'horizontal' ? 'vertical' : 'horizontal';
-                }
-            } else if (canSplitH) {
-                splitDir = 'horizontal';
-            } else if (canSplitV) {
-                splitDir = 'vertical';
-            } else {
-                // Can't split, make it a block
-                blocks.push({
-                    id: blockId++,
-                    x: rect.x,
-                    y: rect.y,
-                    width: rect.width,
-                    height: rect.height
-                });
-                continue;
-            }
-
-            if (splitDir === 'horizontal') {
-                // Split horizontally (left/right)
-                const minSplit = rect.x + minSize;
-                const maxSplit = rect.x + rect.width - minSize;
-                const splitX = Math.floor(minSplit + Math.random() * (maxSplit - minSplit));
-
-                queue.push({
-                    x: rect.x,
-                    y: rect.y,
-                    width: splitX - rect.x,
-                    height: rect.height,
-                    depth: rect.depth + 1
-                });
-                queue.push({
-                    x: splitX,
-                    y: rect.y,
-                    width: rect.x + rect.width - splitX,
-                    height: rect.height,
-                    depth: rect.depth + 1
-                });
-            } else {
-                // Split vertically (top/bottom)
-                const minSplit = rect.y + minSize;
-                const maxSplit = rect.y + rect.height - minSize;
-                const splitY = Math.floor(minSplit + Math.random() * (maxSplit - minSplit));
-
-                queue.push({
-                    x: rect.x,
-                    y: rect.y,
-                    width: rect.width,
-                    height: splitY - rect.y,
-                    depth: rect.depth + 1
-                });
-                queue.push({
-                    x: rect.x,
-                    y: splitY,
-                    width: rect.width,
-                    height: rect.y + rect.height - splitY,
-                    depth: rect.depth + 1
-                });
-            }
-        } else {
-            // Don't split - make this a block
-            blocks.push({
-                id: blockId++,
-                x: rect.x,
-                y: rect.y,
-                width: rect.width,
-                height: rect.height
-            });
-        }
-    }
-
-    // Add any remaining queue items as blocks
-    while (queue.length > 0 && blocks.length < targetBlocks) {
-        const rect = queue.shift();
-        blocks.push({
-            id: blockId++,
-            x: rect.x,
-            y: rect.y,
-            width: rect.width,
-            height: rect.height
-        });
-    }
-
-    // Map each block to a grid coordinate
-    // Create list of all grid coordinates
-    const gridCoords = [];
-    for (let row = 0; row < gridHeight; row++) {
-        for (let col = 0; col < gridWidth; col++) {
-            gridCoords.push({ row, col });
-        }
-    }
-
-    // Shuffle grid coordinates randomly
-    gridCoords.sort(() => Math.random() - 0.5);
-
-    // Assign each block to a grid coordinate
-    blocks.forEach((block, index) => {
-        if (index < gridCoords.length) {
-            const coord = gridCoords[index];
-            block.row = coord.row;
-            block.col = coord.col;
-            blockToGridMap[block.id] = { row: coord.row, col: coord.col };
-        }
-    });
-
-    return blocks;
-}
 
 // Initialize on load
 window.addEventListener('load', () => {
@@ -748,9 +594,14 @@ function renderCanvas(data) {
     const container = document.getElementById('canvasGrid');
     const { width, height } = data.settings;
 
-    // Generate Mondrian layout if not already done
-    if (!mondrianLayout) {
-        mondrianLayout = generateMondrianLayout(width, height);
+    // Use Mondrian layout from backend (persistent across all users)
+    if (!mondrianLayout && data.settings.mondrianLayout) {
+        mondrianLayout = data.settings.mondrianLayout;
+        // Build blockToGridMap from the layout
+        mondrianLayout.forEach(block => {
+            blockToGridMap[block.id] = { row: block.row, col: block.col };
+        });
+        console.log(`Loaded ${mondrianLayout.length} Mondrian blocks from backend`);
     }
 
     // Calculate appropriate canvas size for fullscreen
