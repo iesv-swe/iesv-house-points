@@ -611,7 +611,8 @@ async function loadStudentStatus() {
             return false;
         }
     } catch (error) {
-        showStatus('emailStatus', 'Canvas system not configured. Please contact an administrator.', 'error');
+        console.error('Canvas API Error:', error);
+        showStatus('emailStatus', `API Connection Error: ${error.message}\n\n1. Check Apps Script is deployed\n2. Run initializeCanvasSheets() function\n3. Verify API_URL is correct`, 'error');
         return false;
     }
 }
@@ -719,6 +720,9 @@ async function handlePixelClick(row, col) {
         if (data.status === 'success') {
             showStatus('canvasStatus', data.message, 'success');
 
+            // Show friendly popup
+            alert('🎨 Pixel Placed!\n\nOnly 1 pixel per hour - Come Back Soon!\n\n⏰ You can place your next pixel in 60 minutes.');
+
             // Update pixel on grid
             const pixelElement = document.querySelector(`.pixel[data-row="${row}"][data-col="${col}"]`);
             if (pixelElement) {
@@ -739,7 +743,8 @@ async function handlePixelClick(row, col) {
             showStatus('canvasStatus', data.message, 'error');
         }
     } catch (error) {
-        showStatus('canvasStatus', 'Network error. Please try again.', 'error');
+        console.error('Canvas Error:', error);
+        showStatus('canvasStatus', `Network error: ${error.message}. Check that Apps Script is deployed and API_URL is correct.`, 'error');
     }
 }
 
