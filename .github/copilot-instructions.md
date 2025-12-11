@@ -219,6 +219,7 @@ async function getData() {
 4. **Responsive Design:**
    - All pages must work on mobile devices
    - Use viewport meta tag: `<meta name="viewport" content="width=device-width, initial-scale=1.0">`
+   - Allow user scaling for accessibility (don't use `user-scalable=no`)
    - Test on different screen sizes
    - Consider touch targets (minimum 44px)
 
