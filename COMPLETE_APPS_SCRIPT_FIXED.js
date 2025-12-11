@@ -851,8 +851,121 @@ function getQuizPointsByHouse() {
 }
 
 // ============================================================================
-// CANVAS SYSTEM - r/Place Style Pixel War
+// CANVAS SYSTEM - Mondrian-Style Block War
 // ============================================================================
+
+/**
+ * Generate Mondrian-style layout with ~400 blocks
+ * Uses recursive subdivision algorithm
+ */
+function generateMondrianLayout() {
+  const canvasWidth = 1000;  // Virtual canvas dimensions
+  const canvasHeight = 1000;
+  const targetBlocks = 400;
+  const minSize = 30;  // Minimum block size
+
+  const blocks = [];
+  let blockId = 0;
+
+  // Start with full canvas
+  const queue = [{
+    x: 0,
+    y: 0,
+    width: canvasWidth,
+    height: canvasHeight,
+    depth: 0
+  }];
+
+  while (blocks.length + queue.length < targetBlocks && queue.length > 0) {
+    // Sort queue by size (larger first) to ensure good mix
+    queue.sort((a, b) => (b.width * b.height) - (a.width * a.height));
+
+    const rect = queue.shift();
+
+    // Decide if this should be split or kept as a block
+    const area = rect.width * rect.height;
+    const canSplitH = rect.height >= minSize * 2;
+    const canSplitV = rect.width >= minSize * 2;
+
+    // Probability of splitting decreases with depth and size
+    const splitProb = Math.max(0.3, 1 - (rect.depth * 0.15) - (blocks.length / targetBlocks) * 0.5);
+    const shouldSplit = Math.random() < splitProb && (canSplitH || canSplitV);
+
+    if (!shouldSplit || (!canSplitH && !canSplitV)) {
+      // Keep as block
+      blocks.push({
+        id: blockId++,
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height
+      });
+    } else {
+      // Decide split direction
+      const splitHorizontal = canSplitH && (!canSplitV || Math.random() > 0.5);
+
+      if (splitHorizontal) {
+        // Split horizontally
+        const minSplitY = rect.y + minSize;
+        const maxSplitY = rect.y + rect.height - minSize;
+        const splitY = Math.floor(minSplitY + Math.random() * (maxSplitY - minSplitY));
+
+        queue.push({
+          x: rect.x,
+          y: rect.y,
+          width: rect.width,
+          height: splitY - rect.y,
+          depth: rect.depth + 1
+        });
+
+        queue.push({
+          x: rect.x,
+          y: splitY,
+          width: rect.width,
+          height: rect.y + rect.height - splitY,
+          depth: rect.depth + 1
+        });
+      } else {
+        // Split vertically
+        const minSplitX = rect.x + minSize;
+        const maxSplitX = rect.x + rect.width - minSize;
+        const splitX = Math.floor(minSplitX + Math.random() * (maxSplitX - minSplitX));
+
+        queue.push({
+          x: rect.x,
+          y: rect.y,
+          width: splitX - rect.x,
+          height: rect.height,
+          depth: rect.depth + 1
+        });
+
+        queue.push({
+          x: splitX,
+          y: rect.y,
+          width: rect.x + rect.width - splitX,
+          height: rect.height,
+          depth: rect.depth + 1
+        });
+      }
+    }
+  }
+
+  // Add all remaining queue items as blocks
+  while (queue.length > 0) {
+    const rect = queue.shift();
+    blocks.push({
+      id: blockId++,
+      x: rect.x,
+      y: rect.y,
+      width: rect.width,
+      height: rect.height
+    });
+  }
+
+  Logger.log(`Generated ${blocks.length} blocks for Mondrian layout`);
+
+  return blocks;
+}
 
 /**
  * Initialize Canvas sheets (run this once to set up)
@@ -860,12 +973,12 @@ function getQuizPointsByHouse() {
 function initializeCanvasSheets() {
   const ss = SpreadsheetApp.openById(SHEET_ID);
 
-  // Canvas State sheet
+  // Canvas State sheet - stores claimed blocks
   let canvasState = ss.getSheetByName('Canvas State');
   if (!canvasState) {
     canvasState = ss.insertSheet('Canvas State');
-    canvasState.appendRow(['Row', 'Col', 'Color', 'PlacedBy', 'PlacedAt', 'House', 'StudentName']);
-    canvasState.getRange('A1:G1').setFontWeight('bold').setBackground('#4a86e8');
+    canvasState.appendRow(['BlockID', 'Color', 'PlacedBy', 'PlacedAt', 'House', 'StudentName']);
+    canvasState.getRange('A1:F1').setFontWeight('bold').setBackground('#4a86e8');
   }
 
   // Canvas Settings sheet
@@ -875,13 +988,16 @@ function initializeCanvasSheets() {
     canvasSettings.appendRow(['Setting', 'Value']);
     canvasSettings.getRange('A1:B1').setFontWeight('bold').setBackground('#4a86e8');
 
+    // Generate initial Mondrian layout
+    const layout = generateMondrianLayout();
+
     // Default settings
     const defaults = [
-      ['canvasWidth', 100],
-      ['canvasHeight', 100],
-      ['pixelSize', 8],
+      ['canvasWidth', 1000],
+      ['canvasHeight', 1000],
+      ['totalBlocks', layout.length],
       ['cooldownMinutes', 60],
-      ['pointCostPerPixel', 1],
+      ['pointCostPerBlock', 1],
       ['campaignStartDate', new Date()],
       ['campaignEndDate', new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)], // 7 days from now
       ['canvasActive', 'TRUE'],
@@ -889,9 +1005,10 @@ function initializeCanvasSheets() {
       ['allowBlackOverwrite', 'FALSE'],
       ['showCountdown', 'TRUE'],
       ['happyHourActive', 'FALSE'],
-      ['happyHourPixelsAllowed', 5],
+      ['happyHourBlocksAllowed', 5],
       ['leaderboardPassword', 'canvas2025'],
-      ['adminPassword', 'admin2025']
+      ['adminPassword', 'admin2025'],
+      ['mondrianLayout', JSON.stringify(layout)]
     ];
 
     defaults.forEach(row => canvasSettings.appendRow(row));
@@ -952,6 +1069,16 @@ function getCanvasSettings() {
     if (value === 'FALSE') value = false;
     if (key.includes('Date') && value) value = new Date(value);
 
+    // Parse JSON layout
+    if (key === 'mondrianLayout' && typeof value === 'string') {
+      try {
+        value = JSON.parse(value);
+      } catch (e) {
+        Logger.log(`Error parsing mondrianLayout: ${e}`);
+        value = [];
+      }
+    }
+
     settings[key] = value;
   }
 
@@ -959,43 +1086,57 @@ function getCanvasSettings() {
 }
 
 /**
- * Get current canvas state (all placed pixels)
+ * Get current canvas state (all placed blocks)
  */
 function getCanvasState() {
   const ss = SpreadsheetApp.openById(SHEET_ID);
   const canvasSheet = ss.getSheetByName('Canvas State');
   const settings = getCanvasSettings();
 
-  if (!canvasSheet || canvasSheet.getLastRow() <= 1) {
-    return {
-      status: 'success',
-      pixels: [],
-      settings: {
-        width: settings.canvasWidth,
-        height: settings.canvasHeight,
-        pixelSize: settings.pixelSize
-      }
-    };
+  // Get Mondrian layout
+  const layout = settings.mondrianLayout || [];
+
+  // Get claimed blocks
+  const claimedBlocks = {};
+  if (canvasSheet && canvasSheet.getLastRow() > 1) {
+    const data = canvasSheet.getRange(2, 1, canvasSheet.getLastRow() - 1, 6).getValues();
+    data.forEach(row => {
+      claimedBlocks[row[0]] = {
+        blockId: row[0],
+        color: row[1],
+        placedBy: row[2],
+        placedAt: row[3],
+        house: row[4],
+        studentName: row[5]
+      };
+    });
   }
 
-  const data = canvasSheet.getRange(2, 1, canvasSheet.getLastRow() - 1, 7).getValues();
-  const pixels = data.map(row => ({
-    row: row[0],
-    col: row[1],
-    color: row[2],
-    placedBy: row[3],
-    placedAt: row[4],
-    house: row[5],
-    studentName: row[6]
-  }));
+  // Merge layout with claimed blocks
+  const blocks = layout.map(block => {
+    const claimed = claimedBlocks[block.id];
+    return {
+      id: block.id,
+      x: block.x,
+      y: block.y,
+      width: block.width,
+      height: block.height,
+      color: claimed ? claimed.color : null,
+      placedBy: claimed ? claimed.placedBy : null,
+      placedAt: claimed ? claimed.placedAt : null,
+      house: claimed ? claimed.house : null,
+      studentName: claimed ? claimed.studentName : null
+    };
+  });
 
   return {
     status: 'success',
-    pixels: pixels,
+    blocks: blocks,
+    layout: layout,
     settings: {
-      width: settings.canvasWidth,
-      height: settings.canvasHeight,
-      pixelSize: settings.pixelSize
+      width: settings.canvasWidth || 1000,
+      height: settings.canvasHeight || 1000,
+      totalBlocks: settings.totalBlocks || layout.length
     }
   };
 }
