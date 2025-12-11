@@ -948,11 +948,27 @@ async function loadStudentStatus() {
 async function loadCanvas() {
     try {
         const url = `${API_URL}?action=getCanvasState`;
+        console.log('🔄 Loading canvas from:', url);
         const response = await fetch(url);
         const data = await response.json();
 
+        console.log('📦 Canvas data received:', {
+            status: data.status,
+            pixelsCount: data.pixels ? data.pixels.length : 0,
+            hasMondrianLayout: !!(data.settings && data.settings.mondrianLayout),
+            mondrianBlockCount: data.settings && data.settings.mondrianLayout ? data.settings.mondrianLayout.length : 0
+        });
+
         if (data.status === 'success') {
             canvasData = data;
+            
+            // Check if we got the Mondrian layout
+            if (!data.settings || !data.settings.mondrianLayout || data.settings.mondrianLayout.length === 0) {
+                console.error('❌ No Mondrian layout in response!');
+                showStatus('canvasStatus', '⚠️ Canvas layout missing. Please contact admin to run initializeCanvasSheets() in Apps Script.', 'error');
+                return;
+            }
+            
             renderCanvas(data);
             loadStats();
         } else {
@@ -970,13 +986,22 @@ function renderCanvas(data) {
     const { width, height } = data.settings;
 
     // Use Mondrian layout from backend (persistent across all users)
-    if (!mondrianLayout && data.settings.mondrianLayout) {
+    // Always reload if backend provides a layout
+    if (data.settings.mondrianLayout) {
         mondrianLayout = data.settings.mondrianLayout;
         // Build blockToGridMap from the layout
+        blockToGridMap = {};
         mondrianLayout.forEach(block => {
             blockToGridMap[block.id] = { row: block.row, col: block.col };
         });
-        console.log(`Loaded ${mondrianLayout.length} Mondrian blocks from backend`);
+        console.log(`✅ Loaded ${mondrianLayout.length} Mondrian blocks from backend`);
+    }
+
+    // Validation check
+    if (!mondrianLayout || mondrianLayout.length === 0) {
+        console.error('❌ ERROR: No Mondrian layout available!');
+        showStatus('canvasStatus', '⚠️ Canvas layout not loaded. Please refresh or contact admin to run initializeCanvasSheets().', 'error');
+        return;
     }
 
     // Create pixel map for quick lookup
@@ -997,8 +1022,18 @@ function renderCanvas(data) {
     container.style.height = canvasSize + 'px';
     container.style.margin = '0 auto';
 
+    console.log(`📐 Rendering ${mondrianLayout.length} blocks at ${canvasSize}px size`);
+
     // Render each Mondrian block
+    let renderedCount = 0;
     mondrianLayout.forEach(block => {
+        // Validate block has required properties
+        if (!block || block.x === undefined || block.y === undefined || 
+            block.width === undefined || block.height === undefined) {
+            console.warn('⚠️ Skipping invalid block:', block);
+            return;
+        }
+
         const blockDiv = document.createElement('div');
         blockDiv.className = 'mondrian-block';
         blockDiv.dataset.blockId = block.id;
@@ -1027,7 +1062,10 @@ function renderCanvas(data) {
         blockDiv.addEventListener('click', () => handlePixelClick(block.row, block.col));
 
         container.appendChild(blockDiv);
+        renderedCount++;
     });
+
+    console.log(`✅ Successfully rendered ${renderedCount} blocks`);
 
     document.getElementById('canvasLoading').classList.add('hidden');
     document.getElementById('canvasContent').classList.remove('hidden');
@@ -1036,19 +1074,63 @@ function renderCanvas(data) {
 // Handle pixel click
 async function handlePixelClick(row, col) {
     if (!studentStatus || !studentStatus.canPlace) {
-        if (studentStatus.pointBalance < 1) {
-            showStatus('canvasStatus', 'You need at least 1 house point to place a pixel! Earn points first.', 'error');
-        } else if (studentStatus.cooldown.onCooldown) {
-            showStatus('canvasStatus', `Please wait ${studentStatus.cooldown.minutesRemaining} more minute(s) before placing another pixel.`, 'error');
+        if (studentStatus && studentStatus.pointBalance < 1) {
+            showStatus('canvasStatus', 'You need at least 1 house point to place a block! Earn points first.', 'error');
+        } else if (studentStatus && studentStatus.cooldown.onCooldown) {
+            showStatus('canvasStatus', `Please wait ${studentStatus.cooldown.minutesRemaining} more minute(s) before placing another block.`, 'error');
         } else {
-            showStatus('canvasStatus', 'Campaign is not active or you cannot place pixels.', 'error');
+            showStatus('canvasStatus', 'Campaign is not active or you cannot place blocks.', 'error');
         }
         return;
     }
 
-    hideStatus('canvasStatus');
-    showStatus('canvasStatus', 'Placing pixel...', 'info');
+    // Get the block element
+    const blockElement = document.querySelector(`.mondrian-block[data-row="${row}"][data-col="${col}"]`);
+    if (!blockElement) {
+        showStatus('canvasStatus', 'Error: Block not found. Please refresh the page.', 'error');
+        return;
+    }
 
+    // Check if already claimed
+    if (blockElement.classList.contains('claimed')) {
+        showStatus('canvasStatus', 'This block has already been claimed!', 'error');
+        return;
+    }
+
+    // Store original color for reverting if user cancels
+    const originalColor = blockElement.style.background;
+    const studentColor = studentStatus.color;
+    const studentHouse = studentStatus.isStaff ? 'Staff' : studentStatus.house;
+
+    // INSTANT PREVIEW: Show the color immediately
+    blockElement.style.background = studentColor;
+    blockElement.style.transform = 'scale(1.1)';
+    blockElement.style.boxShadow = '0 0 30px rgba(255, 255, 255, 0.8)';
+    blockElement.style.border = '3px solid rgba(255, 255, 255, 0.9)';
+
+    // Show confirmation dialog
+    const confirmed = confirm(
+        `🎨 Claim this block for ${studentHouse}?\n\n` +
+        `This will cost 1 house point.\n` +
+        `You can place another block in 60 minutes.\n\n` +
+        `Click OK to confirm or Cancel to choose a different block.`
+    );
+
+    // If user cancels, revert the preview
+    if (!confirmed) {
+        blockElement.style.background = originalColor;
+        blockElement.style.transform = '';
+        blockElement.style.boxShadow = '';
+        blockElement.style.border = '2px solid rgba(0, 0, 0, 0.7)';
+        showStatus('canvasStatus', 'Block selection cancelled. Choose another block!', 'info');
+        return;
+    }
+
+    // User confirmed - proceed with placement
+    hideStatus('canvasStatus');
+    showStatus('canvasStatus', 'Claiming block...', 'info');
+
+    // Keep the preview showing while we send to server
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
@@ -1066,19 +1148,18 @@ async function handlePixelClick(row, col) {
         if (data.status === 'success') {
             showStatus('canvasStatus', '🎨 Block claimed successfully! You can place another in 60 minutes.', 'success');
 
-            // Update the block on the canvas
-            const blockElement = document.querySelector(`.mondrian-block[data-row="${row}"][data-col="${col}"]`);
-            if (blockElement) {
-                blockElement.style.background = data.pixel.color;
-                blockElement.classList.add('claimed');
-                blockElement.title = `${studentStatus.house} - Just placed!`;
-                
-                // Add celebratory animation
-                blockElement.style.animation = 'blockPlaced 0.5s ease-out';
-                setTimeout(() => {
-                    blockElement.style.animation = '';
-                }, 500);
-            }
+            // Finalize the block styling (already showing correct color)
+            blockElement.classList.add('claimed');
+            blockElement.title = `${studentHouse} - Just placed!`;
+            blockElement.style.transform = '';
+            blockElement.style.border = '2px solid rgba(0, 0, 0, 0.8)';
+            
+            // Add celebratory animation
+            blockElement.style.animation = 'blockPlaced 0.5s ease-out';
+            setTimeout(() => {
+                blockElement.style.animation = '';
+                blockElement.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.5)';
+            }, 500);
 
             // Update stats
             if (data.stats) {
@@ -1093,11 +1174,21 @@ async function handlePixelClick(row, col) {
             document.getElementById('canvasStatus').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
         } else {
+            // Server rejected - revert the preview
+            blockElement.style.background = originalColor;
+            blockElement.style.transform = '';
+            blockElement.style.boxShadow = '';
+            blockElement.style.border = '2px solid rgba(0, 0, 0, 0.7)';
             showStatus('canvasStatus', data.message || 'Failed to place block. Please try again.', 'error');
         }
     } catch (error) {
+        // Network error - revert the preview
+        blockElement.style.background = originalColor;
+        blockElement.style.transform = '';
+        blockElement.style.boxShadow = '';
+        blockElement.style.border = '2px solid rgba(0, 0, 0, 0.7)';
         console.error('Canvas Error:', error);
-        showStatus('canvasStatus', `Network error: ${error.message}. Check that Apps Script is deployed and API_URL is correct.`, 'error');
+        showStatus('canvasStatus', `⚠️ Network error: ${error.message}. Block not claimed. Please try again.`, 'error');
     }
 }
 
