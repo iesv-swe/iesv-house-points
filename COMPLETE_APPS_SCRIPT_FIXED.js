@@ -99,6 +99,16 @@ function doGet(e) {
     return jsonResponse({ status: 'success', settings: result });
   }
 
+  if (action === 'getCanvasWinnerStatus') {
+    const result = getCanvasWinnerStatus();
+    return jsonResponse(result);
+  }
+
+  if (action === 'getPreviousWinners') {
+    const result = getPreviousWinners();
+    return jsonResponse(result);
+  }
+
   return jsonResponse({ status: 'error', message: 'Invalid action' });
 }
 
@@ -1391,6 +1401,331 @@ function getCanvasStats() {
 }
 
 /**
+ * Check if there's a winner (mathematically impossible to catch up)
+ */
+function checkForWinner() {
+  const settings = getCanvasSettings();
+  const stats = calculateCanvasStats();
+
+  const totalPixels = settings.canvasWidth * settings.canvasHeight;
+  const placedPixels = stats.total;
+  const remainingPixels = totalPixels - placedPixels;
+
+  // Sort houses by pixel count (excluding Staff)
+  const houses = ['Phoenix', 'Dragon', 'Hydra', 'Griffin'];
+  const houseCounts = houses.map(house => ({
+    house: house,
+    count: stats[house].count
+  })).sort((a, b) => b.count - a.count);
+
+  const leader = houseCounts[0];
+  const secondPlace = houseCounts[1];
+
+  // Winner condition: Leader has more than 50% OR mathematically impossible to catch up
+  const hasAbsoluteMajority = leader.count > (totalPixels / 2);
+  const mathematicallyImpossible = (secondPlace.count + remainingPixels) < leader.count;
+
+  if (hasAbsoluteMajority || mathematicallyImpossible) {
+    return {
+      hasWinner: true,
+      winner: leader.house,
+      winnerCount: leader.count,
+      winnerPercentage: stats[leader.house].percentage,
+      declaredAt: new Date(),
+      totalPixels: totalPixels,
+      placedPixels: placedPixels,
+      stats: stats
+    };
+  }
+
+  // Check if campaign end date has been reached (10:00 AM)
+  const now = new Date();
+  const campaignEnd = new Date(settings.campaignEndDate);
+  campaignEnd.setHours(10, 0, 0, 0);
+
+  if (now >= campaignEnd) {
+    return {
+      hasWinner: true,
+      winner: leader.house,
+      winnerCount: leader.count,
+      winnerPercentage: stats[leader.house].percentage,
+      declaredAt: campaignEnd,
+      reason: 'Campaign end date reached',
+      totalPixels: totalPixels,
+      placedPixels: placedPixels,
+      stats: stats
+    };
+  }
+
+  return {
+    hasWinner: false,
+    leader: leader.house,
+    leaderCount: leader.count,
+    remainingPixels: remainingPixels
+  };
+}
+
+/**
+ * Get winner status with auto-wipe schedule
+ */
+function getCanvasWinnerStatus() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const settingsSheet = ss.getSheetByName('Canvas Settings');
+
+  // Check if winner has been declared
+  let winnerData = null;
+  let wipeScheduled = null;
+
+  if (settingsSheet) {
+    const data = settingsSheet.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === 'winnerDeclared' && data[i][1] === 'TRUE') {
+        // Winner exists, get details
+        for (let j = 1; j < data.length; j++) {
+          if (data[j][0] === 'winnerHouse') winnerData = { house: data[j][1] };
+          if (data[j][0] === 'winnerPercentage') winnerData.percentage = data[j][1];
+          if (data[j][0] === 'winnerDeclaredAt') winnerData.declaredAt = new Date(data[j][1]);
+          if (data[j][0] === 'wipeScheduledFor') wipeScheduled = new Date(data[j][1]);
+        }
+        break;
+      }
+    }
+  }
+
+  if (winnerData) {
+    return {
+      status: 'success',
+      hasWinner: true,
+      winner: winnerData,
+      wipeScheduled: wipeScheduled,
+      message: `🏆 ${winnerData.house} has won with ${winnerData.percentage}%! Canvas will reset tomorrow at 06:00.`
+    };
+  }
+
+  // No winner declared yet, check current state
+  const winnerCheck = checkForWinner();
+
+  if (winnerCheck.hasWinner) {
+    // Winner just detected, declare it now
+    declareWinner(winnerCheck);
+
+    return {
+      status: 'success',
+      hasWinner: true,
+      winner: {
+        house: winnerCheck.winner,
+        percentage: winnerCheck.winnerPercentage,
+        declaredAt: winnerCheck.declaredAt
+      },
+      wipeScheduled: getWipeSchedule(winnerCheck.declaredAt),
+      message: `🏆 ${winnerCheck.winner} has won with ${winnerCheck.winnerPercentage}%! Come back tomorrow to play again!`
+    };
+  }
+
+  return {
+    status: 'success',
+    hasWinner: false
+  };
+}
+
+/**
+ * Declare winner and schedule wipe
+ */
+function declareWinner(winnerData) {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const settingsSheet = ss.getSheetByName('Canvas Settings');
+
+  if (!settingsSheet) return;
+
+  const data = settingsSheet.getDataRange().getValues();
+
+  // Calculate wipe time: 23:59 today
+  const declaredDate = new Date(winnerData.declaredAt);
+  const wipeTime = new Date(declaredDate);
+  wipeTime.setHours(23, 59, 0, 0);
+
+  // Update or add winner settings
+  const updates = [
+    ['winnerDeclared', 'TRUE'],
+    ['winnerHouse', winnerData.winner],
+    ['winnerPercentage', winnerData.winnerPercentage],
+    ['winnerDeclaredAt', declaredDate],
+    ['wipeScheduledFor', wipeTime],
+    ['canvasActive', 'FALSE'] // Disable new pixel placement
+  ];
+
+  updates.forEach(([key, value]) => {
+    let found = false;
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][0] === key) {
+        settingsSheet.getRange(i + 1, 2).setValue(value);
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      settingsSheet.appendRow([key, value]);
+    }
+  });
+}
+
+/**
+ * Get wipe schedule (23:59 today)
+ */
+function getWipeSchedule(declaredAt) {
+  const wipeTime = new Date(declaredAt);
+  wipeTime.setHours(23, 59, 0, 0);
+  return wipeTime;
+}
+
+/**
+ * Check if it's time to wipe and perform auto-wipe
+ * This function should be called by time-based trigger (every hour)
+ */
+function checkAndPerformScheduledWipe() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const settingsSheet = ss.getSheetByName('Canvas Settings');
+
+  if (!settingsSheet) return { status: 'error', message: 'Canvas Settings not found' };
+
+  const data = settingsSheet.getDataRange().getValues();
+  let wipeScheduled = null;
+  let winnerDeclared = false;
+
+  // Check if winner declared and wipe scheduled
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] === 'winnerDeclared' && data[i][1] === 'TRUE') {
+      winnerDeclared = true;
+    }
+    if (data[i][0] === 'wipeScheduledFor') {
+      wipeScheduled = new Date(data[i][1]);
+    }
+  }
+
+  if (!winnerDeclared || !wipeScheduled) {
+    return { status: 'info', message: 'No wipe scheduled' };
+  }
+
+  const now = new Date();
+
+  // If current time is past scheduled wipe time, perform wipe
+  if (now >= wipeScheduled) {
+    Logger.log(`Auto-wipe triggered at ${now}. Scheduled for: ${wipeScheduled}`);
+
+    // Perform the wipe without password (internal call)
+    const result = performAutoWipe();
+
+    return result;
+  }
+
+  return {
+    status: 'info',
+    message: `Wipe scheduled for ${wipeScheduled}. Current time: ${now}`
+  };
+}
+
+/**
+ * Perform auto-wipe (internal, no password required)
+ */
+function performAutoWipe() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const canvasState = ss.getSheetByName('Canvas State');
+  const canvasHistory = ss.getSheetByName('Canvas History');
+  const settingsSheet = ss.getSheetByName('Canvas Settings');
+
+  // Calculate final stats
+  const stats = calculateCanvasStats();
+
+  // Get winner info
+  let winner = 'None';
+  let winningPercentage = 0;
+
+  const data = settingsSheet.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] === 'winnerHouse') winner = data[i][1];
+    if (data[i][0] === 'winnerPercentage') winningPercentage = data[i][1];
+  }
+
+  // Save to history
+  canvasHistory.appendRow([
+    new Date(),
+    winner,
+    winningPercentage,
+    stats.total,
+    stats.Phoenix.percentage,
+    stats.Dragon.percentage,
+    stats.Hydra.percentage,
+    stats.Griffin.percentage,
+    stats.Staff.percentage
+  ]);
+
+  // Clear canvas state (keep header)
+  if (canvasState.getLastRow() > 1) {
+    canvasState.deleteRows(2, canvasState.getLastRow() - 1);
+  }
+
+  // Reset winner flags and schedule new campaign start (06:00 tomorrow)
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(6, 0, 0, 0);
+
+  const newEndDate = new Date(tomorrow);
+  newEndDate.setDate(newEndDate.getDate() + 7); // 7 days from new start
+
+  // Update settings
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] === 'winnerDeclared') settingsSheet.getRange(i + 1, 2).setValue('FALSE');
+    if (data[i][0] === 'canvasActive') settingsSheet.getRange(i + 1, 2).setValue('TRUE');
+    if (data[i][0] === 'campaignStartDate') settingsSheet.getRange(i + 1, 2).setValue(tomorrow);
+    if (data[i][0] === 'campaignEndDate') settingsSheet.getRange(i + 1, 2).setValue(newEndDate);
+  }
+
+  Logger.log(`Canvas wiped! Winner: ${winner}. New campaign starts: ${tomorrow}`);
+
+  return {
+    status: 'success',
+    message: `Canvas wiped! Winner: ${winner} with ${winningPercentage}%. New campaign starts at 06:00 tomorrow.`,
+    winner: winner,
+    winningPercentage: winningPercentage,
+    newCampaignStart: tomorrow
+  };
+}
+
+/**
+ * Get previous winners (last 5 campaigns)
+ */
+function getPreviousWinners() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const canvasHistory = ss.getSheetByName('Canvas History');
+
+  if (!canvasHistory || canvasHistory.getLastRow() <= 1) {
+    return {
+      status: 'success',
+      winners: []
+    };
+  }
+
+  const lastRow = canvasHistory.getLastRow();
+  const startRow = Math.max(2, lastRow - 4); // Get last 5
+  const numRows = lastRow - startRow + 1;
+
+  const data = canvasHistory.getRange(startRow, 1, numRows, 9).getValues();
+
+  // Reverse to get most recent first
+  const winners = data.reverse().map(row => ({
+    date: row[0],
+    house: row[1],
+    percentage: row[2],
+    totalPixels: row[3]
+  }));
+
+  return {
+    status: 'success',
+    winners: winners
+  };
+}
+
+/**
  * Get recent canvas activity
  */
 function getCanvasRecentActivity(limit = 10) {
@@ -1620,5 +1955,84 @@ function updateCanvasSettings(newSettings, password) {
   return {
     status: 'success',
     message: 'Settings updated successfully!'
+  };
+}
+
+// ============================================================================
+// TRIGGER SETUP FUNCTIONS
+// ============================================================================
+
+/**
+ * Set up time-based trigger for auto-wipe checking
+ * Run this function ONCE to enable automatic canvas wipes
+ */
+function setupAutoWipeTrigger() {
+  // Delete existing triggers for this function
+  const triggers = ScriptApp.getProjectTriggers();
+  triggers.forEach(trigger => {
+    if (trigger.getHandlerFunction() === 'checkAndPerformScheduledWipe') {
+      ScriptApp.deleteTrigger(trigger);
+    }
+  });
+
+  // Create new hourly trigger
+  ScriptApp.newTrigger('checkAndPerformScheduledWipe')
+    .timeBased()
+    .everyHours(1)
+    .create();
+
+  Logger.log('✅ Auto-wipe trigger set up successfully! Runs every hour.');
+
+  return {
+    status: 'success',
+    message: 'Auto-wipe trigger created successfully! The system will check every hour for scheduled wipes.'
+  };
+}
+
+/**
+ * Remove auto-wipe trigger
+ * Run this if you want to disable automatic wipes
+ */
+function removeAutoWipeTrigger() {
+  const triggers = ScriptApp.getProjectTriggers();
+  let count = 0;
+
+  triggers.forEach(trigger => {
+    if (trigger.getHandlerFunction() === 'checkAndPerformScheduledWipe') {
+      ScriptApp.deleteTrigger(trigger);
+      count++;
+    }
+  });
+
+  Logger.log(`✅ Removed ${count} auto-wipe trigger(s).`);
+
+  return {
+    status: 'success',
+    message: `Removed ${count} auto-wipe trigger(s). Automatic wipes are now disabled.`
+  };
+}
+
+/**
+ * View active triggers
+ * Run this to see all active triggers
+ */
+function viewActiveTriggers() {
+  const triggers = ScriptApp.getProjectTriggers();
+
+  if (triggers.length === 0) {
+    Logger.log('No active triggers found.');
+    return { status: 'info', message: 'No active triggers' };
+  }
+
+  Logger.log(`Found ${triggers.length} active trigger(s):`);
+
+  triggers.forEach((trigger, index) => {
+    Logger.log(`${index + 1}. Function: ${trigger.getHandlerFunction()}`);
+    Logger.log(`   Type: ${trigger.getEventType()}`);
+  });
+
+  return {
+    status: 'success',
+    message: `Found ${triggers.length} active trigger(s). Check execution log for details.`
   };
 }

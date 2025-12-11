@@ -88,18 +88,26 @@ body::before {
 
 #canvasGrid {
     display: grid;
-    gap: 1px;
-    background: #0a0a0a;
-    padding: 2px;
+    gap: 2px;
+    background: rgba(80, 80, 100, 0.5);
+    padding: 3px;
     border-radius: 8px;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
 .pixel {
     width: 100%;
     height: 100%;
     background: #1a1a1a;
-    border-radius: 1px;
+    border-radius: 2px;
+    border: 1.5px solid rgba(0, 0, 0, 0.7);
+    box-shadow: inset 0 0 3px rgba(255, 255, 255, 0.1);
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.pixel.placed {
+    border: 2px solid rgba(0, 0, 0, 0.9);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.15);
 }
 
 /* Stats overlay */
@@ -233,6 +241,147 @@ body::before {
     50% { opacity: 0.7; transform: scale(1.1); }
 }
 
+/* Winner Banner */
+.winner-banner {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    background: linear-gradient(135deg, rgba(10, 10, 20, 0.98), rgba(20, 20, 40, 0.98));
+    backdrop-filter: blur(20px);
+    padding: 80px 100px;
+    border-radius: 30px;
+    border: 6px solid;
+    box-shadow:
+        0 0 150px rgba(0, 0, 0, 0.9),
+        inset 0 0 60px rgba(255, 255, 255, 0.05);
+    text-align: center;
+    animation: bannerPulse 2s ease-in-out infinite;
+}
+
+.winner-banner.Phoenix { border-color: #dc143c; }
+.winner-banner.Dragon { border-color: #228b22; }
+.winner-banner.Hydra { border-color: #4169e1; }
+.winner-banner.Griffin { border-color: #ff8c00; }
+
+@keyframes bannerPulse {
+    0%, 100% { box-shadow: 0 0 150px rgba(0, 0, 0, 0.9), inset 0 0 60px rgba(255, 255, 255, 0.05); }
+    50% { box-shadow: 0 0 180px rgba(255, 215, 0, 0.6), inset 0 0 80px rgba(255, 255, 255, 0.1); }
+}
+
+.winner-banner h2 {
+    font-size: 96px;
+    font-weight: bold;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 12px;
+    text-shadow: 0 0 40px currentColor;
+    animation: winnerGlow 1.5s ease-in-out infinite;
+}
+
+.winner-banner.Phoenix h2 { color: #dc143c; }
+.winner-banner.Dragon h2 { color: #228b22; }
+.winner-banner.Hydra h2 { color: #4169e1; }
+.winner-banner.Griffin h2 { color: #ff8c00; }
+
+@keyframes winnerGlow {
+    0%, 100% { text-shadow: 0 0 40px currentColor; }
+    50% { text-shadow: 0 0 60px currentColor, 0 0 100px currentColor; }
+}
+
+.winner-banner .house-name {
+    font-size: 120px;
+    font-weight: 900;
+    margin: 30px 0;
+    text-transform: uppercase;
+    letter-spacing: 16px;
+}
+
+.winner-banner .message {
+    font-size: 40px;
+    margin-top: 40px;
+    opacity: 0.95;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.winner-banner .trophy {
+    font-size: 150px;
+    margin-bottom: 30px;
+    animation: trophySpin 3s ease-in-out infinite;
+}
+
+@keyframes trophySpin {
+    0%, 100% { transform: rotate(-5deg) scale(1); }
+    50% { transform: rotate(5deg) scale(1.15); }
+}
+
+/* Previous Winners Card */
+.previous-winners {
+    position: fixed;
+    bottom: 30px;
+    right: 380px;
+    background: linear-gradient(135deg, rgba(20, 20, 40, 0.95), rgba(30, 30, 50, 0.95));
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(0, 195, 255, 0.3);
+    border-radius: 15px;
+    padding: 20px;
+    min-width: 260px;
+    box-shadow:
+        0 10px 40px rgba(0, 0, 0, 0.6),
+        0 0 30px rgba(0, 195, 255, 0.1);
+}
+
+.previous-winners h4 {
+    text-align: center;
+    font-size: 16px;
+    margin-bottom: 15px;
+    color: #00c3ff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(0, 195, 255, 0.5);
+}
+
+.winner-item {
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 4px solid;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.winner-item:hover {
+    transform: translateX(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+
+.winner-item.Phoenix { border-color: #dc143c; }
+.winner-item.Dragon { border-color: #228b22; }
+.winner-item.Hydra { border-color: #4169e1; }
+.winner-item.Griffin { border-color: #ff8c00; }
+
+.winner-item .winner-house {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.winner-item .winner-date {
+    opacity: 0.7;
+    font-size: 11px;
+    margin-top: 2px;
+}
+
+.hidden {
+    display: none !important;
+}
+
 .loading {
     position: fixed;
     top: 50%;
@@ -320,6 +469,22 @@ body::before {
 
 <body>
 
+<!-- Winner Banner -->
+<div id="winnerBanner" class="winner-banner hidden">
+    <div class="trophy">🏆</div>
+    <h2>WINNER</h2>
+    <div class="house-name" id="winnerHouseName"></div>
+    <div class="message">Come Back Tomorrow to Play Again</div>
+</div>
+
+<!-- Previous Winners -->
+<div id="previousWinners" class="previous-winners hidden">
+    <h4>🏆 Previous Winners</h4>
+    <div id="previousWinnersList">
+        <p style="opacity: 0.6; text-align: center; font-size: 11px;">Loading...</p>
+    </div>
+</div>
+
 <!-- Loading -->
 <div id="loading" class="loading">
     <div class="spinner"></div>
@@ -403,6 +568,10 @@ async function loadCanvasMap() {
                 document.getElementById('campaignEnd').classList.remove('hidden');
             }
         }
+
+        // Check winner status and load previous winners
+        checkWinnerStatus();
+        loadPreviousWinners();
 
         // Hide loading, show content
         document.getElementById('loading').classList.add('hidden');
@@ -492,6 +661,61 @@ function renderStats(stats) {
 }
 
 // Start update cycle
+// Check for winner and display banner
+async function checkWinnerStatus() {
+    try {
+        const response = await fetch(`${API_URL}?action=getCanvasWinnerStatus`);
+        const data = await response.json();
+
+        if (data.status === 'success' && data.hasWinner) {
+            const banner = document.getElementById('winnerBanner');
+            const houseName = document.getElementById('winnerHouseName');
+
+            houseName.textContent = data.winner.house.toUpperCase();
+            banner.className = `winner-banner ${data.winner.house}`;
+            banner.classList.remove('hidden');
+        }
+    } catch (error) {
+        console.error('Error checking winner status:', error);
+    }
+}
+
+// Load previous winners
+async function loadPreviousWinners() {
+    try {
+        const response = await fetch(`${API_URL}?action=getPreviousWinners`);
+        const data = await response.json();
+
+        if (data.status === 'success' && data.winners.length > 0) {
+            const list = document.getElementById('previousWinnersList');
+            const container = document.getElementById('previousWinners');
+            list.innerHTML = '';
+
+            data.winners.forEach(winner => {
+                const div = document.createElement('div');
+                div.className = `winner-item ${winner.house}`;
+
+                const date = new Date(winner.date);
+                const dateStr = date.toLocaleDateString();
+
+                div.innerHTML = `
+                    <div>
+                        <div class="winner-house">${winner.house}</div>
+                        <div class="winner-date">${dateStr}</div>
+                    </div>
+                    <div style="font-weight: bold; font-size: 14px;">${winner.percentage}%</div>
+                `;
+
+                list.appendChild(div);
+            });
+
+            container.classList.remove('hidden');
+        }
+    } catch (error) {
+        console.error('Error loading previous winners:', error);
+    }
+}
+
 function startUpdateCycle() {
     nextUpdateTime = Date.now() + UPDATE_INTERVAL;
     updateCountdown();
