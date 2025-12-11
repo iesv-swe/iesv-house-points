@@ -267,6 +267,31 @@ Edit values in the **Quiz Settings** sheet:
 4. Keep Apps Script deployment updated
 5. Monitor for unusual point patterns
 
+## Development
+
+### Repository Configuration
+
+This repository includes a `.gitattributes` file to ensure smooth collaboration and prevent merge conflicts:
+
+- **Binary files** (PNG, JPG, ICO, etc.) are marked as binary to prevent Git from attempting text-based merges
+- **Text files** (HTML, JS, CSS, MD) have normalized line endings (LF) across all platforms
+- This configuration prevents corruption of large image files during merges
+
+### Contributing
+
+When contributing to this project:
+
+1. Fork the repository
+2. Create a feature branch from `main`
+3. Make your changes following the coding guidelines in `.github/copilot-instructions.md`
+4. Test your changes thoroughly
+5. Submit a pull request with a clear description
+
+The `.gitattributes` file ensures that:
+- Binary assets (house logos, backgrounds) merge cleanly
+- Text files maintain consistent formatting
+- No line ending conflicts occur across Windows/Mac/Linux
+
 ## Troubleshooting
 
 ### Common Issues
@@ -306,12 +331,7 @@ Edit values in the **Quiz Settings** sheet:
 - **Advanced Analytics**: Detailed reports and visualizations
 
 ### Community Contributions
-This is an open-source project. Contributions are welcome!
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+This is an open-source project. Contributions are welcome! See the **Development** section above for contribution guidelines and repository configuration details.
 
 ## Technologies Used
 
