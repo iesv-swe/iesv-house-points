@@ -764,6 +764,11 @@ async function submitAnswer(timeout = false) {
             method: 'POST',
             body: JSON.stringify(payload)
         });
+        
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+        
         const data = await response.json();
 
         if (data.status === 'success') {
@@ -772,7 +777,14 @@ async function submitAnswer(timeout = false) {
             showStatus('quizStatus', data.message || 'Submission failed', 'error');
         }
     } catch (error) {
-        showStatus('quizStatus', 'Network error. Please try again.', 'error');
+        console.error('Quiz submission error:', error);
+        if (!navigator.onLine) {
+            showStatus('quizStatus', 'You are offline. Please check your connection.', 'error');
+        } else if (error.message && error.message.includes('Server error')) {
+            showStatus('quizStatus', 'Server error. Please try again later.', 'error');
+        } else {
+            showStatus('quizStatus', 'Network error. Please try again.', 'error');
+        }
     }
 }
 

@@ -438,6 +438,10 @@ document.getElementById('wipeBtn').addEventListener('click', async () => {
             })
         });
 
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+
         const data = await response.json();
 
         if (data.status === 'success') {
@@ -446,7 +450,14 @@ document.getElementById('wipeBtn').addEventListener('click', async () => {
             showStatus('wipeStatus', data.message, 'error');
         }
     } catch (error) {
-        showStatus('wipeStatus', 'Network error. Please try again.', 'error');
+        console.error('Wipe canvas error:', error);
+        if (!navigator.onLine) {
+            showStatus('wipeStatus', 'You are offline. Please check your connection.', 'error');
+        } else if (error.message && error.message.includes('Server error')) {
+            showStatus('wipeStatus', 'Server error. Please try again later.', 'error');
+        } else {
+            showStatus('wipeStatus', 'Network error. Please try again.', 'error');
+        }
     } finally {
         document.getElementById('wipeBtn').disabled = false;
     }
@@ -481,6 +492,10 @@ document.getElementById('extendBtn').addEventListener('click', async () => {
             })
         });
 
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+
         const data = await response.json();
 
         if (data.status === 'success') {
@@ -489,7 +504,14 @@ document.getElementById('extendBtn').addEventListener('click', async () => {
             showStatus('extendStatus', data.message, 'error');
         }
     } catch (error) {
-        showStatus('extendStatus', 'Network error. Please try again.', 'error');
+        console.error('Extend campaign error:', error);
+        if (!navigator.onLine) {
+            showStatus('extendStatus', 'You are offline. Please check your connection.', 'error');
+        } else if (error.message && error.message.includes('Server error')) {
+            showStatus('extendStatus', 'Server error. Please try again later.', 'error');
+        } else {
+            showStatus('extendStatus', 'Network error. Please try again.', 'error');
+        }
     } finally {
         document.getElementById('extendBtn').disabled = false;
     }
@@ -527,6 +549,10 @@ document.getElementById('settingsBtn').addEventListener('click', async () => {
             })
         });
 
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+
         const data = await response.json();
 
         if (data.status === 'success') {
@@ -535,7 +561,14 @@ document.getElementById('settingsBtn').addEventListener('click', async () => {
             showStatus('settingsStatus', data.message, 'error');
         }
     } catch (error) {
-        showStatus('settingsStatus', 'Network error. Please try again.', 'error');
+        console.error('Update settings error:', error);
+        if (!navigator.onLine) {
+            showStatus('settingsStatus', 'You are offline. Please check your connection.', 'error');
+        } else if (error.message && error.message.includes('Server error')) {
+            showStatus('settingsStatus', 'Server error. Please try again later.', 'error');
+        } else {
+            showStatus('settingsStatus', 'Network error. Please try again.', 'error');
+        }
     } finally {
         document.getElementById('settingsBtn').disabled = false;
     }
@@ -607,6 +640,10 @@ document.getElementById('updateSizeStartBtn').addEventListener('click', async ()
             body: JSON.stringify(payload)
         });
 
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+
         const data = await response.json();
 
         if (data.status === 'success') {
@@ -624,7 +661,13 @@ document.getElementById('updateSizeStartBtn').addEventListener('click', async ()
         }
     } catch (error) {
         console.error('Error starting new campaign:', error);
-        showStatus('startCampaignStatus', 'Network error. Please try again.', 'error');
+        if (!navigator.onLine) {
+            showStatus('startCampaignStatus', 'You are offline. Please check your connection.', 'error');
+        } else if (error.message && error.message.includes('Server error')) {
+            showStatus('startCampaignStatus', 'Server error. Please try again later.', 'error');
+        } else {
+            showStatus('startCampaignStatus', 'Network error. Please try again.', 'error');
+        }
     } finally {
         document.getElementById('updateSizeStartBtn').disabled = false;
     }
@@ -670,6 +713,10 @@ document.getElementById('wipeStartBtn').addEventListener('click', async () => {
             })
         });
 
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+
         const data = await response.json();
 
         if (data.status === 'success') {
@@ -685,7 +732,13 @@ document.getElementById('wipeStartBtn').addEventListener('click', async () => {
         }
     } catch (error) {
         console.error('Error starting new campaign:', error);
-        showStatus('startCampaignStatus', 'Network error. Please try again.', 'error');
+        if (!navigator.onLine) {
+            showStatus('startCampaignStatus', 'You are offline. Please check your connection.', 'error');
+        } else if (error.message && error.message.includes('Server error')) {
+            showStatus('startCampaignStatus', 'Server error. Please try again later.', 'error');
+        } else {
+            showStatus('startCampaignStatus', 'Network error. Please try again.', 'error');
+        }
     } finally {
         document.getElementById('wipeStartBtn').disabled = false;
     }
