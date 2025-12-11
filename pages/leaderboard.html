@@ -277,11 +277,21 @@ function roundScore(n){ return Math.round(parseFloat(n)); }
 async function loadLeaderboard() {
     try {
         const res = await fetch(API);
+        
+        if (!res.ok) {
+            throw new Error(`Server error: ${res.status} ${res.statusText}`);
+        }
+        
         const json = await res.json();
         if (json.status !== "success") throw new Error();
 
         // Fetch quiz points
         const quizRes = await fetch(API_BASE + "?action=getQuizPointsByHouse");
+        
+        if (!quizRes.ok) {
+            throw new Error(`Server error: ${quizRes.status} ${quizRes.statusText}`);
+        }
+        
         const quizJson = await quizRes.json();
         const quizPoints = quizJson.status === "success" ? quizJson.houses : {};
 
@@ -296,6 +306,8 @@ async function loadLeaderboard() {
         const updatedEl = document.getElementById("lastUpdated");
         if (!navigator.onLine) {
             updatedEl.textContent = "⚠️ You're offline. Check your connection.";
+        } else if (err.message && err.message.includes('Server error')) {
+            updatedEl.textContent = "⚠️ Server error. Please try again later.";
         } else {
             updatedEl.textContent = "⚠️ Error loading data.";
         }
