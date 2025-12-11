@@ -1001,6 +1001,10 @@ function getStudentPointBalance(email, studentName) {
   let earnedPoints = 0;
   let spentPoints = 0;
 
+  // Normalize email and name for consistent comparison throughout function
+  const emailLower = email.toLowerCase().trim();
+  const nameLower = studentName ? studentName.toLowerCase().trim() : '';
+
   // Calculate earned points from Points Log
   if (pointsLog && pointsLog.getLastRow() > 1) {
     const pointsData = pointsLog.getDataRange().getValues();
@@ -1011,8 +1015,6 @@ function getStudentPointBalance(email, studentName) {
       if (!rowStudent) continue;
 
       const rowStudentStr = rowStudent.toString().toLowerCase().trim();
-      const emailLower = email.toLowerCase().trim();
-      const nameLower = studentName ? studentName.toLowerCase().trim() : '';
 
       // Check multiple matching strategies:
       // 1. Exact email match
