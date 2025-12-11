@@ -182,17 +182,40 @@ body {
     background: #333;
     cursor: pointer;
     transition: transform 0.1s, box-shadow 0.1s;
+    border-radius: 2px;
+}
+
+/* Random size variations for visual interest */
+.pixel.size-tiny {
+    transform: scale(0.7);
+}
+
+.pixel.size-small {
+    transform: scale(0.85);
+}
+
+.pixel.size-large {
+    transform: scale(1.15);
+}
+
+.pixel.size-huge {
+    transform: scale(1.3);
 }
 
 .pixel:hover {
-    transform: scale(1.2);
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+    transform: scale(1.4) !important;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
     z-index: 10;
     position: relative;
 }
 
 .pixel.placed {
     cursor: not-allowed;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+}
+
+.pixel.placed:hover {
+    transform: scale(1.25) !important;
 }
 
 /* Territory Stats */
@@ -628,6 +651,9 @@ function renderCanvas(data) {
         pixelMap[key] = pixel;
     });
 
+    // Random size classes for visual variety
+    const sizeClasses = ['size-tiny', 'size-small', '', '', 'size-large', 'size-huge'];
+
     // Generate grid
     for (let row = 0; row < height; row++) {
         for (let col = 0; col < width; col++) {
@@ -635,6 +661,13 @@ function renderCanvas(data) {
             pixel.className = 'pixel';
             pixel.dataset.row = row;
             pixel.dataset.col = col;
+
+            // Add random size variation for visual interest
+            // More normal sizes (empty string) than extreme sizes
+            const randomSize = sizeClasses[Math.floor(Math.random() * sizeClasses.length)];
+            if (randomSize) {
+                pixel.classList.add(randomSize);
+            }
 
             const key = `${row}-${col}`;
             if (pixelMap[key]) {

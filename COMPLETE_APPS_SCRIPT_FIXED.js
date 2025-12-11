@@ -993,7 +993,7 @@ function getCanvasState() {
 /**
  * Calculate student's available point balance
  */
-function getStudentPointBalance(email) {
+function getStudentPointBalance(email, studentName) {
   const ss = SpreadsheetApp.openById(SHEET_ID);
   const pointsLog = ss.getSheetByName('Points Log');
   const canvasLog = ss.getSheetByName('Canvas Activity Log');
@@ -1005,8 +1005,24 @@ function getStudentPointBalance(email) {
   if (pointsLog && pointsLog.getLastRow() > 1) {
     const pointsData = pointsLog.getDataRange().getValues();
     for (let i = 1; i < pointsData.length; i++) {
-      if (pointsData[i][1] === email) { // Column B = Student email
-        earnedPoints += Number(pointsData[i][4]) || 0; // Column E = Points
+      const rowEmail = pointsData[i][2]; // Column C = Student email
+      const rowPoints = pointsData[i][5]; // Column F = Points
+
+      // Check if email matches (case-insensitive)
+      const emailMatch = rowEmail && rowEmail.toString().toLowerCase() === email.toLowerCase();
+
+      // Check if name matches (if provided)
+      const nameMatch = studentName && rowEmail && rowEmail.toString().toLowerCase() === studentName.toLowerCase();
+
+      // If either email or name matches, add points
+      if (emailMatch || nameMatch) {
+        // Ignore N/A values and convert to number
+        if (rowPoints !== 'N/A' && rowPoints !== null && rowPoints !== undefined && rowPoints !== '') {
+          const points = Number(rowPoints);
+          if (!isNaN(points)) {
+            earnedPoints += points;
+          }
+        }
       }
     }
   }
@@ -1085,7 +1101,7 @@ function getStudentCanvasStatus(email) {
   // Check if staff (has @engelska.se but no .student.)
   isStaff = email.includes('@engelska.se') && !email.includes('.student.');
 
-  const pointBalance = getStudentPointBalance(email);
+  const pointBalance = getStudentPointBalance(email, studentName);
   const cooldownStatus = checkCanvasCooldown(email, settings);
 
   // Get student's color
@@ -1189,7 +1205,7 @@ function placePixel(data) {
   }
 
   // Check point balance
-  const pointBalance = getStudentPointBalance(email);
+  const pointBalance = getStudentPointBalance(email, studentName);
   if (pointBalance < settings.pointCostPerPixel) {
     return {
       status: 'error',
