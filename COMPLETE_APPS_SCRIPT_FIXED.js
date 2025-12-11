@@ -158,6 +158,11 @@ function doPost(e) {
     return jsonResponse(result);
   }
 
+  if (data.action === 'startNewCampaign') {
+    const result = startNewCampaignFromSettings(data);
+    return jsonResponse(result);
+  }
+
   return jsonResponse({ status: 'error', message: 'Invalid action' });
 }
 
@@ -2155,6 +2160,153 @@ function updateCanvasSettings(newSettings, password) {
   return {
     status: 'success',
     message: 'Settings updated successfully!'
+  };
+}
+
+/**
+ * Start new canvas campaign with optional size update
+ * Admin only - wipes canvas and starts fresh campaign
+ */
+function startNewCampaignFromSettings(data) {
+  const adminPassword = data.adminPassword;
+  const preserveHistory = data.preserveHistory === true;
+  
+  // Parse and sanitize inputs with caps
+  let canvasWidth = data.canvasWidth ? parseInt(data.canvasWidth) : null;
+  let canvasHeight = data.canvasHeight ? parseInt(data.canvasHeight) : null;
+  let campaignDays = data.campaignDays ? parseInt(data.campaignDays) : 7;
+  
+  // Validate admin password
+  const settings = getCanvasSettings();
+  if (!adminPassword || adminPassword !== settings.adminPassword) {
+    Logger.log('startNewCampaign: Invalid admin password');
+    return {
+      status: 'error',
+      message: 'Invalid admin password.'
+    };
+  }
+  
+  // Cap values for safety
+  if (canvasWidth !== null) {
+    canvasWidth = Math.min(200, Math.max(1, canvasWidth));
+  }
+  if (canvasHeight !== null) {
+    canvasHeight = Math.min(200, Math.max(1, canvasHeight));
+  }
+  campaignDays = Math.min(365, Math.max(1, campaignDays));
+  
+  // Use existing dimensions if not provided
+  if (canvasWidth === null) canvasWidth = settings.canvasWidth;
+  if (canvasHeight === null) canvasHeight = settings.canvasHeight;
+  
+  Logger.log(`startNewCampaign: width=${canvasWidth}, height=${canvasHeight}, days=${campaignDays}, preserveHistory=${preserveHistory}`);
+  
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const canvasState = ss.getSheetByName('Canvas State');
+  const canvasHistory = ss.getSheetByName('Canvas History');
+  const settingsSheet = ss.getSheetByName('Canvas Settings');
+  
+  if (!settingsSheet) {
+    return {
+      status: 'error',
+      message: 'Canvas Settings sheet not found. Please initialize canvas first.'
+    };
+  }
+  
+  // If not preserving history, save current state to history and clear Canvas State
+  if (!preserveHistory) {
+    Logger.log('startNewCampaign: Clearing Canvas State (preserveHistory=false)');
+    
+    // Calculate final stats before wiping
+    const stats = calculateCanvasStats();
+    
+    // Determine winner
+    let winner = 'None';
+    let winningCount = 0;
+    ['Phoenix', 'Dragon', 'Hydra', 'Griffin', 'Staff'].forEach(house => {
+      if (stats[house].count > winningCount) {
+        winningCount = stats[house].count;
+        winner = house;
+      }
+    });
+    
+    // Save to history if there was activity
+    if (stats.total > 0 && canvasHistory) {
+      canvasHistory.appendRow([
+        new Date(),
+        winner,
+        stats[winner].percentage,
+        stats.total,
+        stats.Phoenix.percentage,
+        stats.Dragon.percentage,
+        stats.Hydra.percentage,
+        stats.Griffin.percentage,
+        stats.Staff.percentage
+      ]);
+      Logger.log(`startNewCampaign: Saved history - Winner: ${winner} with ${stats[winner].percentage}%`);
+    }
+    
+    // Clear canvas state (keep header)
+    if (canvasState && canvasState.getLastRow() > 1) {
+      canvasState.deleteRows(2, canvasState.getLastRow() - 1);
+      Logger.log('startNewCampaign: Canvas State cleared');
+    }
+  } else {
+    Logger.log('startNewCampaign: Preserving history (preserveHistory=true)');
+  }
+  
+  // Generate new Mondrian layout with new dimensions
+  Logger.log(`startNewCampaign: Generating new Mondrian layout ${canvasWidth}x${canvasHeight}`);
+  const newLayout = generateMondrianLayoutWithMapping(canvasWidth, canvasHeight);
+  Logger.log(`startNewCampaign: Generated ${newLayout.length} blocks`);
+  
+  // Update Canvas Settings
+  const settingsData = settingsSheet.getDataRange().getValues();
+  
+  // Settings to update or add
+  const now = new Date();
+  const campaignEnd = new Date(now);
+  campaignEnd.setDate(campaignEnd.getDate() + campaignDays);
+  
+  const updates = [
+    ['canvasWidth', canvasWidth],
+    ['canvasHeight', canvasHeight],
+    ['mondrianLayout', JSON.stringify(newLayout)],
+    ['campaignStartDate', now],
+    ['campaignEndDate', campaignEnd],
+    ['canvasActive', 'TRUE'],
+    ['winnerDeclared', 'FALSE'],
+    ['winnerHouse', ''],
+    ['winnerPercentage', 0],
+    ['winnerDeclaredAt', ''],
+    ['wipeScheduledFor', '']
+  ];
+  
+  updates.forEach(([key, value]) => {
+    let found = false;
+    for (let i = 1; i < settingsData.length; i++) {
+      if (settingsData[i][0] === key) {
+        settingsSheet.getRange(i + 1, 2).setValue(value);
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      settingsSheet.appendRow([key, value]);
+    }
+  });
+  
+  Logger.log(`startNewCampaign: Updated settings - campaign runs from ${now} to ${campaignEnd}`);
+  
+  return {
+    status: 'success',
+    message: `New campaign started! Canvas is now ${canvasWidth}×${canvasHeight} with ${newLayout.length} blocks. Campaign runs for ${campaignDays} days.`,
+    width: canvasWidth,
+    height: canvasHeight,
+    blocks: newLayout.length,
+    campaignStart: now,
+    campaignEnd: campaignEnd,
+    preservedHistory: preserveHistory
   };
 }
 
