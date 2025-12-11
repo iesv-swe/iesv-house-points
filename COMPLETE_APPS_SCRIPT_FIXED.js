@@ -1109,8 +1109,13 @@ function getStudentCanvasStatus(email) {
 
   if (rosterSheet) {
     const rosterData = rosterSheet.getDataRange().getValues();
+    const emailLower = email.toLowerCase().trim();
+
     for (let i = 1; i < rosterData.length; i++) {
-      if (rosterData[i][2] === email) { // Column C = Email
+      const rosterEmail = rosterData[i][2]; // Column C = Email
+
+      // Flexible email matching (case-insensitive, trimmed)
+      if (rosterEmail && rosterEmail.toString().toLowerCase().trim() === emailLower) {
         studentName = `${rosterData[i][0]} ${rosterData[i][1]}`; // First Last
         house = rosterData[i][3]; // Column D = House
         break;
@@ -1198,8 +1203,13 @@ function placePixel(data) {
 
   if (rosterSheet) {
     const rosterData = rosterSheet.getDataRange().getValues();
+    const emailLower = email.toLowerCase().trim();
+
     for (let i = 1; i < rosterData.length; i++) {
-      if (rosterData[i][2] === email) {
+      const rosterEmail = rosterData[i][2]; // Column C = Email
+
+      // Flexible email matching (case-insensitive, trimmed)
+      if (rosterEmail && rosterEmail.toString().toLowerCase().trim() === emailLower) {
         studentName = `${rosterData[i][0]} ${rosterData[i][1]}`;
         house = rosterData[i][3];
         break;
