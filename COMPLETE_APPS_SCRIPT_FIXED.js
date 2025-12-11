@@ -862,7 +862,7 @@ function generateMondrianLayout() {
   const canvasWidth = 1000;  // Virtual canvas dimensions
   const canvasHeight = 1000;
   const targetBlocks = 400;
-  const minSize = 30;  // Minimum block size
+  const minSize = 25;  // Minimum block size (reduced to allow 400 blocks)
 
   const blocks = [];
   let blockId = 0;
@@ -883,15 +883,20 @@ function generateMondrianLayout() {
     const rect = queue.shift();
 
     // Decide if this should be split or kept as a block
-    const area = rect.width * rect.height;
+    const remaining = targetBlocks - (blocks.length + queue.length);
     const canSplitH = rect.height >= minSize * 2;
     const canSplitV = rect.width >= minSize * 2;
 
-    // Probability of splitting decreases with depth and size
-    const splitProb = Math.max(0.3, 1 - (rect.depth * 0.15) - (blocks.length / targetBlocks) * 0.5);
-    const shouldSplit = Math.random() < splitProb && (canSplitH || canSplitV);
+    // Force split if we need more blocks and can still split
+    const needMoreBlocks = remaining > 0;
+    const canSplit = canSplitH || canSplitV;
 
-    if (!shouldSplit || (!canSplitH && !canSplitV)) {
+    // Probability of splitting - higher when we need more blocks
+    const progress = blocks.length / targetBlocks;
+    const splitProb = needMoreBlocks ? Math.max(0.7, 1 - (progress * 0.3)) : 0;
+    const shouldSplit = canSplit && (Math.random() < splitProb || remaining > 1);
+
+    if (!shouldSplit || !canSplit) {
       // Keep as block
       blocks.push({
         id: blockId++,
@@ -901,8 +906,16 @@ function generateMondrianLayout() {
         height: rect.height
       });
     } else {
-      // Decide split direction
-      const splitHorizontal = canSplitH && (!canSplitV || Math.random() > 0.5);
+      // Decide split direction - prefer the dimension that can be split
+      let splitHorizontal;
+      if (canSplitH && canSplitV) {
+        // Both directions possible - choose based on aspect ratio
+        splitHorizontal = rect.height > rect.width;
+        // Add randomness
+        if (Math.random() < 0.3) splitHorizontal = !splitHorizontal;
+      } else {
+        splitHorizontal = canSplitH;
+      }
 
       if (splitHorizontal) {
         // Split horizontally
