@@ -1005,17 +1005,36 @@ function getStudentPointBalance(email, studentName) {
   if (pointsLog && pointsLog.getLastRow() > 1) {
     const pointsData = pointsLog.getDataRange().getValues();
     for (let i = 1; i < pointsData.length; i++) {
-      const rowEmail = pointsData[i][2]; // Column C = Student email
+      const rowStudent = pointsData[i][2]; // Column C = Student (could be email OR name)
       const rowPoints = pointsData[i][5]; // Column F = Points
 
-      // Check if email matches (case-insensitive)
-      const emailMatch = rowEmail && rowEmail.toString().toLowerCase() === email.toLowerCase();
+      if (!rowStudent) continue;
 
-      // Check if name matches (if provided)
-      const nameMatch = studentName && rowEmail && rowEmail.toString().toLowerCase() === studentName.toLowerCase();
+      const rowStudentStr = rowStudent.toString().toLowerCase().trim();
+      const emailLower = email.toLowerCase().trim();
+      const nameLower = studentName ? studentName.toLowerCase().trim() : '';
 
-      // If either email or name matches, add points
-      if (emailMatch || nameMatch) {
+      // Check multiple matching strategies:
+      // 1. Exact email match
+      const exactEmailMatch = rowStudentStr === emailLower;
+
+      // 2. Exact name match (First Last format)
+      const exactNameMatch = nameLower && rowStudentStr === nameLower;
+
+      // 3. Column C contains the email
+      const containsEmail = rowStudentStr.includes(emailLower);
+
+      // 4. Column C contains the name
+      const containsName = nameLower && rowStudentStr.includes(nameLower);
+
+      // 5. Email contains what's in Column C (handles "barry.shaw" matching "barry.shaw.vasteras@engelska.se")
+      const emailContainsValue = emailLower.includes(rowStudentStr);
+
+      // 6. Name contains what's in Column C
+      const nameContainsValue = nameLower && nameLower.includes(rowStudentStr);
+
+      // If any match strategy succeeds, add points
+      if (exactEmailMatch || exactNameMatch || containsEmail || containsName || emailContainsValue || nameContainsValue) {
         // Ignore N/A values and convert to number
         if (rowPoints !== 'N/A' && rowPoints !== null && rowPoints !== undefined && rowPoints !== '') {
           const points = Number(rowPoints);
@@ -1031,7 +1050,8 @@ function getStudentPointBalance(email, studentName) {
   if (canvasLog && canvasLog.getLastRow() > 1) {
     const canvasData = canvasLog.getDataRange().getValues();
     for (let i = 1; i < canvasData.length; i++) {
-      if (canvasData[i][1] === email) { // Column B = Email
+      const rowEmail = canvasData[i][1]; // Column B = Email
+      if (rowEmail && rowEmail.toString().toLowerCase().trim() === emailLower) {
         spentPoints += Number(canvasData[i][7]) || 0; // Column H = PointsSpent
       }
     }
