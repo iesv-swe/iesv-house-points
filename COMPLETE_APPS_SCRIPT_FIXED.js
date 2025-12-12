@@ -284,14 +284,15 @@ function houseLookup() {
     const email = data[i][2] || '';
     const house = data[i][3] || '';
     
-    // Skip rows with missing essential data
+    // Skip rows with missing essential data (email or house)
+    // This prevents partial/corrupted records from breaking the house finder
     if (!email || !house) {
       continue;
     }
     
     const fullName = (firstName + ' ' + lastName).trim();
     
-    // Skip if no name could be formed
+    // Skip if no name could be formed (unlikely but possible)
     if (!fullName) {
       continue;
     }
@@ -366,7 +367,8 @@ function sortStudent(data) {
     MailApp.sendEmail(email, emailSubject, emailBody);
   } catch (e) {
     // Email sending failed but sorting succeeded
-    Logger.log('Email sending failed: ' + e);
+    // Log details for debugging
+    Logger.log('Email sending failed for student: ' + email + ' (House: ' + house + ') - Error: ' + e);
   }
 
   return { status: 'success', message: 'Student sorted successfully' };
