@@ -242,6 +242,147 @@ Test complete workflows to ensure nothing is broken.
 
 ---
 
+## Test 7: Email Verification System 🆕
+
+### Objective
+Verify that the email verification system prevents unauthorized access to the Canvas game.
+
+### Prerequisites
+- Access to an @engelska.se email account
+- The Canvas War campaign must be active
+- Run `initializeCanvasVerification()` in Google Apps Script (one-time setup)
+
+### Part 1: Email Verification Flow
+
+#### Steps
+1. Navigate to `pages/canvas.html`
+2. Enter your @engelska.se email address
+3. Click "Enter Canvas"
+4. Verify the following:
+   - **Success message** appears: "Verification code sent! Check your email." ✅
+   - **Verification screen** appears with:
+     - Your email address displayed ✅
+     - 2-digit code input field ✅
+     - "Verify Code" button ✅
+     - "Resend Code" button ✅
+     - Expiration timer showing "5:00" ✅
+
+5. Check your email inbox (and spam folder if needed)
+6. Verify you received an email with:
+   - Subject: "Canvas Game Verification Code" ✅
+   - A 2-digit code (10-99) ✅
+   - Clear instructions ✅
+
+7. Enter the correct code from your email
+8. Click "Verify Code"
+9. Verify:
+   - **Success message** appears: "Verification successful! Loading Canvas..." ✅
+   - **Canvas loads** with your student status visible ✅
+   - You can now place pixels ✅
+
+### Part 2: Invalid Code Attempts
+
+#### Steps
+1. Return to the email screen (refresh page)
+2. Enter your email and request a new verification code
+3. Enter an INCORRECT code (e.g., "99" when the code is "42")
+4. Click "Verify Code"
+5. Verify:
+   - **Error message** appears: "Invalid verification code. 2 attempt(s) remaining." ✅
+   - Code input field remains available ✅
+
+6. Try 2 more incorrect codes
+7. After 3 failed attempts, verify:
+   - **Error message** appears: "Too many failed attempts. Please request a new code." ✅
+
+### Part 3: Code Expiration
+
+#### Steps
+1. Request a verification code
+2. **Wait 5 minutes** without entering the code
+3. Verify:
+   - **Expiration timer** counts down to "0:00" ✅
+   - **Error message** appears: "Code expired. Please request a new code." ✅
+   - "Verify Code" button is disabled ✅
+
+### Part 4: Resend Code with Cooldown
+
+#### Steps
+1. Request a verification code
+2. Immediately click "Resend Code" button
+3. Verify:
+   - **Cooldown message** appears: "You can request a new code in X seconds" ✅
+   - "Resend Code" button is disabled ✅
+   - **Timer counts down** from 60 seconds ✅
+
+4. Wait 60 seconds
+5. Click "Resend Code" after cooldown expires
+6. Verify:
+   - **New code is sent** via email ✅
+   - **Success message** appears ✅
+   - **Expiration timer resets** to 5:00 ✅
+
+### Part 5: Unauthorized Access Prevention
+
+#### Steps
+1. Open a private/incognito browser window
+2. Navigate to `pages/canvas.html`
+3. Enter a different student's email (not yours)
+4. Attempt to request a verification code
+5. **Expected Behavior**:
+   - Code is sent to THEIR email, not yours ✅
+   - You cannot access the canvas without their email code ✅
+   - This prevents stealing other students' points ✅
+
+### Part 6: Verification Persistence (24 hours)
+
+#### Steps
+1. Complete verification successfully
+2. Place a pixel on the canvas
+3. Close the browser completely
+4. Reopen browser and navigate to `pages/canvas.html`
+5. Enter your email again
+6. **Expected Behavior**:
+   - System should remember your verification from earlier ✅
+   - You can place pixels without re-verifying (within 24 hours) ✅
+   - After 24 hours, you need to verify again ✅
+
+### Part 7: Domain Restriction
+
+#### Steps
+1. Navigate to `pages/canvas.html`
+2. Enter an email address NOT ending in @engelska.se (e.g., `test@gmail.com`)
+3. Click "Enter Canvas"
+4. Verify:
+   - **Error message** appears: "Only @engelska.se email addresses can access Canvas" ✅
+   - No verification code is sent ✅
+
+### Expected Results
+- ✅ Verification code sent successfully
+- ✅ Email received with 2-digit code
+- ✅ Correct code allows canvas access
+- ✅ Invalid codes rejected (max 3 attempts)
+- ✅ Code expires after 5 minutes
+- ✅ Resend cooldown works (60 seconds)
+- ✅ Non-@engelska.se emails rejected
+- ✅ Cannot use other students' emails without their code
+- ✅ Verification persists for 24 hours
+
+### Troubleshooting
+- **Email not received**: Check spam folder, verify MailApp permissions in Apps Script
+- **Verification fails**: Check `Canvas Verification` sheet exists in Google Sheets
+- **Code expired immediately**: Verify server time settings
+- **Resend not working**: Check 1-minute cooldown hasn't expired yet
+
+### Security Check
+Open Google Sheets and check the "Canvas Verification" tab:
+- ✅ New row added with each verification request
+- ✅ Email, Code, Timestamp, ExpiresAt, Verified status recorded
+- ✅ Failed attempts tracked
+- ✅ Codes are random (not sequential or predictable)
+
+---
+
 ## Regression Testing Checklist
 
 Test these existing features to ensure nothing broke:
@@ -266,6 +407,10 @@ Test these existing features to ensure nothing broke:
 2. **Staff in Roster**: Staff members may still have a house assigned in the Student Roster sheet. This is intentional - they should only be treated as "Teacher" in Canvas War, but can still award points to their house.
 
 3. **Manual Campaign Start**: The "Start New Campaign" feature has been removed from the UI. Admins must now edit the Google Sheet directly to start new campaigns.
+
+4. **Email Verification**: Verification codes are sent via MailApp, which requires Google Apps Script to have email permissions. First-time setup requires running `initializeCanvasVerification()` in the Apps Script editor.
+
+5. **24-Hour Verification**: Once verified, users can access Canvas for 24 hours without re-verifying. This balances security with user convenience.
 
 ---
 
@@ -294,6 +439,10 @@ All tests pass when:
 - ✅ Admin bulk entry submits to Google Sheets
 - ✅ Mobile app references removed
 - ✅ Start campaign card removed
+- ✅ Email verification prevents unauthorized Canvas access
+- ✅ Verification codes sent and validated correctly
+- ✅ Code expiration and resend cooldown work properly
+- ✅ Only @engelska.se emails can access Canvas
 - ✅ No existing functionality broken
 - ✅ No JavaScript errors in console
 
