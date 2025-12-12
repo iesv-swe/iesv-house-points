@@ -2,7 +2,6 @@
 // IESV HOUSE POINTS SYSTEM - COMPLETE APPS SCRIPT
 // ============================================================================
 
-// REPLACE THIS WITH YOUR ACTUAL GOOGLE SHEET ID
 const SHEET_ID = '1rpiTKhNvHkA1suptamC4JSk_33YBLrW1qfLtiloVtL0';
 const HOUSE_SWAP_PASSWORD = '135vasteras';
 const HOUSE_SWAP_AUDIT_EMAIL = 'house.points.vasteras@engelska.se';
