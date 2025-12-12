@@ -326,6 +326,12 @@ input:checked + .slider:before {
         </div>
 
         <div class="form-group">
+            <label>Winner House Points Award</label>
+            <input type="number" id="settingWinnerPoints" min="0" max="1000" placeholder="0">
+            <div class="hint">House points to award to the winning house (default: 0 = no points)</div>
+        </div>
+
+        <div class="form-group">
             <label>Admin Password</label>
             <input type="password" id="settingsPassword" placeholder="Enter admin password">
         </div>
@@ -344,14 +350,14 @@ input:checked + .slider:before {
 
         <div class="form-group">
             <label>Canvas Width (blocks)</label>
-            <input type="number" id="newCanvasWidth" min="1" max="200" placeholder="Leave blank to keep current">
-            <div class="hint">Number of blocks horizontally (max 200). Leave blank to keep current size.</div>
+            <input type="number" id="newCanvasWidth" min="1" max="50" placeholder="Leave blank to keep current">
+            <div class="hint">Number of blocks horizontally (max 50, recommended 30 or less). Leave blank to keep current size.</div>
         </div>
 
         <div class="form-group">
             <label>Canvas Height (blocks)</label>
-            <input type="number" id="newCanvasHeight" min="1" max="200" placeholder="Leave blank to keep current">
-            <div class="hint">Number of blocks vertically (max 200). Leave blank to keep current size.</div>
+            <input type="number" id="newCanvasHeight" min="1" max="50" placeholder="Leave blank to keep current">
+            <div class="hint">Number of blocks vertically (max 50, recommended 30 or less). Leave blank to keep current size.</div>
         </div>
 
         <div class="form-group">
@@ -406,6 +412,7 @@ async function loadCurrentSettings() {
             document.getElementById('settingShowCountdown').checked = settings.showCountdown;
             document.getElementById('settingCooldown').value = settings.cooldownMinutes;
             document.getElementById('settingPointCost').value = settings.pointCostPerPixel;
+            document.getElementById('settingWinnerPoints').value = settings.winnerPoints || 0;
         }
     } catch (error) {
         console.error('Error loading settings:', error);
@@ -530,7 +537,8 @@ document.getElementById('settingsBtn').addEventListener('click', async () => {
         allowBlackOverwrite: document.getElementById('settingBlackOverwrite').checked,
         showCountdown: document.getElementById('settingShowCountdown').checked,
         cooldownMinutes: parseInt(document.getElementById('settingCooldown').value),
-        pointCostPerPixel: parseInt(document.getElementById('settingPointCost').value)
+        pointCostPerPixel: parseInt(document.getElementById('settingPointCost').value),
+        winnerPoints: parseInt(document.getElementById('settingWinnerPoints').value) || 0
     };
 
     showStatus('settingsStatus', 'Updating settings...', 'info');
@@ -593,13 +601,13 @@ document.getElementById('updateSizeStartBtn').addEventListener('click', async ()
     }
 
     // Validate inputs
-    if (width && (isNaN(width) || width < 1 || width > 200)) {
-        showStatus('startCampaignStatus', 'Canvas width must be between 1 and 200', 'error');
+    if (width && (isNaN(width) || width < 1 || width > 50)) {
+        showStatus('startCampaignStatus', 'Canvas width must be between 1 and 50', 'error');
         return;
     }
 
-    if (height && (isNaN(height) || height < 1 || height > 200)) {
-        showStatus('startCampaignStatus', 'Canvas height must be between 1 and 200', 'error');
+    if (height && (isNaN(height) || height < 1 || height > 50)) {
+        showStatus('startCampaignStatus', 'Canvas height must be between 1 and 50', 'error');
         return;
     }
 

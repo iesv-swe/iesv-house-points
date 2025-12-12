@@ -2195,10 +2195,10 @@ function startNewCampaign(data) {
   }
   
   // Validate ranges with security caps
-  if (canvasWidth > 200 || canvasHeight > 200) {
+  if (canvasWidth > 50 || canvasHeight > 50) {
     return {
       status: 'error',
-      message: 'Canvas dimensions cannot exceed 200x200. Please use smaller values to avoid performance issues.'
+      message: 'Canvas dimensions cannot exceed 50x50. Please use 30x30 or smaller for best performance.'
     };
   }
   
