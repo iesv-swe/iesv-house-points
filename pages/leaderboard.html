@@ -278,19 +278,11 @@ async function loadLeaderboard() {
     try {
         const res = await fetch(API);
         
-        if (!res.ok) {
-            throw new Error(`Server error: ${res.status} ${res.statusText}`);
-        }
-        
         const json = await res.json();
         if (json.status !== "success") throw new Error();
 
         // Fetch quiz points
         const quizRes = await fetch(API_BASE + "?action=getQuizPointsByHouse");
-        
-        if (!quizRes.ok) {
-            throw new Error(`Server error: ${quizRes.status} ${quizRes.statusText}`);
-        }
         
         const quizJson = await quizRes.json();
         const quizPoints = quizJson.status === "success" ? quizJson.houses : {};
@@ -304,13 +296,7 @@ async function loadLeaderboard() {
     } catch(err) {
         console.error(err);
         const updatedEl = document.getElementById("lastUpdated");
-        if (!navigator.onLine) {
-            updatedEl.textContent = "⚠️ You're offline. Check your connection.";
-        } else if (err.message && err.message.includes('Server error')) {
-            updatedEl.textContent = "⚠️ Server error. Please try again later.";
-        } else {
-            updatedEl.textContent = "⚠️ Error loading data.";
-        }
+        updatedEl.textContent = "⚠️ Error loading data.";
         updatedEl.style.color = "#ff9800";
         updatedEl.style.fontWeight = "bold";
 
@@ -321,7 +307,7 @@ async function loadLeaderboard() {
                 <div style="font-size: 64px; margin-bottom: 20px;">😕</div>
                 <h2 style="color: #333; margin-bottom: 15px;">Failed to Load Leaderboard</h2>
                 <p style="color: #666; margin-bottom: 25px;">
-                    ${!navigator.onLine ? "You appear to be offline." : "There was a problem connecting to the server."}
+                    There was a problem connecting to the server.
                 </p>
                 <button onclick="location.reload()" style="
                     padding: 12px 30px;

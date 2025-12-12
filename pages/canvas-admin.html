@@ -326,6 +326,12 @@ input:checked + .slider:before {
         </div>
 
         <div class="form-group">
+            <label>Winner House Points Award</label>
+            <input type="number" id="settingWinnerPoints" min="0" max="1000" placeholder="0">
+            <div class="hint">House points to award to the winning house (default: 0 = no points)</div>
+        </div>
+
+        <div class="form-group">
             <label>Admin Password</label>
             <input type="password" id="settingsPassword" placeholder="Enter admin password">
         </div>
@@ -344,14 +350,14 @@ input:checked + .slider:before {
 
         <div class="form-group">
             <label>Canvas Width (blocks)</label>
-            <input type="number" id="newCanvasWidth" min="1" max="200" placeholder="Leave blank to keep current">
-            <div class="hint">Number of blocks horizontally (max 200). Leave blank to keep current size.</div>
+            <input type="number" id="newCanvasWidth" min="1" max="50" placeholder="Leave blank to keep current">
+            <div class="hint">Number of blocks horizontally (max 50, recommended 30 or less). Leave blank to keep current size.</div>
         </div>
 
         <div class="form-group">
             <label>Canvas Height (blocks)</label>
-            <input type="number" id="newCanvasHeight" min="1" max="200" placeholder="Leave blank to keep current">
-            <div class="hint">Number of blocks vertically (max 200). Leave blank to keep current size.</div>
+            <input type="number" id="newCanvasHeight" min="1" max="50" placeholder="Leave blank to keep current">
+            <div class="hint">Number of blocks vertically (max 50, recommended 30 or less). Leave blank to keep current size.</div>
         </div>
 
         <div class="form-group">
@@ -389,6 +395,10 @@ input:checked + .slider:before {
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbyZkszKyoadMXT4fXahoNm3hqn6wj_pBscUjt0bt2gHOSnLaFyTJGEn9032liVRaqH3lQ/exec";
 
+// Canvas size limits
+const MAX_CANVAS_SIZE = 50;
+const RECOMMENDED_CANVAS_SIZE = 30;
+
 // Load current settings
 window.addEventListener('load', loadCurrentSettings);
 
@@ -406,6 +416,7 @@ async function loadCurrentSettings() {
             document.getElementById('settingShowCountdown').checked = settings.showCountdown;
             document.getElementById('settingCooldown').value = settings.cooldownMinutes;
             document.getElementById('settingPointCost').value = settings.pointCostPerPixel;
+            document.getElementById('settingWinnerPoints').value = settings.winnerPoints || 0;
         }
     } catch (error) {
         console.error('Error loading settings:', error);
@@ -431,16 +442,11 @@ document.getElementById('wipeBtn').addEventListener('click', async () => {
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 action: 'wipeCanvas',
                 password: password
             })
         });
-
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.status} ${response.statusText}`);
-        }
 
         const data = await response.json();
 
@@ -451,13 +457,7 @@ document.getElementById('wipeBtn').addEventListener('click', async () => {
         }
     } catch (error) {
         console.error('Wipe canvas error:', error);
-        if (!navigator.onLine) {
-            showStatus('wipeStatus', 'You are offline. Please check your connection.', 'error');
-        } else if (error.message && error.message.includes('Server error')) {
-            showStatus('wipeStatus', 'Server error. Please try again later.', 'error');
-        } else {
-            showStatus('wipeStatus', 'Network error. Please try again.', 'error');
-        }
+        showStatus('wipeStatus', 'Network error. Please try again.', 'error');
     } finally {
         document.getElementById('wipeBtn').disabled = false;
     }
@@ -484,17 +484,12 @@ document.getElementById('extendBtn').addEventListener('click', async () => {
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 action: 'extendCampaign',
                 newEndDate: newEndDate,
                 password: password
             })
         });
-
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.status} ${response.statusText}`);
-        }
 
         const data = await response.json();
 
@@ -505,13 +500,7 @@ document.getElementById('extendBtn').addEventListener('click', async () => {
         }
     } catch (error) {
         console.error('Extend campaign error:', error);
-        if (!navigator.onLine) {
-            showStatus('extendStatus', 'You are offline. Please check your connection.', 'error');
-        } else if (error.message && error.message.includes('Server error')) {
-            showStatus('extendStatus', 'Server error. Please try again later.', 'error');
-        } else {
-            showStatus('extendStatus', 'Network error. Please try again.', 'error');
-        }
+        showStatus('extendStatus', 'Network error. Please try again.', 'error');
     } finally {
         document.getElementById('extendBtn').disabled = false;
     }
@@ -532,7 +521,8 @@ document.getElementById('settingsBtn').addEventListener('click', async () => {
         allowBlackOverwrite: document.getElementById('settingBlackOverwrite').checked,
         showCountdown: document.getElementById('settingShowCountdown').checked,
         cooldownMinutes: parseInt(document.getElementById('settingCooldown').value),
-        pointCostPerPixel: parseInt(document.getElementById('settingPointCost').value)
+        pointCostPerPixel: parseInt(document.getElementById('settingPointCost').value),
+        winnerPoints: parseInt(document.getElementById('settingWinnerPoints').value) || 0
     };
 
     showStatus('settingsStatus', 'Updating settings...', 'info');
@@ -541,17 +531,12 @@ document.getElementById('settingsBtn').addEventListener('click', async () => {
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 action: 'updateCanvasSettings',
                 settings: newSettings,
                 password: password
             })
         });
-
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.status} ${response.statusText}`);
-        }
 
         const data = await response.json();
 
@@ -562,14 +547,8 @@ document.getElementById('settingsBtn').addEventListener('click', async () => {
         }
     } catch (error) {
         console.error('Update settings error:', error);
-        if (!navigator.onLine) {
-            showStatus('settingsStatus', 'You are offline. Please check your connection.', 'error');
-        } else if (error.message && error.message.includes('Server error')) {
-            showStatus('settingsStatus', 'Server error. Please try again later.', 'error');
-        } else {
-            showStatus('settingsStatus', 'Network error. Please try again.', 'error');
-        }
-    } finally {
+        showStatus('settingsStatus', 'Network error. Please try again.', 'error');
+    } finally{
         document.getElementById('settingsBtn').disabled = false;
     }
 });
@@ -596,13 +575,13 @@ document.getElementById('updateSizeStartBtn').addEventListener('click', async ()
     }
 
     // Validate inputs
-    if (width && (isNaN(width) || width < 1 || width > 200)) {
-        showStatus('startCampaignStatus', 'Canvas width must be between 1 and 200', 'error');
+    if (width && (isNaN(width) || width < 1 || width > MAX_CANVAS_SIZE)) {
+        showStatus('startCampaignStatus', `Canvas width must be between 1 and ${MAX_CANVAS_SIZE}`, 'error');
         return;
     }
 
-    if (height && (isNaN(height) || height < 1 || height > 200)) {
-        showStatus('startCampaignStatus', 'Canvas height must be between 1 and 200', 'error');
+    if (height && (isNaN(height) || height < 1 || height > MAX_CANVAS_SIZE)) {
+        showStatus('startCampaignStatus', `Canvas height must be between 1 and ${MAX_CANVAS_SIZE}`, 'error');
         return;
     }
 
@@ -636,13 +615,8 @@ document.getElementById('updateSizeStartBtn').addEventListener('click', async ()
 
         const response = await fetch(API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
-
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.status} ${response.statusText}`);
-        }
 
         const data = await response.json();
 
@@ -661,13 +635,7 @@ document.getElementById('updateSizeStartBtn').addEventListener('click', async ()
         }
     } catch (error) {
         console.error('Error starting new campaign:', error);
-        if (!navigator.onLine) {
-            showStatus('startCampaignStatus', 'You are offline. Please check your connection.', 'error');
-        } else if (error.message && error.message.includes('Server error')) {
-            showStatus('startCampaignStatus', 'Server error. Please try again later.', 'error');
-        } else {
-            showStatus('startCampaignStatus', 'Network error. Please try again.', 'error');
-        }
+        showStatus('startCampaignStatus', 'Network error. Please try again.', 'error');
     } finally {
         document.getElementById('updateSizeStartBtn').disabled = false;
     }
@@ -703,7 +671,6 @@ document.getElementById('wipeStartBtn').addEventListener('click', async () => {
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 action: 'startNewCampaign',
                 adminPassword: password,
@@ -712,10 +679,6 @@ document.getElementById('wipeStartBtn').addEventListener('click', async () => {
                 // No width/height - use current settings
             })
         });
-
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.status} ${response.statusText}`);
-        }
 
         const data = await response.json();
 
@@ -732,13 +695,7 @@ document.getElementById('wipeStartBtn').addEventListener('click', async () => {
         }
     } catch (error) {
         console.error('Error starting new campaign:', error);
-        if (!navigator.onLine) {
-            showStatus('startCampaignStatus', 'You are offline. Please check your connection.', 'error');
-        } else if (error.message && error.message.includes('Server error')) {
-            showStatus('startCampaignStatus', 'Server error. Please try again later.', 'error');
-        } else {
-            showStatus('startCampaignStatus', 'Network error. Please try again.', 'error');
-        }
+        showStatus('startCampaignStatus', 'Network error. Please try again.', 'error');
     } finally {
         document.getElementById('wipeStartBtn').disabled = false;
     }

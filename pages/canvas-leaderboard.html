@@ -281,10 +281,6 @@ async function loadLeaderboard(password) {
         const url = `${API_URL}?action=getCanvasLeaderboard&password=${encodeURIComponent(password)}`;
         const response = await fetch(url);
         
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.status} ${response.statusText}`);
-        }
-        
         const data = await response.json();
 
         if (data.status === 'success') {
@@ -297,13 +293,7 @@ async function loadLeaderboard(password) {
         }
     } catch (error) {
         console.error('Leaderboard error:', error);
-        if (!navigator.onLine) {
-            showError('You are offline. Please check your connection.');
-        } else if (error.message && error.message.includes('Server error')) {
-            showError('Server error. Please try again later.');
-        } else {
-            showError('Network error. Please try again.');
-        }
+        showError('Network error. Please try again.');
         return false;
     }
 }

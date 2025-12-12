@@ -61,11 +61,12 @@ The system initializes with these defaults (customize in Canvas Settings sheet):
 
 | Setting | Default Value | Description |
 |---------|---------------|-------------|
-| `canvasWidth` | 100 | Grid width in pixels |
-| `canvasHeight` | 100 | Grid height in pixels |
+| `canvasWidth` | 100 | Grid width in pixels (max 50, recommended ≤30) |
+| `canvasHeight` | 100 | Grid height in pixels (max 50, recommended ≤30) |
 | `pixelSize` | 8 | Visual size of each pixel (CSS pixels) |
 | `cooldownMinutes` | 60 | Minutes between placements (1 hour) |
 | `pointCostPerPixel` | 1 | House points required per pixel |
+| `winnerPoints` | 0 | Points awarded to winning house (0 = no award) |
 | `campaignStartDate` | Now | When canvas becomes active |
 | `campaignEndDate` | Now + 7 days | When canvas closes |
 | `canvasActive` | TRUE | Master on/off switch |
@@ -78,6 +79,25 @@ The system initializes with these defaults (customize in Canvas Settings sheet):
 | `adminPassword` | admin2025 | Password for admin panel |
 
 ⚠️ **IMPORTANT**: Change the default passwords immediately!
+
+### Canvas Size Recommendations
+
+- **20x20 or smaller**: Excellent performance, works perfectly
+- **25x25 to 30x30**: Good performance, recommended maximum
+- **31x31 to 50x50**: May experience slower load times, use with caution
+- **Above 50x50**: Not supported due to performance constraints
+
+### Manual Sheet Editing
+
+You can directly edit the Canvas Settings sheet to change configuration:
+
+1. Open your Google Sheet
+2. Go to the "Canvas Settings" tab
+3. Find the setting you want to change (column A)
+4. Edit the value (column B)
+5. The system will automatically pick up changes on next page load
+
+**Note**: When changing `canvasWidth` or `canvasHeight`, the system will automatically regenerate the `mondrianLayout` to match the new dimensions. This happens on the next API call that loads settings.
 
 ### Step 3: Deploy as Web App
 
@@ -474,6 +494,24 @@ Navigate to `canvas-admin.html`
 2. Refresh student status
 3. Student may be staff (black pixels)
 
+### Canvas Size Errors
+
+**Problem**: Getting errors when trying to set canvas larger than 25x25
+
+**Cause**: The mondrianLayout generation can be slow for larger grids, causing timeouts or memory issues.
+
+**Solutions**:
+1. **Best option**: Keep canvas at 30x30 or smaller for reliable performance
+2. Manually edit Canvas Settings sheet:
+   - Set `canvasWidth` to desired value (max 50)
+   - Set `canvasHeight` to desired value (max 50)
+   - Delete the `mondrianLayout` row (system will regenerate it)
+   - Wait 10-15 seconds after saving, then refresh the canvas page
+3. If regeneration fails, manually set smaller dimensions (20x20 or 25x25)
+4. Consider using a simple square grid pattern instead of artistic blocks
+
+**Note**: Grid sizes above 30x30 may cause slower load times and higher server processing. 25x25 (625 blocks) is a good balance between size and performance.
+
 ### Admin Password Not Working
 
 **Problem**: Admin panel rejects password
@@ -601,7 +639,20 @@ A: Yes, they place black pixels (if they have points).
 A: Server processes requests sequentially. First request wins.
 
 **Q: Can I make the canvas bigger?**
-A: Yes, adjust `canvasWidth` and `canvasHeight` in Canvas Settings. Note: larger canvas needs more server processing.
+A: Yes, adjust `canvasWidth` and `canvasHeight` in Canvas Settings. Recommended maximum is 30x30. Above that, you may experience performance issues. The system automatically regenerates the grid layout when you change dimensions.
+
+**Q: What is mondrianLayout and can I disable it?**
+A: `mondrianLayout` creates the artistic block-based grid layout. The system automatically generates and updates it when canvas dimensions change. It's integral to how the canvas works - each "block" corresponds to a grid position that students claim. If you're having issues with larger grids (25x25+), try reducing the canvas size to 20x20 or 25x25.
+
+**Q: How do I manually change canvas size?**
+A: 
+1. Open the Canvas Settings sheet in Google Sheets
+2. Change the `canvasWidth` and `canvasHeight` values
+3. The system will auto-regenerate the layout on next load
+4. Alternatively, use the "Start New Campaign" button in the admin panel
+
+**Q: What happens to the winning house?**
+A: At campaign end, the house with the most territory wins. You can award house points to the winner by setting `winnerPoints` in Canvas Settings or the admin panel (e.g., 100 points). Set to 0 for no point award.
 
 ---
 

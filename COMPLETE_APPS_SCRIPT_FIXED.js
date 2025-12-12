@@ -5,6 +5,10 @@
 // REPLACE THIS WITH YOUR ACTUAL GOOGLE SHEET ID
 const SHEET_ID = 'YOUR_SHEET_ID_HERE';
 
+// Canvas size limits
+const MAX_CANVAS_SIZE = 50;
+const RECOMMENDED_CANVAS_SIZE = 30;
+
 // ============================================================================
 // MAIN HANDLERS
 // ============================================================================
@@ -2195,10 +2199,10 @@ function startNewCampaign(data) {
   }
   
   // Validate ranges with security caps
-  if (canvasWidth > 200 || canvasHeight > 200) {
+  if (canvasWidth > MAX_CANVAS_SIZE || canvasHeight > MAX_CANVAS_SIZE) {
     return {
       status: 'error',
-      message: 'Canvas dimensions cannot exceed 200x200. Please use smaller values to avoid performance issues.'
+      message: `Canvas dimensions cannot exceed ${MAX_CANVAS_SIZE}x${MAX_CANVAS_SIZE}. Please use ${RECOMMENDED_CANVAS_SIZE}x${RECOMMENDED_CANVAS_SIZE} or smaller for best performance.`
     };
   }
   

@@ -411,9 +411,6 @@
                     })
                 });
 
-                // Note: no-cors mode doesn't allow reading response, so we can't check response.ok
-                // Assume success if no exception is thrown
-
                 document.getElementById('successMessage').classList.add('show');
                 setTimeout(() => {
                     document.getElementById('successMessage').classList.remove('show');
@@ -427,14 +424,10 @@
 
             } catch (error) {
                 console.error('Error:', error);
-                if (!navigator.onLine) {
-                    alert('You are offline. Please check your connection.');
-                } else {
-                    document.getElementById('errorMessage').classList.add('show');
-                    setTimeout(() => {
-                        document.getElementById('errorMessage').classList.remove('show');
-                    }, 3000);
-                }
+                document.getElementById('errorMessage').classList.add('show');
+                setTimeout(() => {
+                    document.getElementById('errorMessage').classList.remove('show');
+                }, 3000);
             }
 
             submitBtn.disabled = false;

@@ -590,10 +590,6 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
                 body: JSON.stringify(payload)
             });
             
-            if (!res.ok) {
-                throw new Error(`Server error: ${res.status} ${res.statusText}`);
-            }
-            
             const data = await res.json();
 
             if (data.status !== "success") {
@@ -608,13 +604,7 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
             currentReason = "";
         } catch (err) {
             console.error(err);
-            if (!navigator.onLine) {
-                setStatus("⚠️ You're offline. Check your connection.", true);
-            } else if (err.message && err.message.includes('Server error')) {
-                setStatus("⚠️ Server error. Please try again later.", true);
-            } else {
-                setStatus("⚠️ Error submitting. Please try again.", true);
-            }
+            setStatus("⚠️ Error submitting. Please try again.", true);
         }
 
         return;
@@ -635,16 +625,10 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
                 timestamp: new Date().toISOString()
             };
 
-            // Each request is independent - catch errors to allow other requests to complete
             return fetch(APPS_SCRIPT_URL, {
                 method: "POST",
                 body: JSON.stringify(payload)
-            }).then(async r => {
-                if (!r.ok) {
-                    throw new Error(`Server error: ${r.status}`);
-                }
-                return r.json();
-            }).catch(() => null); // Return null on error, will be detected below
+            }).then(r => r.json()).catch(() => null);
         });
 
         const results = await Promise.all(requests);
@@ -670,11 +654,7 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
 
     } catch (err) {
         console.error(err);
-        if (!navigator.onLine) {
-            setStatus("⚠️ You're offline. Check your connection.", true);
-        } else {
-            setStatus("⚠️ Network error. Please try again.", true);
-        }
+        setStatus("⚠️ Network error. Please try again.", true);
     }
 });
 
