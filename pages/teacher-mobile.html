@@ -573,13 +573,12 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
         if (!currentHouse) return setStatus("Please select a house.", true);
 
         const payload = {
-            action: "points",
+            action: "logPoints",
             teacher: teacher,
             student: "",
             house: currentHouse,
             category: currentReason,
-            points: 1,
-            timestamp: new Date().toISOString()
+            points: 1
         };
 
         setStatus("Submitting…");
@@ -616,13 +615,12 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
     try {
         const requests = selectedStudents.map(student => {
             const payload = {
-                action: "points",
+                action: "logPoints",
                 teacher: teacher,
                 house: student.house,
                 category: currentReason,
                 points: 1,
-                student: student.name,
-                timestamp: new Date().toISOString()
+                student: student.name
             };
 
             return fetch(APPS_SCRIPT_URL, {

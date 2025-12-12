@@ -30,6 +30,10 @@ function doGet(e) {
     return jsonResponse(listStudents());
   }
 
+  if (action === 'houseLookup') {
+    return jsonResponse(houseLookup());
+  }
+
   if (action === 'getResetStatus') {
     const status = getResetStatus();
     return jsonResponse(status);
@@ -127,6 +131,11 @@ function doPost(e) {
 
   if (data.action === 'setResetStatus') {
     const result = setResetStatus(data.enabled);
+    return jsonResponse(result);
+  }
+
+  if (data.action === 'sort') {
+    const result = sortStudent(data);
     return jsonResponse(result);
   }
 
@@ -255,7 +264,78 @@ function listStudents() {
     });
   }
 
-  return { students: students };
+  return { status: 'success', students: students };
+}
+
+function houseLookup() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const sheet = ss.getSheetByName('Student Roster');
+
+  if (!sheet) {
+    return { status: 'error', message: 'Student Roster not found' };
+  }
+
+  const data = sheet.getDataRange().getValues();
+  const students = [];
+
+  for (let i = 1; i < data.length; i++) {
+    const firstName = data[i][0] || '';
+    const lastName = data[i][1] || '';
+    const fullName = (firstName + ' ' + lastName).trim();
+    
+    students.push({
+      fullName: fullName,
+      email: data[i][2],
+      house: data[i][3]
+    });
+  }
+
+  return { status: 'success', students: students };
+}
+
+function sortStudent(data) {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const rosterSheet = ss.getSheetByName('Student Roster');
+  
+  if (!rosterSheet) {
+    return { status: 'error', message: 'Student Roster not found' };
+  }
+
+  // Extract email parts to get first and last name
+  const email = data.email || '';
+  const emailParts = email.split('@')[0].split('.');
+  const firstName = emailParts[0] || '';
+  const lastName = emailParts[1] || '';
+  
+  // Check if student already exists
+  const existingData = rosterSheet.getDataRange().getValues();
+  for (let i = 1; i < existingData.length; i++) {
+    if (existingData[i][2] === email) {
+      // Student already sorted
+      return { status: 'success', message: 'Student already sorted', alreadySorted: true };
+    }
+  }
+  
+  // Add new student to roster
+  rosterSheet.appendRow([
+    firstName.charAt(0).toUpperCase() + firstName.slice(1),
+    lastName.charAt(0).toUpperCase() + lastName.slice(1),
+    email,
+    data.house
+  ]);
+
+  // Send email notification (optional - can be expanded)
+  try {
+    const emailSubject = 'Welcome to House ' + data.house + '!';
+    const emailBody = 'Congratulations! You have been sorted into House ' + data.house + 
+                      ' at IESV. Check the house points leaderboard to see how your house is doing!';
+    MailApp.sendEmail(email, emailSubject, emailBody);
+  } catch (e) {
+    // Email sending failed but sorting succeeded
+    Logger.log('Email sending failed: ' + e);
+  }
+
+  return { status: 'success', message: 'Student sorted successfully' };
 }
 
 function logPoints(data) {
