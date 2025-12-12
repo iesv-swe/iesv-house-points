@@ -713,6 +713,40 @@ body {
         <div id="emailStatus" class="status-message hidden"></div>
     </div>
 
+    <!-- VERIFICATION CODE SCREEN -->
+    <div id="verificationScreen" class="email-screen hidden">
+        <h2 style="text-align: center; margin-bottom: 20px; color: #00c3ff;">📧 Email Verification</h2>
+        <p style="margin-bottom: 15px; opacity: 0.9; text-align: center;">
+            A verification code has been sent to:<br>
+            <strong id="verificationEmail" style="color: #00c3ff;"></strong>
+        </p>
+        <p style="margin-bottom: 15px; opacity: 0.9; text-align: center; font-size: 14px;">
+            Enter the 2-digit code from your email:
+        </p>
+        <input
+            type="text"
+            id="codeInput"
+            placeholder="Enter code (e.g., 42)"
+            autocomplete="off"
+            maxlength="2"
+            style="text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 3px;"
+        >
+        <button id="verifyBtn" class="btn-primary">Verify Code</button>
+        
+        <div style="margin-top: 15px; text-align: center;">
+            <button id="resendBtn" class="btn-primary" style="background: linear-gradient(135deg, #666, #444); font-size: 14px;">
+                Resend Code
+            </button>
+            <p id="resendTimer" style="font-size: 12px; margin-top: 8px; opacity: 0.7;"></p>
+        </div>
+
+        <div id="verificationStatus" class="status-message hidden"></div>
+        
+        <p style="margin-top: 20px; font-size: 12px; opacity: 0.6; text-align: center;">
+            Code expires in <span id="expirationTimer" style="color: #ff8c00; font-weight: bold;">5:00</span>
+        </p>
+    </div>
+
     <!-- MAIN CANVAS SCREEN -->
     <div id="canvasScreen" class="hidden">
         <div class="canvas-container">
@@ -846,6 +880,9 @@ let sessionId = generateSessionId();
 let countdownInterval = null;
 let mondrianLayout = null; // Will store layout from backend
 let blockToGridMap = {}; // Maps block ID to grid (row, col)
+let expirationTimerInterval = null;
+let resendCooldown = 0;
+let resendCooldownInterval = null;
 
 function generateSessionId() {
     return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -863,7 +900,7 @@ function hideStatus(elementId) {
     document.getElementById(elementId).classList.add('hidden');
 }
 
-// Enter canvas button
+// Enter canvas button - Request verification code
 document.getElementById('startBtn').addEventListener('click', async () => {
     const email = document.getElementById('emailInput').value.trim().toLowerCase();
 
@@ -872,23 +909,195 @@ document.getElementById('startBtn').addEventListener('click', async () => {
         return;
     }
 
+    if (!email.endsWith('@engelska.se')) {
+        showStatus('emailStatus', 'Only @engelska.se email addresses can access Canvas', 'error');
+        return;
+    }
+
     studentEmail = email;
-    showStatus('emailStatus', 'Loading canvas...', 'info');
+    showStatus('emailStatus', 'Sending verification code...', 'info');
     document.getElementById('startBtn').disabled = true;
 
-    // Load student status and canvas
-    const success = await loadStudentStatus();
+    // Request verification code
+    const success = await requestVerificationCode();
 
     if (success) {
+        // Show verification screen
         document.getElementById('emailScreen').classList.add('hidden');
-        document.getElementById('canvasScreen').classList.remove('hidden');
-        loadCanvas();
-        loadRecentActivity();
-        checkWinnerStatus();
-        loadPreviousWinners();
-        startCooldownCheck();
+        document.getElementById('verificationScreen').classList.remove('hidden');
+        document.getElementById('verificationEmail').textContent = studentEmail;
+        startExpirationTimer(300); // 5 minutes
+        document.getElementById('codeInput').focus();
     } else {
         document.getElementById('startBtn').disabled = false;
+    }
+});
+
+// Request verification code
+async function requestVerificationCode() {
+    try {
+        const url = `${API_URL}?action=requestCanvasVerification&email=${encodeURIComponent(studentEmail)}`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            showStatus('emailStatus', data.message, 'success');
+            startResendCooldown(60); // 1 minute cooldown
+            return true;
+        } else {
+            showStatus('emailStatus', data.message || 'Failed to send verification code', 'error');
+            return false;
+        }
+    } catch (error) {
+        console.error('Verification request error:', error);
+        showStatus('emailStatus', 'Network error. Please check your connection.', 'error');
+        return false;
+    }
+}
+
+// Verify code button
+document.getElementById('verifyBtn').addEventListener('click', async () => {
+    const code = document.getElementById('codeInput').value.trim();
+
+    // Validate code is 2 digits and in range 10-99
+    if (!code || code.length !== 2 || isNaN(code) || parseInt(code) < 10 || parseInt(code) > 99) {
+        showStatus('verificationStatus', 'Please enter a valid 2-digit code (10-99)', 'error');
+        return;
+    }
+
+    hideStatus('verificationStatus');
+    document.getElementById('verifyBtn').disabled = true;
+    document.getElementById('verifyBtn').textContent = 'Verifying...';
+
+    const success = await verifyCode(code);
+
+    if (success) {
+        // Stop expiration timer
+        if (expirationTimerInterval) {
+            clearInterval(expirationTimerInterval);
+        }
+        
+        // Load canvas
+        showStatus('verificationStatus', 'Verified! Loading canvas...', 'success');
+        
+        setTimeout(async () => {
+            const loadSuccess = await loadStudentStatus();
+            
+            if (loadSuccess) {
+                document.getElementById('verificationScreen').classList.add('hidden');
+                document.getElementById('canvasScreen').classList.remove('hidden');
+                loadCanvas();
+                loadRecentActivity();
+                checkWinnerStatus();
+                loadPreviousWinners();
+                startCooldownCheck();
+            }
+        }, 1000);
+    } else {
+        document.getElementById('verifyBtn').disabled = false;
+        document.getElementById('verifyBtn').textContent = 'Verify Code';
+    }
+});
+
+// Verify code function
+async function verifyCode(code) {
+    try {
+        const url = `${API_URL}?action=verifyCanvasCode&email=${encodeURIComponent(studentEmail)}&code=${encodeURIComponent(code)}`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.status === 'success' && data.verified) {
+            return true;
+        } else {
+            showStatus('verificationStatus', data.message || 'Invalid code', 'error');
+            return false;
+        }
+    } catch (error) {
+        console.error('Verification error:', error);
+        showStatus('verificationStatus', 'Network error. Please try again.', 'error');
+        return false;
+    }
+}
+
+// Resend code button
+document.getElementById('resendBtn').addEventListener('click', async () => {
+    if (resendCooldown > 0) {
+        showStatus('verificationStatus', `Please wait ${resendCooldown} seconds before requesting a new code.`, 'info');
+        return;
+    }
+
+    document.getElementById('resendBtn').disabled = true;
+    document.getElementById('resendBtn').textContent = 'Sending...';
+    
+    const success = await requestVerificationCode();
+    
+    if (success) {
+        showStatus('verificationStatus', 'New verification code sent!', 'success');
+        startExpirationTimer(300); // Reset to 5 minutes
+        document.getElementById('codeInput').value = '';
+        document.getElementById('codeInput').focus();
+    }
+    
+    document.getElementById('resendBtn').disabled = false;
+    document.getElementById('resendBtn').textContent = 'Resend Code';
+});
+
+// Start expiration timer (countdown from expiresIn seconds)
+function startExpirationTimer(expiresIn) {
+    if (expirationTimerInterval) {
+        clearInterval(expirationTimerInterval);
+    }
+    
+    let timeRemaining = expiresIn;
+    
+    function updateTimer() {
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+        document.getElementById('expirationTimer').textContent = 
+            `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        
+        if (timeRemaining <= 0) {
+            clearInterval(expirationTimerInterval);
+            showStatus('verificationStatus', 'Code expired. Please request a new code.', 'error');
+            document.getElementById('verifyBtn').disabled = true;
+        }
+        
+        timeRemaining--;
+    }
+    
+    updateTimer();
+    expirationTimerInterval = setInterval(updateTimer, 1000);
+}
+
+// Start resend cooldown timer
+function startResendCooldown(seconds) {
+    resendCooldown = seconds;
+    
+    if (resendCooldownInterval) {
+        clearInterval(resendCooldownInterval);
+    }
+    
+    function updateCooldown() {
+        if (resendCooldown > 0) {
+            document.getElementById('resendTimer').textContent = 
+                `You can request a new code in ${resendCooldown} seconds`;
+            document.getElementById('resendBtn').disabled = true;
+            resendCooldown--;
+        } else {
+            document.getElementById('resendTimer').textContent = '';
+            document.getElementById('resendBtn').disabled = false;
+            clearInterval(resendCooldownInterval);
+        }
+    }
+    
+    updateCooldown();
+    resendCooldownInterval = setInterval(updateCooldown, 1000);
+}
+
+// Enter key support for code input
+document.getElementById('codeInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        document.getElementById('verifyBtn').click();
     }
 });
 

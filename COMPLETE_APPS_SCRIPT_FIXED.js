@@ -10,6 +10,14 @@ const HOUSE_SWAP_AUDIT_EMAIL = 'house.points.vasteras@engelska.se';
 const MAX_CANVAS_SIZE = 50;
 const RECOMMENDED_CANVAS_SIZE = 30;
 
+// Canvas Verification Settings
+const MIN_VERIFICATION_CODE = 10;
+const MAX_VERIFICATION_CODE = 99;
+const VERIFICATION_COOLDOWN_SECONDS = 60;
+const VERIFICATION_EXPIRY_MINUTES = 5;
+const VERIFICATION_VALIDITY_HOURS = 24;
+const MAX_VERIFICATION_ATTEMPTS = 3;
+
 // ============================================================================
 // MAIN HANDLERS
 // ============================================================================
@@ -115,6 +123,20 @@ function doGet(e) {
 
   if (action === 'getPreviousWinners') {
     const result = getPreviousWinners();
+    return jsonResponse(result);
+  }
+
+  // Canvas Verification Actions
+  if (action === 'requestCanvasVerification') {
+    const email = e.parameter.email;
+    const result = requestCanvasVerification(email);
+    return jsonResponse(result);
+  }
+
+  if (action === 'verifyCanvasCode') {
+    const email = e.parameter.email;
+    const code = e.parameter.code;
+    const result = verifyCanvasCode(email, code);
     return jsonResponse(result);
   }
 
@@ -1470,6 +1492,15 @@ function placePixel(data) {
   const col = data.col;
   const sessionId = data.sessionId || 'none';
 
+  // SECURITY: Check if email has been verified
+  if (!isCanvasVerified(email)) {
+    return {
+      status: 'error',
+      message: 'Email verification required. Please verify your email to access Canvas.',
+      requiresVerification: true
+    };
+  }
+
   const ss = SpreadsheetApp.openById(SHEET_ID);
   const settings = getCanvasSettings();
   const canvasState = ss.getSheetByName('Canvas State');
@@ -2473,6 +2504,291 @@ function startNewCampaignFromSettings(options) {
       preservedHistory: preserveHistory
     }
   };
+}
+
+// ============================================================================
+// CANVAS VERIFICATION SYSTEM
+// ============================================================================
+
+/**
+ * Initialize Canvas Verification sheet (run once during setup)
+ */
+function initializeCanvasVerification() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  let verificationSheet = ss.getSheetByName('Canvas Verification');
+  
+  if (!verificationSheet) {
+    verificationSheet = ss.insertSheet('Canvas Verification');
+    verificationSheet.appendRow(['Email', 'Code', 'Timestamp', 'ExpiresAt', 'Verified', 'Attempts']);
+    verificationSheet.getRange('A1:F1').setFontWeight('bold').setBackground('#4a86e8');
+    Logger.log('✅ Canvas Verification sheet created');
+  }
+  
+  return { status: 'success', message: 'Canvas Verification sheet initialized' };
+}
+
+/**
+ * Request verification code for Canvas access
+ * Generates a 2-digit code and sends it via email
+ */
+function requestCanvasVerification(email) {
+  try {
+    // Validate email format
+    if (!email || !email.includes('@')) {
+      return {
+        status: 'error',
+        message: 'Please provide a valid email address.'
+      };
+    }
+
+    const emailLower = email.toLowerCase().trim();
+    
+    // Validate email domain (must be @engelska.se)
+    if (!emailLower.endsWith('@engelska.se')) {
+      return {
+        status: 'error',
+        message: 'Only @engelska.se email addresses can access Canvas.'
+      };
+    }
+
+    const ss = SpreadsheetApp.openById(SHEET_ID);
+    let verificationSheet = ss.getSheetByName('Canvas Verification');
+    
+    // Initialize sheet if it doesn't exist
+    if (!verificationSheet) {
+      initializeCanvasVerification();
+      verificationSheet = ss.getSheetByName('Canvas Verification');
+    }
+
+    // Check for recent code request (cooldown period)
+    const now = new Date();
+    const data = verificationSheet.getLastRow() > 1 
+      ? verificationSheet.getRange(2, 1, verificationSheet.getLastRow() - 1, 6).getValues() 
+      : [];
+    
+    for (let i = data.length - 1; i >= 0; i--) {
+      if (data[i][0].toLowerCase().trim() === emailLower) {
+        const timestamp = new Date(data[i][2]);
+        const timeSinceRequest = (now - timestamp) / 1000; // seconds
+        
+        if (timeSinceRequest < VERIFICATION_COOLDOWN_SECONDS) {
+          return {
+            status: 'error',
+            message: `Please wait ${Math.ceil(VERIFICATION_COOLDOWN_SECONDS - timeSinceRequest)} seconds before requesting a new code.`
+          };
+        }
+        break; // Only check the most recent entry
+      }
+    }
+
+    // Generate random verification code
+    const codeRange = MAX_VERIFICATION_CODE - MIN_VERIFICATION_CODE + 1;
+    const verificationCode = Math.floor(Math.random() * codeRange) + MIN_VERIFICATION_CODE;
+    
+    // Set expiration time
+    const expiresAt = new Date(now.getTime() + VERIFICATION_EXPIRY_MINUTES * 60 * 1000);
+
+    // Store verification code
+    verificationSheet.appendRow([
+      emailLower,
+      verificationCode,
+      now,
+      expiresAt,
+      false, // Not verified yet
+      0      // Attempts counter
+    ]);
+
+    // Send verification email
+    try {
+      const subject = 'Canvas Game Verification Code';
+      const body = `Hello,
+
+Your Canvas Game verification code is: ${verificationCode}
+
+This code will expire in 5 minutes.
+
+If you did not request this code, please ignore this email.
+
+Best regards,
+IESV House Points System`;
+
+      MailApp.sendEmail({
+        to: emailLower,
+        subject: subject,
+        body: body,
+        name: 'IESV House Points'
+      });
+
+      Logger.log(`✅ Verification code ${verificationCode} sent to ${emailLower}`);
+      
+      return {
+        status: 'success',
+        message: 'Verification code sent! Check your email.',
+        expiresIn: VERIFICATION_EXPIRY_MINUTES * 60 // Convert minutes to seconds
+      };
+      
+    } catch (emailError) {
+      Logger.log(`❌ Email sending failed for ${emailLower}: ${emailError}`);
+      return {
+        status: 'error',
+        message: 'Failed to send verification email. Please try again or contact an administrator.'
+      };
+    }
+    
+  } catch (error) {
+    Logger.log(`❌ Verification request error: ${error}`);
+    return {
+      status: 'error',
+      message: 'An error occurred. Please try again.'
+    };
+  }
+}
+
+/**
+ * Verify the code entered by the user
+ */
+function verifyCanvasCode(email, code) {
+  try {
+    if (!email || !code) {
+      return {
+        status: 'error',
+        message: 'Email and verification code are required.'
+      };
+    }
+
+    const emailLower = email.toLowerCase().trim();
+    const codeStr = code.toString().trim();
+
+    const ss = SpreadsheetApp.openById(SHEET_ID);
+    const verificationSheet = ss.getSheetByName('Canvas Verification');
+    
+    if (!verificationSheet || verificationSheet.getLastRow() <= 1) {
+      return {
+        status: 'error',
+        message: 'No verification code found. Please request a new code.'
+      };
+    }
+
+    const data = verificationSheet.getRange(2, 1, verificationSheet.getLastRow() - 1, 6).getValues();
+    const now = new Date();
+
+    // Find the most recent verification request for this email
+    let foundRow = -1;
+    for (let i = data.length - 1; i >= 0; i--) {
+      if (data[i][0].toLowerCase().trim() === emailLower) {
+        foundRow = i + 2; // +2 because array is 0-indexed and sheet starts at row 2
+        break;
+      }
+    }
+
+    if (foundRow === -1) {
+      return {
+        status: 'error',
+        message: 'No verification code found for this email. Please request a new code.'
+      };
+    }
+
+    const rowData = data[foundRow - 2]; // Convert back to array index
+    const storedCode = rowData[1].toString();
+    const expiresAt = new Date(rowData[3]);
+    const verified = rowData[4];
+    const attempts = rowData[5] || 0;
+
+    // Check if already verified
+    if (verified) {
+      return {
+        status: 'success',
+        message: 'Email already verified! You can now access the Canvas.',
+        verified: true
+      };
+    }
+
+    // Check if expired
+    if (now > expiresAt) {
+      return {
+        status: 'error',
+        message: 'Verification code has expired. Please request a new code.'
+      };
+    }
+
+    // Check max attempts
+    if (attempts >= MAX_VERIFICATION_ATTEMPTS) {
+      return {
+        status: 'error',
+        message: 'Too many failed attempts. Please request a new code.'
+      };
+    }
+
+    // Verify the code
+    if (codeStr === storedCode) {
+      // Mark as verified
+      verificationSheet.getRange(foundRow, 5).setValue(true);
+      Logger.log(`✅ Verification successful for ${emailLower}`);
+      
+      return {
+        status: 'success',
+        message: 'Verification successful! Loading Canvas...',
+        verified: true
+      };
+    } else {
+      // Increment attempt counter
+      verificationSheet.getRange(foundRow, 6).setValue(attempts + 1);
+      const remainingAttempts = MAX_VERIFICATION_ATTEMPTS - 1 - attempts;
+      
+      Logger.log(`❌ Invalid code attempt for ${emailLower}. Attempts: ${attempts + 1}/${MAX_VERIFICATION_ATTEMPTS}`);
+      
+      return {
+        status: 'error',
+        message: `Invalid verification code. ${remainingAttempts} attempt(s) remaining.`
+      };
+    }
+    
+  } catch (error) {
+    Logger.log(`❌ Verification error: ${error}`);
+    return {
+      status: 'error',
+      message: 'An error occurred during verification. Please try again.'
+    };
+  }
+}
+
+/**
+ * Check if an email has a valid, verified session
+ * This is called before allowing canvas actions
+ */
+function isCanvasVerified(email) {
+  try {
+    const emailLower = email.toLowerCase().trim();
+    const ss = SpreadsheetApp.openById(SHEET_ID);
+    const verificationSheet = ss.getSheetByName('Canvas Verification');
+    
+    if (!verificationSheet || verificationSheet.getLastRow() <= 1) {
+      return false;
+    }
+
+    const data = verificationSheet.getRange(2, 1, verificationSheet.getLastRow() - 1, 6).getValues();
+    const now = new Date();
+
+    // Check for most recent verified entry within validity period
+    for (let i = data.length - 1; i >= 0; i--) {
+      if (data[i][0].toLowerCase().trim() === emailLower) {
+        const verified = data[i][4];
+        const timestamp = new Date(data[i][2]);
+        const hoursSinceVerification = (now - timestamp) / (1000 * 60 * 60);
+        
+        // Check if verification is still valid
+        if (verified && hoursSinceVerification < VERIFICATION_VALIDITY_HOURS) {
+          return true;
+        }
+        break;
+      }
+    }
+
+    return false;
+  } catch (error) {
+    Logger.log(`❌ Verification check error: ${error}`);
+    return false;
+  }
 }
 
 // ============================================================================
