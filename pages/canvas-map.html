@@ -212,6 +212,10 @@ body::before {
     background: linear-gradient(135deg, #666, #888);
 }
 
+.rank-badge.rank-5 {
+    background: linear-gradient(135deg, #444, #666);
+}
+
 /* Update timer */
 .update-timer {
     position: fixed;
@@ -265,6 +269,7 @@ body::before {
 .winner-banner.Dragon { border-color: #228b22; }
 .winner-banner.Hydra { border-color: #4169e1; }
 .winner-banner.Griffin { border-color: #ff8c00; }
+.winner-banner.Teachers { border-color: #000000; }
 
 @keyframes bannerPulse {
     0%, 100% { box-shadow: 0 0 150px rgba(0, 0, 0, 0.9), inset 0 0 60px rgba(255, 255, 255, 0.05); }
@@ -285,6 +290,7 @@ body::before {
 .winner-banner.Dragon h2 { color: #228b22; }
 .winner-banner.Hydra h2 { color: #4169e1; }
 .winner-banner.Griffin h2 { color: #ff8c00; }
+.winner-banner.Teachers h2 { color: #666666; }
 
 @keyframes winnerGlow {
     0%, 100% { text-shadow: 0 0 40px currentColor; }
@@ -367,6 +373,7 @@ body::before {
 .winner-item.Dragon { border-color: #228b22; }
 .winner-item.Hydra { border-color: #4169e1; }
 .winner-item.Griffin { border-color: #ff8c00; }
+.winner-item.Teachers { border-color: #000000; }
 
 .winner-item .winner-house {
     font-weight: bold;
@@ -677,7 +684,8 @@ function renderStats(stats) {
         { name: 'Phoenix', color: houseColors.Phoenix, ...stats.Phoenix },
         { name: 'Dragon', color: houseColors.Dragon, ...stats.Dragon },
         { name: 'Hydra', color: houseColors.Hydra, ...stats.Hydra },
-        { name: 'Griffin', color: houseColors.Griffin, ...stats.Griffin }
+        { name: 'Griffin', color: houseColors.Griffin, ...stats.Griffin },
+        { name: 'Teachers', color: houseColors.Staff, ...stats.Staff }
     ];
 
     // Sort by percentage (descending)

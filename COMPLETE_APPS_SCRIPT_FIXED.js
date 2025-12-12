@@ -365,7 +365,12 @@ function sortStudent(data) {
     const emailSubject = 'Welcome to House ' + house + '!';
     const emailBody = 'Congratulations! You have been sorted into House ' + house + 
                       ' at IESV. Check the house points leaderboard to see how your house is doing!';
-    MailApp.sendEmail(email, emailSubject, emailBody);
+    MailApp.sendEmail({
+      to: email,
+      subject: emailSubject,
+      body: emailBody,
+      name: 'IESV House Points'
+    });
   } catch (e) {
     // Email sending failed but sorting succeeded
     // Log details for debugging
