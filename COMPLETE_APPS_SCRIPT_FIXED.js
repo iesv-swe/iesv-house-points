@@ -1517,6 +1517,11 @@ function placePixel(data) {
 
   isStaff = email.includes('@engelska.se') && !email.includes('.student.');
 
+  // If staff member, override house to 'Staff' for Canvas War territory control
+  if (isStaff) {
+    house = 'Staff';
+  }
+
   if (!house && !isStaff) {
     return {
       status: 'error',
@@ -1577,7 +1582,7 @@ function placePixel(data) {
       if (stateData[i][2] === '#000000' && !settings.allowBlackOverwrite) {
         return {
           status: 'error',
-          message: 'Staff pixels cannot be overwritten!'
+          message: 'Teacher pixels cannot be overwritten!'
         };
       }
     }
@@ -1588,7 +1593,7 @@ function placePixel(data) {
   for (let i = 0; i < stateData.length; i++) {
     if (stateData[i][0] === row && stateData[i][1] === col) {
       // Update existing pixel
-      canvasState.getRange(i + 2, 3, 1, 5).setValues([[color, email, new Date(), house || 'Staff', studentName]]);
+      canvasState.getRange(i + 2, 3, 1, 5).setValues([[color, email, new Date(), house, studentName]]);
       pixelExists = true;
       break;
     }
@@ -1596,7 +1601,7 @@ function placePixel(data) {
 
   if (!pixelExists) {
     // Add new pixel
-    canvasState.appendRow([row, col, color, email, new Date(), house || 'Staff', studentName]);
+    canvasState.appendRow([row, col, color, email, new Date(), house, studentName]);
   }
 
   // Log the activity
@@ -1604,7 +1609,7 @@ function placePixel(data) {
     new Date(),
     email,
     studentName,
-    house || 'Staff',
+    house,
     row,
     col,
     color,
@@ -1622,7 +1627,7 @@ function placePixel(data) {
       row: row,
       col: col,
       color: color,
-      house: house || 'Staff'
+      house: house
     },
     newBalance: pointBalance - settings.pointCostPerPixel,
     stats: stats
