@@ -281,12 +281,25 @@ function houseLookup() {
   for (let i = 1; i < data.length; i++) {
     const firstName = data[i][0] || '';
     const lastName = data[i][1] || '';
+    const email = data[i][2] || '';
+    const house = data[i][3] || '';
+    
+    // Skip rows with missing essential data
+    if (!email || !house) {
+      continue;
+    }
+    
     const fullName = (firstName + ' ' + lastName).trim();
+    
+    // Skip if no name could be formed
+    if (!fullName) {
+      continue;
+    }
     
     students.push({
       fullName: fullName,
-      email: data[i][2],
-      house: data[i][3]
+      email: email,
+      house: house
     });
   }
 
@@ -301,11 +314,32 @@ function sortStudent(data) {
     return { status: 'error', message: 'Student Roster not found' };
   }
 
-  // Extract email parts to get first and last name
+  // Validate input
   const email = data.email || '';
+  const house = data.house || '';
+  
+  if (!email || !house) {
+    return { status: 'error', message: 'Email and house are required' };
+  }
+  
+  // Validate house is one of the expected values
+  const validHouses = ['Phoenix', 'Dragon', 'Hydra', 'Griffin'];
+  if (!validHouses.includes(house)) {
+    return { status: 'error', message: 'Invalid house name' };
+  }
+
+  // Validate and extract email parts
+  if (!email.includes('@') || !email.split('@')[0].includes('.')) {
+    return { status: 'error', message: 'Invalid email format' };
+  }
+  
   const emailParts = email.split('@')[0].split('.');
   const firstName = emailParts[0] || '';
   const lastName = emailParts[1] || '';
+  
+  if (!firstName || !lastName) {
+    return { status: 'error', message: 'Could not extract name from email' };
+  }
   
   // Check if student already exists
   const existingData = rosterSheet.getDataRange().getValues();
@@ -321,13 +355,13 @@ function sortStudent(data) {
     firstName.charAt(0).toUpperCase() + firstName.slice(1),
     lastName.charAt(0).toUpperCase() + lastName.slice(1),
     email,
-    data.house
+    house
   ]);
 
   // Send email notification (optional - can be expanded)
   try {
-    const emailSubject = 'Welcome to House ' + data.house + '!';
-    const emailBody = 'Congratulations! You have been sorted into House ' + data.house + 
+    const emailSubject = 'Welcome to House ' + house + '!';
+    const emailBody = 'Congratulations! You have been sorted into House ' + house + 
                       ' at IESV. Check the house points leaderboard to see how your house is doing!';
     MailApp.sendEmail(email, emailSubject, emailBody);
   } catch (e) {
