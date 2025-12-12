@@ -398,10 +398,9 @@
 
                 const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        action: 'points',
+                        action: 'logPoints',
                         timestamp: timestamp,
                         teacher: `[ADMIN] ${adminName} - ${justification}`,
                         student: 'Bulk Award',

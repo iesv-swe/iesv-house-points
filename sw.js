@@ -1,10 +1,9 @@
-const CACHE_NAME = 'iesv-house-points-v2';
+const CACHE_NAME = 'iesv-house-points-v3';
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
   '/pages/console.html',
-  '/pages/teacher-mobile.html',
   '/pages/teacher-form.html',
   '/pages/leaderboard.html',
   '/pages/quiz.html',

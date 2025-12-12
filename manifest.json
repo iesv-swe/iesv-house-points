@@ -46,7 +46,7 @@
       "name": "Award Points",
       "short_name": "Award",
       "description": "Teacher point entry",
-      "url": "/pages/teacher-mobile.html",
+      "url": "/pages/teacher-form.html",
       "icons": [{ "src": "assets/icons/teacher-favicon.ico", "sizes": "192x192" }]
     }
   ]

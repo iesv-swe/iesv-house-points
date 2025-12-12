@@ -797,7 +797,7 @@ body {
                         </div>
 
                         <div class="stat-bar">
-                            <div class="stat-house" style="color: #000;">Staff</div>
+                            <div class="stat-house" style="color: #000;">Teacher</div>
                             <div class="stat-progress">
                                 <div class="stat-fill" id="staffBar" style="background: #000; width: 0%;">0%</div>
                             </div>
@@ -903,7 +903,7 @@ async function loadStudentStatus() {
             studentStatus = data;
 
             document.getElementById('studentName').textContent = data.name || 'Unknown';
-            document.getElementById('studentHouse').textContent = data.isStaff ? 'Staff' : data.house;
+            document.getElementById('studentHouse').textContent = data.isStaff ? 'Teacher' : data.house;
             document.getElementById('studentColor').style.background = data.color;
             document.getElementById('studentPoints').textContent = data.pointBalance;
 
@@ -1100,7 +1100,7 @@ async function handlePixelClick(row, col) {
     // Store original color for reverting if user cancels
     const originalColor = blockElement.style.background;
     const studentColor = studentStatus.color;
-    const studentHouse = studentStatus.isStaff ? 'Staff' : studentStatus.house;
+    const studentHouse = studentStatus.isStaff ? 'Teacher' : studentStatus.house;
 
     // INSTANT PREVIEW: Show the color immediately
     blockElement.style.background = studentColor;
@@ -1244,9 +1244,12 @@ async function loadRecentActivity() {
 
                 const time = new Date(item.timestamp);
                 const timeAgo = getTimeAgo(time);
+                
+                // Display "Teacher" instead of "Staff" in activity feed
+                const displayHouse = item.house === 'Staff' ? 'Teacher' : item.house;
 
                 div.innerHTML = `
-                    <div><strong>${item.house}</strong> placed a pixel at (${item.row}, ${item.col})</div>
+                    <div><strong>${displayHouse}</strong> placed a pixel at (${item.row}, ${item.col})</div>
                     <div class="time">${timeAgo}</div>
                 `;
 
