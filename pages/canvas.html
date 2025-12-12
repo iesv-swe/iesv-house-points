@@ -729,7 +729,7 @@ body {
             placeholder="Enter code (e.g., 42)"
             autocomplete="off"
             maxlength="2"
-            style="text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 10px;"
+            style="text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 3px;"
         >
         <button id="verifyBtn" class="btn-primary">Verify Code</button>
         
@@ -959,8 +959,9 @@ async function requestVerificationCode() {
 document.getElementById('verifyBtn').addEventListener('click', async () => {
     const code = document.getElementById('codeInput').value.trim();
 
-    if (!code || code.length !== 2 || isNaN(code)) {
-        showStatus('verificationStatus', 'Please enter a valid 2-digit code', 'error');
+    // Validate code is 2 digits and in range 10-99
+    if (!code || code.length !== 2 || isNaN(code) || parseInt(code) < 10 || parseInt(code) > 99) {
+        showStatus('verificationStatus', 'Please enter a valid 2-digit code (10-99)', 'error');
         return;
     }
 

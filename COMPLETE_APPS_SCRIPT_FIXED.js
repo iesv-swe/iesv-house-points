@@ -10,6 +10,14 @@ const HOUSE_SWAP_AUDIT_EMAIL = 'house.points.vasteras@engelska.se';
 const MAX_CANVAS_SIZE = 50;
 const RECOMMENDED_CANVAS_SIZE = 30;
 
+// Canvas Verification Settings
+const MIN_VERIFICATION_CODE = 10;
+const MAX_VERIFICATION_CODE = 99;
+const VERIFICATION_COOLDOWN_SECONDS = 60;
+const VERIFICATION_EXPIRY_MINUTES = 5;
+const VERIFICATION_VALIDITY_HOURS = 24;
+const MAX_VERIFICATION_ATTEMPTS = 3;
+
 // ============================================================================
 // MAIN HANDLERS
 // ============================================================================
@@ -2552,7 +2560,7 @@ function requestCanvasVerification(email) {
       verificationSheet = ss.getSheetByName('Canvas Verification');
     }
 
-    // Check for recent code request (1 minute cooldown)
+    // Check for recent code request (cooldown period)
     const now = new Date();
     const data = verificationSheet.getLastRow() > 1 
       ? verificationSheet.getRange(2, 1, verificationSheet.getLastRow() - 1, 6).getValues() 
@@ -2563,21 +2571,22 @@ function requestCanvasVerification(email) {
         const timestamp = new Date(data[i][2]);
         const timeSinceRequest = (now - timestamp) / 1000; // seconds
         
-        if (timeSinceRequest < 60) {
+        if (timeSinceRequest < VERIFICATION_COOLDOWN_SECONDS) {
           return {
             status: 'error',
-            message: `Please wait ${Math.ceil(60 - timeSinceRequest)} seconds before requesting a new code.`
+            message: `Please wait ${Math.ceil(VERIFICATION_COOLDOWN_SECONDS - timeSinceRequest)} seconds before requesting a new code.`
           };
         }
         break; // Only check the most recent entry
       }
     }
 
-    // Generate random 2-digit verification code (10-99)
-    const verificationCode = Math.floor(Math.random() * 90) + 10;
+    // Generate random verification code
+    const codeRange = MAX_VERIFICATION_CODE - MIN_VERIFICATION_CODE + 1;
+    const verificationCode = Math.floor(Math.random() * codeRange) + MIN_VERIFICATION_CODE;
     
-    // Set expiration to 5 minutes from now
-    const expiresAt = new Date(now.getTime() + 5 * 60 * 1000);
+    // Set expiration time
+    const expiresAt = new Date(now.getTime() + VERIFICATION_EXPIRY_MINUTES * 60 * 1000);
 
     // Store verification code
     verificationSheet.appendRow([
@@ -2615,7 +2624,7 @@ IESV House Points System`;
       return {
         status: 'success',
         message: 'Verification code sent! Check your email.',
-        expiresIn: 300 // 5 minutes in seconds
+        expiresIn: VERIFICATION_EXPIRY_MINUTES * 60 // Convert minutes to seconds
       };
       
     } catch (emailError) {
@@ -2702,8 +2711,8 @@ function verifyCanvasCode(email, code) {
       };
     }
 
-    // Check max attempts (3 tries)
-    if (attempts >= 3) {
+    // Check max attempts
+    if (attempts >= MAX_VERIFICATION_ATTEMPTS) {
       return {
         status: 'error',
         message: 'Too many failed attempts. Please request a new code.'
@@ -2724,9 +2733,9 @@ function verifyCanvasCode(email, code) {
     } else {
       // Increment attempt counter
       verificationSheet.getRange(foundRow, 6).setValue(attempts + 1);
-      const remainingAttempts = 2 - attempts;
+      const remainingAttempts = MAX_VERIFICATION_ATTEMPTS - 1 - attempts;
       
-      Logger.log(`❌ Invalid code attempt for ${emailLower}. Attempts: ${attempts + 1}/3`);
+      Logger.log(`❌ Invalid code attempt for ${emailLower}. Attempts: ${attempts + 1}/${MAX_VERIFICATION_ATTEMPTS}`);
       
       return {
         status: 'error',
@@ -2760,15 +2769,15 @@ function isCanvasVerified(email) {
     const data = verificationSheet.getRange(2, 1, verificationSheet.getLastRow() - 1, 6).getValues();
     const now = new Date();
 
-    // Check for most recent verified entry within last 24 hours
+    // Check for most recent verified entry within validity period
     for (let i = data.length - 1; i >= 0; i--) {
       if (data[i][0].toLowerCase().trim() === emailLower) {
         const verified = data[i][4];
         const timestamp = new Date(data[i][2]);
         const hoursSinceVerification = (now - timestamp) / (1000 * 60 * 60);
         
-        // Verification is valid for 24 hours
-        if (verified && hoursSinceVerification < 24) {
+        // Check if verification is still valid
+        if (verified && hoursSinceVerification < VERIFICATION_VALIDITY_HOURS) {
           return true;
         }
         break;
