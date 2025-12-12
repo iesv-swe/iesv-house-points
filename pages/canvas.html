@@ -1143,10 +1143,6 @@ async function handlePixelClick(row, col) {
             })
         });
 
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.status} ${response.statusText}`);
-        }
-
         const data = await response.json();
 
         if (data.status === 'success') {
@@ -1192,13 +1188,7 @@ async function handlePixelClick(row, col) {
         blockElement.style.boxShadow = '';
         blockElement.style.border = '2px solid rgba(0, 0, 0, 0.7)';
         console.error('Canvas Error:', error);
-        if (!navigator.onLine) {
-            showStatus('canvasStatus', '⚠️ You are offline. Block not claimed. Please check your connection.', 'error');
-        } else if (error.message && error.message.includes('Server error')) {
-            showStatus('canvasStatus', '⚠️ Server error. Block not claimed. Please try again later.', 'error');
-        } else {
-            showStatus('canvasStatus', `⚠️ Network error: ${error.message}. Block not claimed. Please try again.`, 'error');
-        }
+        showStatus('canvasStatus', `⚠️ Network error: ${error.message}. Block not claimed. Please try again.`, 'error');
     }
 }
 

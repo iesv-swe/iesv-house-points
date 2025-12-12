@@ -723,12 +723,8 @@ async function sendSortingData(email, house) {
                 timestamp: new Date().toISOString()
             })
         });
-        // Note: no-cors mode doesn't allow reading response, so we can't verify success
     } catch (error) {
         console.error('Error sending data:', error);
-        if (!navigator.onLine) {
-            console.warn('Offline: sorting data not sent');
-        }
     }
 }
 
