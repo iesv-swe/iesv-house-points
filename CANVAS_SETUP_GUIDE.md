@@ -43,8 +43,10 @@ The Canvas System is a r/Place-style pixel war where students can claim territor
 
 1. Open your Google Sheet (the one with your `SHEET_ID`)
 2. Go to **Extensions > Apps Script**
-3. Find the `initializeCanvasSheets()` function in the code
-4. Click **Run** (you may need to authorize permissions)
+3. Find and run the following functions:
+   - `initializeCanvasSheets()` - Creates canvas sheets
+   - `initializeCanvasVerification()` - Creates verification sheet
+4. Click **Run** for each function (you may need to authorize permissions)
 
 This will create the following sheets:
 
@@ -54,6 +56,7 @@ This will create the following sheets:
 | **Canvas Settings** | Configuration options |
 | **Canvas Activity Log** | Audit trail of all placements |
 | **Canvas History** | Winners from past campaigns |
+| **Canvas Verification** | Email verification codes for anti-cheating |
 
 ### Step 2: Configure Default Settings
 
@@ -127,10 +130,34 @@ Replace `YOUR_WEB_APP_URL_HERE` with the URL from Step 3.
 
 1. **Earn Points**: Students must first earn house points through the main system
 2. **Join Canvas**: Navigate to `canvas.html` and enter their school email
-3. **Check Status**: View their available points, cooldown timer, and house color
-4. **Place Pixel**: Click any empty spot on the grid (costs 1 point)
-5. **Wait Cooldown**: Must wait 60 minutes before placing another pixel
-6. **View Stats**: See live territory percentages and recent activity
+3. **Verify Email**: Enter the 2-digit verification code sent to their email
+4. **Check Status**: View their available points, cooldown timer, and house color
+5. **Place Pixel**: Click any empty spot on the grid (costs 1 point)
+6. **Wait Cooldown**: Must wait 60 minutes before placing another pixel
+7. **View Stats**: See live territory percentages and recent activity
+
+### Email Verification System
+
+**Why Verification?**
+- Prevents students from using other students' emails to cheat
+- Ensures only the email owner can spend their points
+- Simple 2-digit code sent via email
+
+**How It Works**:
+1. Student enters their @engelska.se email address
+2. System generates random 2-digit code (10-99)
+3. Code is sent via email to the student
+4. Student enters code within 5 minutes
+5. Up to 3 attempts allowed per code
+6. Verification valid for 24 hours
+7. New code can be requested after 1 minute cooldown
+
+**Security Features**:
+- Only @engelska.se email addresses allowed
+- Codes expire after 5 minutes
+- Maximum 3 verification attempts per code
+- 1 minute cooldown between code requests
+- Verification logged for audit trail
 
 ### Point System
 
@@ -201,33 +228,41 @@ When the campaign end date is reached:
 
 ### Built-in Protections
 
-1. **Server-Side Validation**
+1. **Email Verification (NEW!)**
+   - 2-digit verification code sent to email
+   - Prevents students from using others' emails
+   - Codes expire after 5 minutes
+   - Maximum 3 attempts per code
+   - 1 minute cooldown between requests
+   - Verification valid for 24 hours
+
+2. **Server-Side Validation**
    - All rules enforced on server
    - Client cannot fake point balances
    - Client cannot bypass cooldown
    - Client cannot fake timestamps
 
-2. **Color Restrictions**
+3. **Color Restrictions**
    - Students can ONLY place their house color
    - Server validates house membership
    - Staff can only place black pixels
 
-3. **Point Verification**
+4. **Point Verification**
    - Server checks Points Log for earned points
    - Server checks Canvas Activity Log for spent points
    - Balance calculated server-side
 
-4. **Cooldown Enforcement**
+5. **Cooldown Enforcement**
    - Timestamps stored server-side
    - Server calculates time since last placement
    - Rejects placements within cooldown window
 
-5. **Activity Logging**
+6. **Activity Logging**
    - Every placement logged with:
      - Timestamp, Email, Name, House, Coordinates, Color, Points Spent, Session ID
    - Full audit trail for investigation
 
-6. **Session Tracking**
+7. **Session Tracking**
    - Unique session ID per student
    - Helps detect multi-tab abuse
    - Logged in activity log
@@ -240,6 +275,7 @@ When the campaign end date is reached:
 ❌ Overwrite existing pixels (unless enabled)
 ❌ Fake point balances
 ❌ Manipulate server-side settings
+❌ Use someone else's email without verification code
 
 ### What Students CAN Do
 
@@ -452,12 +488,46 @@ Navigate to `canvas-admin.html`
 
 ## 🐛 Troubleshooting
 
+### Email Verification Issues
+
+**Problem**: Verification email not received
+
+**Solutions**:
+1. Check spam/junk folder
+2. Verify email address is correct (@engelska.se)
+3. Wait 1-2 minutes for email to arrive
+4. Click "Resend Code" if email doesn't arrive
+5. Check Google Apps Script execution log for errors
+6. Verify MailApp permissions are granted in Apps Script
+
+**Problem**: Verification code expired
+
+**Solutions**:
+1. Click "Resend Code" to get a new code
+2. Enter code within 5 minutes of receiving email
+3. Check email timestamp to ensure code is still valid
+
+**Problem**: "Invalid verification code" error
+
+**Solutions**:
+1. Double-check the code from your email
+2. Ensure you're entering exactly 2 digits (10-99)
+3. Request a new code if you've used all 3 attempts
+4. Check Canvas Verification sheet for active codes
+
+**Problem**: "Please wait X seconds" when requesting code
+
+**Solutions**:
+1. Wait for the 1-minute cooldown to expire
+2. This prevents spam and abuse
+3. Use the "Resend Code" button instead of refreshing the page
+
 ### Canvas Won't Load
 
 **Problem**: Students see loading spinner forever
 
 **Solutions**:
-1. Check that `initializeCanvasSheets()` was run
+1. Check that `initializeCanvasSheets()` and `initializeCanvasVerification()` were run
 2. Verify Web App is deployed
 3. Check API_URL is correct in HTML files
 4. Open browser console (F12) for error messages
