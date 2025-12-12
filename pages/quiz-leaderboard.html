@@ -336,7 +336,7 @@ body {
 
     <div class="tabs">
         <button class="tab-btn active" onclick="showTab('houses')">House Rankings</button>
-        <button class="tab-btn" onclick="showTab('students')">Individual Stats (Staff)</button>
+        <button class="tab-btn" onclick="showTab('students')">Individual Stats (Teacher)</button>
     </div>
 
     <!-- HOUSE RANKINGS TAB -->
@@ -366,13 +366,13 @@ body {
     <div id="studentsTab" class="tab-content">
         <div id="staffAuth" class="card">
             <div class="auth-box">
-                <h2 style="margin-bottom: 15px;">🔒 Staff Verification Required</h2>
-                <p style="opacity: 0.8; margin-bottom: 5px;">Individual quiz statistics are protected. Please verify your staff credentials:</p>
+                <h2 style="margin-bottom: 15px;">🔒 Teacher Verification Required</h2>
+                <p style="opacity: 0.8; margin-bottom: 5px;">Individual quiz statistics are protected. Please verify your teacher credentials:</p>
 
                 <label for="staffPassword">Password</label>
-                <input type="password" id="staffPassword" placeholder="Enter staff password">
+                <input type="password" id="staffPassword" placeholder="Enter teacher password">
 
-                <label for="staffEmail">Staff Email</label>
+                <label for="staffEmail">Teacher Email</label>
                 <input type="email" id="staffEmail" placeholder="firstname.lastname.vasteras@engelska.se">
 
                 <button onclick="verifyStaff()">Verify & View Stats</button>
